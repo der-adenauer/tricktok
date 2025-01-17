@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>TikTok-Link-Sammler – Kontakt</title>
+  <!-- system.css -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+  <!-- Neue Loading-CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='loading.css') }}">
+</head>
+<body>
+
+  <!-- Sticky Kopfbereich mit Menü-Leiste -->
+  <header style="position: sticky; top: 0; z-index: 999; background-color: #e1e1e1;">
+    <div class="menu-bar" style="padding: 4px 8px;">
+      <ul role="menu-bar">
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          Run
+          <ul role="menu">
+            <li role="menu-item"><a href="{{ url_for('index') }}">Desktop</a></li>
+            <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
+            <li role="menu-item"><a href="{{ url_for('contact') }}">Contact</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Lade-Overlay mit schwarzem Balken -->
+  <div id="loading-overlay">
+    <div class="loading-bar-container">
+      <div class="loading-bar-fill" id="loadingBar"></div>
+    </div>
+    <div class="loading-percentage" id="loadingPercent">0&nbsp;%</div>
+  </div>
+
+  <!-- Haupt-Kontakt-Fenster -->
+<!-- Info-Fenster mit Adenauer-Bild & minimalem "Systeminfo"-Text -->
+<div class="window" style="margin: 20px auto; width: 80%; max-width: 800px;">
+  <div class="title-bar" style="justify-content: space-between;">
+    <h1 class="title" style="margin: 0;">Info</h1>
+    <button aria-label="Close" class="close"></button>
+  </div>
+  <div class="window-pane" style="max-height: 800px; overflow-y: auto;">
+    
+    <!-- Überschrift und Bild -->
+    <div style="text-align: center; margin-bottom: 1rem;">
+      <p style="font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem;">
+        ADENAUER-OS
+      </p>
+      <img 
+        src="{{ url_for('static', filename='adenauer_ni.png') }}" 
+        alt="Konrad Adenauer"
+        style="max-width: 50%; height: auto; margin: 0 auto;"
+      >
+    </div>
+
+    <!-- Kleines Info/Neofetch-artiger Textblock, neutral in Standardschrift -->
+    <div style="font-size: 1rem; line-height: 1.4; margin-top: 1rem;">
+      <p>System: democracyLegacyMachine</p>
+      <p>Shell: aden-sh 6.1</p>
+      <p>CPU: i8086 (16 cores) @ 2.44MHz</p>
+      <p>RAM: 4096MB</p>
+    </div>
+
+    <!-- Rück-Link -->
+    <div style="text-align: center; margin-top: 1rem;">
+      <a href="{{ url_for('index') }}" class="btn">Zurück</a>
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    /**********************************************
+     * Loading-Bar JavaScript
+     **********************************************/
+    let progress = 0;
+    const maxProgress = 100;
+    const loadingBar = document.getElementById('loadingBar');
+    const loadingPercent = document.getElementById('loadingPercent');
+    const overlay = document.getElementById('loading-overlay');
+
+    // Simpler Timer: alle 50ms +1%
+    const timer = setInterval(() => {
+      progress++;
+      if (progress > maxProgress) {
+        // Fertig => Overlay ausblenden
+        clearInterval(timer);
+        overlay.classList.add('hidden'); 
+        return;
+      }
+      // Balken füllen
+      loadingBar.style.width = progress + '%';
+      // Text
+      loadingPercent.textContent = progress + ' %';
+    }, 0.01);
+
+    // Optional: Schließen-Button im Kontakt-Fenster (wenn gewünscht).
+    const closeBtn = document.querySelector('.close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        // Einfaches "Fenster schließen", z.B. per History back ...
+        window.history.back();
+      });
+    }
+  </script>
+
+</body>
+</html>

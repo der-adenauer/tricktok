@@ -1,0 +1,38 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>TikTok-Link-Speicher</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>TikTok-Link-Speicher</h1>
+        <form method="POST" action="/">
+            <input type="text" name="eingabe_link" placeholder="TikTok-Link" required>
+            <button type="submit">Speichern</button>
+        </form>
+
+        {% if fehlermeldung %}
+            <p class="error">{{ fehlermeldung }}</p>
+        {% endif %}
+
+        <h2>Gespeicherte Einträge</h2>
+        <ul>
+            {% for kanal, zeitstempel, user_agent in links %}
+                <li>
+                    <b>Kanal:</b> {{ kanal }}
+                    <br>
+                    <b>Zeitstempel:</b> {{ zeitstempel }}
+                    <br>
+                    <b>User-Agent:</b> {{ user_agent }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>TikTok-Link-Sammler</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+</head>
+<body>
+
+  <!-- Sticky Kopfbereich mit Menü-Leiste -->
+  <header style="position: sticky; top: 0; z-index: 999; background-color: #e1e1e1;">
+    <div class="menu-bar" style="padding: 4px 8px;">
+      <ul role="menu-bar">
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          File
+          <ul role="menu">
+            <li role="menu-item"><a href="#" id="openEingabe">Neuer Link</a></li>
+            <li role="menu-item"><a href="#" id="openDatenbank">Datenbank</a></li>
+            <li role="menu-item"><a href="#export">Export</a></li>
+          </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          Edit
+          <ul role="menu">
+            <li role="menu-item"><a href="#menu">Action</a></li>
+            <li role="menu-item"><a href="#menu">Another Action</a></li>
+            <li role="menu-item" class="divider"><a href="#menu">Something else</a></li>
+          </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          View
+          <ul role="menu">
+            <li role="menu-item"><a href="#menu">Action</a></li>
+            <li role="menu-item"><a href="#menu">Another Action</a></li>
+            <li role="menu-item"><a href="#menu">Something else</a></li>
+          </ul>
+        </li>
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          Special
+          <ul role="menu">
+            <li role="menu-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
+            <li role="menu-item"><a href="{{ url_for('contact') }}">Contact</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Container für dynamisch hinzugefügte Fenster -->
+  <div id="modalContainer" style="position: relative;"></div>
+
+  <script>
+    // Vorlagen für die Fensterinhalte mit eindeutigen IDs
+    const eingabeTemplate = `
+      <div id="eingabeModal" class="window modal-window" style="margin: 10px auto; width: 80%; max-width: 800px;">
+        <div class="title-bar" style="justify-content: space-between;">
+          <h1 class="title" style="margin: 0;">Eingabe</h1>
+          <button aria-label="Close" class="close"></button>
+        </div>
+        <div class="window-pane">
+          <p>
+            <span class="tooltip">
+              ?
+              <span class="tooltiptext">
+                Es kann immer nur ein Link gesendet werden. <br>
+                Nur eine Eingabe alle 10 Sekunden.<br>
+                Das Skript erkennt automatisch TikTok-Links.<br>
+                Keine Duplikate.
+              </span>
+            </span>
+          </p>
+          <form method="POST" action="/" style="display: flex; flex-direction: column; gap: 8px;">
+            <textarea name="eingabe_link" rows="2" placeholder="TikTok-Link" required></textarea>
+            <button class="btn">Speichern</button>
+          </form>
+          {% if fehlermeldung %}
+            <p style="color:red;">{{ fehlermeldung }}</p>
+          {% endif %}
+          <p>
+            Gesamtanzahl gespeicherter Einträge: 
+            <strong>{{ total_links }}</strong>
+          </p>
+        </div>
+      </div>
+    `;
+
+    const datenbankTemplate = `
+      <div id="datenbankModal" class="window modal-window" style="margin: 20px auto; width: 80%; max-width: 800px;">
+        <div class="title-bar">
+          <h1 class="title" style="margin: 0;">TikTok-Kanal Datenbank</h1>
+          <button aria-label="Close" class="close"></button>
+        </div>
+        <div class="window-pane">
+          <ul style="list-style-type: none; padding-left: 0;">
+            {% for (kanal, zeitstempel) in links %}
+            <li style="margin-bottom: 8px;">
+              <div>{{ loop.index }}. <strong>Kanal:</strong> {{ kanal }}</div>
+              <div>
+                <a href="https://www.tiktok.com/@{{ kanal }}" target="_blank" class="btn">
+                  LINK
+                </a>
+              </div>
+              <div>Zeitstempel: {{ zeitstempel }}</div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <!-- Pagination -->
+          <div style="margin-top: 10px;">
+            {% if page > 1 %}
+              <a href="?page={{ page - 1 }}&show_datenbank=1" class="btn">« Zurück</a>
+            {% endif %}
+            {% if total_links > page * per_page %}
+              <a href="?page={{ page + 1 }}&show_datenbank=1" class="btn">Weiter »</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalContainer = document.getElementById('modalContainer');
+
+    // Funktion zum Öffnen eines Fensters, wenn noch nicht geöffnet
+    function openWindow(template, modalId) {
+      if (document.getElementById(modalId)) {
+        return;
+      }
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = template;
+      const modalWindow = wrapper.firstElementChild;
+
+      modalWindow.querySelector('.close').addEventListener('click', () => {
+        modalContainer.removeChild(modalWindow);
+      });
+
+      // Fenster am Ende anhängen, statt oben einzufügen
+      modalContainer.append(modalWindow);
+    }
+
+    document.getElementById('openEingabe').addEventListener('click', (e) => {
+      e.preventDefault();
+      openWindow(eingabeTemplate, 'eingabeModal');
+    });
+
+    document.getElementById('openDatenbank').addEventListener('click', (e) => {
+      e.preventDefault();
+      openWindow(datenbankTemplate, 'datenbankModal');
+    });
+
+    // Ereignisdelegation für Pagination-Links innerhalb von .window-pane
+    document.addEventListener('click', function(e) {
+      const target = e.target.closest('a.btn');
+      if (target && target.href && target.href.includes('page=') && target.href.includes('show_datenbank=1')) {
+        e.preventDefault();
+        const currentParams = new URLSearchParams(window.location.search);
+        const targetUrl = new URL(target.href, window.location.origin);
+        const targetParams = new URLSearchParams(targetUrl.search);
+        if (currentParams.get('show_eingabe')) {
+          targetParams.set('show_eingabe', '1');
+        }
+        targetUrl.search = targetParams.toString();
+        window.location.href = targetUrl.toString();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Standardmäßig "Eingabe"-Modal öffnen
+      openWindow(eingabeTemplate, 'eingabeModal');
+
+      const urlParams = new URLSearchParams(window.location.search);
+
+      if (urlParams.get('show_datenbank')) {
+        openWindow(datenbankTemplate, 'datenbankModal');
+      }
+
+      if (urlParams.get('success')) {
+        const eingabeModal = document.getElementById('eingabeModal');
+        if (eingabeModal) {
+          const pane = eingabeModal.querySelector('.window-pane');
+          const message = document.createElement('p');
+          message.className = 'alert-success';
+          message.textContent = 'Erfolgreich gespeichert!';
+          pane.prepend(message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Adenauer OS Desktop </title>
+  <!-- system.css mit deinen Anpassungen -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+
+  <style>
+    /***********************************
+     * Zusätzliche Stile
+     ***********************************/
+   
+   
+   
+   
+   
+   
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Kopfbereich mit Menü-Leiste -->
+  <header style="position: sticky; top: 0; z-index: 999; background-color: #e1e1e1;">
+    <div class="menu-bar" style="padding: 4px 8px;">
+      <ul role="menu-bar">
+        <!-- Spalte 1: File -->
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          File
+          <ul role="menu">
+            <li role="menu-item"><a href="#" id="openWindow1">Neuer Link</a></li>
+            <li role="menu-item"><a href="#" id="openWindow2">Datenbank</a></li>
+			<li role="menu-item" class="divider"><a href="{{ url_for('export_csv') }}" id="exportLink">Export</a>
+</li>
+
+          </ul>
+        </li>
+
+        <!-- Spalte 2: Edit -->
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          Edit
+          <ul role="menu">
+            <li role="menu-item"><a href="#" id="openWindow3">Search</a></li>
+          </ul>
+        </li>
+
+        <!-- Spalte 3: View -->
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          View
+          <ul role="menu">
+            <li role="menu-item"><a href="#" id="openWindow4">Notebook</a></li>
+            <li role="menu-item"><a href="#" id="openWindow5">Logo</a></li>
+          </ul>
+        </li>
+
+        <!-- Spalte 4: Run -->
+        <li role="menu-item" tabindex="0" aria-haspopup="true">
+          Run
+          <ul role="menu">
+            <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
+            <li role="menu-item"><a href="{{ url_for('contact') }}">Contact</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Zwei Icons, die Fenster 6 und 7 öffnen -->
+  <img src="{{ url_for('static', filename='icon6.png') }}" alt="Icon6" class="icon-launcher" id="icon6" style="bottom:20px; left:20px;">
+  <img src="{{ url_for('static', filename='icon7.png') }}" alt="Icon7" class="icon-launcher" id="icon7" style="bottom:20px; right:20px;">
+
+  <!-- Container für alle Fenster -->
+  <div id="modalContainer"></div>
+
+  <script>
+    /***********************************************
+     * Globale Variablen
+     ***********************************************/
+    let zIndexCounter = 100;
+
+    // 7 mögliche Fenster
+    const openedWindows = {
+      window1: false,
+      window2: false,
+      window3: false,
+      window4: false,
+      window5: false,
+      window6: false,
+      window7: false
+    };
+
+    // Positionen und Offenstatus in localStorage
+    let windowState = {};
+
+    /***********************************************
+     * VORLAGEN (Fenster 1-7)
+     ***********************************************/
+    // 1) Neuer Link
+    const template1 = `
+      <div class="window modal-window" data-win="win1">
+        <div class="title-bar" style="justify-content: space-between;">
+          <h1 class="title">Neuer Link</h1>
+          <span class="close">[x]</span>
+        </div>
+        <div class="window-pane">
+          <p>
+            <span class="tooltip">?
+              <span class="tooltiptext">
+                Es kann immer nur ein Link gesendet werden. <br>
+                Nur eine Eingabe alle 10 Sekunden.<br>
+                Das Prrogramm erkennt automatisch TikTok-Links.<br>
+                Duplikate werden übersprungen.
+              </span>
+            </span>
+          </p>
+          <form method="POST" action="/" style="display: flex; flex-direction: column; gap: 8px;">
+            <textarea name="eingabe_link" rows="2" placeholder="TikTok-Link" required></textarea>
+            <button class="btn">Speichern</button>
+          </form>
+          {% if fehlermeldung %}
+            <p style="color:red;">{{ fehlermeldung }}</p>
+          {% endif %}
+          <p>Gesamtanzahl gespeicherter Einträge: <strong>{{ total_links }}</strong></p>
+        </div>
+      </div>
+    `;
+
+    // 2) Datenbank
+    const template2 = `
+      <div class="window modal-window" data-win="win2">
+        <div class="title-bar" style="justify-content: space-between;">
+          <h1 class="title">Tiktok-Kanal Datenbank</h1>
+          <span class="close">[x]</span>
+        </div>
+        <div class="window-pane">
+          <ul style="list-style-type: none; padding-left: 0;">
+            {% for (kanal, zeitstempel) in links %}
+            <li style="margin-bottom: 8px;">
+              <div> <strong>Kanal:</strong> {{ kanal }}</div>
+              <div>
+                <a href="https://www.tiktok.com/@{{ kanal }}" target="_blank" class="btn">LINK</a>
+              </div>
+              <div>abgelegt: {{ zeitstempel }}</div>
+            </li>
+            {% endfor %}
+          </ul>
+          <!-- Pagination -->
+          <div style="margin-top: 10px;">
+            {% if page > 1 %}
+              <a href="?page={{ page - 1 }}&show_datenbank=1" class="btn">« Zurück</a>
+            {% endif %}
+            {% if total_links > page * per_page %}
+              <a href="?page={{ page + 1 }}&show_datenbank=1" class="btn">Weiter »</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    `;
+
+// 3) Search
+const template3 = `
+  <div class="window modal-window" data-win="win3"
+       style="width:800px; max-width:800px; height:600px; max-height:850px;">
+    <div class="title-bar" style="justify-content: space-between;">
+      <h1 class="title" style="margin:0;">Search</h1>
+      <span class="close" style="padding:0.5rem; cursor:pointer;">[x]</span>
+    </div>
+    <div class="window-pane"
+         style="width:100%; height:calc(100% - 2rem); overflow:auto; padding:0;">
+      <iframe src="..." 
+              style="width: 100%; height: 100%; border:none;">
+      </iframe>
+    </div>
+  </div>
+`;
+
+
+	// 4) Graphs
+	const template4 = `
+		<div class="window modal-window" data-win="win4"
+       style="width:800px; max-width:800px; height:600px; max-height:850px; ">
+			<div class="title-bar" style="justify-content: space-between;">
+			<h1 class="title" style="margin:0;">Notebook</h1>
+			<span class="close" style="padding:0.5rem; cursor:pointer;">[x]</span>
+		</div>
+		<!-- 
+		scrollbarer Bereich 
+		(wenn dein Inhalt größer ist als 600×800). 
+		-->
+		<div class="window-pane"
+         style="width:100%; height:calc(100% - 2rem); overflow:auto; padding:0;">
+      <!-- 
+        Das iFrame lädt dein channel-link-extractor.html 
+        über die neue Flask-Route /channel_extractor 
+      -->
+      <iframe src="/channel_extractor" 
+              style="width: 100%; height: 100%; border:none;">
+      </iframe>
+    </div>
+  </div>
+`;
+
+
+    // 5) Log
+    const template5 = `
+	<div class="window modal-window" data-win="win5">
+		<div class="title-bar" style="justify-content: space-between;">
+		<h1 class="title">Logo</h1>
+		<span class="close">[x]</span>
+	</div>
+	<div class="window-pane" style="text-align: center;">
+		<img src="{{ url_for('static', filename='banderole2.png') }}" alt="Logo" style="max-width: 100%; height: auto; margin: 0 auto;">
+	</div>
+	</div>
+
+    `;
+
+    // 6) Fenster über Icon6
+    const template6 = `
+      <div class="window modal-window" data-win="win6">
+        <div class="title-bar" style="justify-content: space-between;">
+          <h1 class="title">Verzeichnis</h1>
+          <span class="close">[x]</span>
+        </div>
+        <div class="window-pane">
+          <p>Verzeichnis </p>
+        </div>
+      </div>
+    `;
+
+	// 7) Fenster über Icon7
+		const template7 = `
+		<div class="window modal-window" data-win="win7">
+			<div class="title-bar" style="justify-content: space-between;">
+			<h1 class="title">Account</h1>
+			<span class="close">[x]</span>
+			</div>
+			<div class="window-pane">
+			<p>Uwe Braun </p>
+			<img src="{{ url_for('static', filename='icon7.png') }}" alt="Verzeichnis-Icon" style="max-width: 100%; height: auto;">
+			</div>
+		</div>
+	`;
+
+    /***********************************************
+     * Fenster erstellen & einblenden
+     ***********************************************/
+    function createWindow(template, windowKey) {
+      if (openedWindows[windowKey]) {
+        return;
+      }
+      openedWindows[windowKey] = true;
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = template.trim();
+      const modalEl = wrapper.firstElementChild;
+
+      // Z-Index
+      zIndexCounter++;
+      modalEl.style.zIndex = zIndexCounter;
+
+      // Falls Position in localStorage ist, wiederherstellen
+      if (windowState[windowKey]) {
+        const { left, top, zIndex } = windowState[windowKey];
+        if (typeof left === 'number') modalEl.style.left = left + 'px';
+        if (typeof top === 'number') modalEl.style.top = top + 'px';
+        if (typeof zIndex === 'number') {
+          modalEl.style.zIndex = zIndex;
+          zIndexCounter = Math.max(zIndexCounter, zIndex);
+        }
+      }
+
+      // Klick => nach vorne
+      modalEl.addEventListener('mousedown', () => {
+        zIndexCounter++;
+        modalEl.style.zIndex = zIndexCounter;
+        saveWindowPosition(modalEl, windowKey);
+      });
+
+      // Schließen via Close-Button
+      modalEl.querySelector('.close').addEventListener('click', () => {
+        modalContainer.removeChild(modalEl);
+        openedWindows[windowKey] = false;
+        delete windowState[windowKey];
+        saveWindowState(); 
+      });
+
+      // Drag & Drop
+      makeDraggable(modalEl, windowKey);
+
+      modalContainer.append(modalEl);
+    }
+
+    /***********************************************
+     * Draggable (Maus + Touch) mit Raster
+     ***********************************************/
+    function makeDraggable(windowEl, windowKey) {
+      const titleBar = windowEl.querySelector('.title-bar');
+      const gridSize = 10;
+      let offsetX = 0, offsetY = 0;
+      let isDragging = false;
+
+      // Maus
+      titleBar.addEventListener('mousedown', onMouseDown);
+      // Touch
+      titleBar.addEventListener('touchstart', onTouchStart, { passive: false });
+
+      function onMouseDown(e) {
+        e.preventDefault();
+        isDragging = true;
+        zIndexCounter++;
+        windowEl.style.zIndex = zIndexCounter;
+
+        const rect = windowEl.getBoundingClientRect();
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      }
+      function onMouseMove(e) {
+        if (!isDragging) return;
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+        // Raster
+        newLeft = Math.round(newLeft / gridSize) * gridSize;
+        newTop = Math.round(newTop / gridSize) * gridSize;
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        windowEl.style.left = newLeft + 'px';
+        windowEl.style.top = newTop + 'px';
+      }
+      function onMouseUp() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        saveWindowPosition(windowEl, windowKey);
+      }
+
+      // Touch
+      function onTouchStart(e) {
+        e.preventDefault();
+        isDragging = true;
+        zIndexCounter++;
+        windowEl.style.zIndex = zIndexCounter;
+
+        const rect = windowEl.getBoundingClientRect();
+        const touch = e.touches[0];
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
+
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
+        document.addEventListener('touchend', onTouchEnd);
+      }
+      function onTouchMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        let newLeft = touch.clientX - offsetX;
+        let newTop = touch.clientY - offsetY;
+        newLeft = Math.round(newLeft / gridSize) * gridSize;
+        newTop = Math.round(newTop / gridSize) * gridSize;
+        if (newLeft < 0) newLeft = 0;
+        if (newTop < 0) newTop = 0;
+        windowEl.style.left = newLeft + 'px';
+        windowEl.style.top = newTop + 'px';
+      }
+      function onTouchEnd() {
+        isDragging = false;
+        document.removeEventListener('touchmove', onTouchMove);
+        document.removeEventListener('touchend', onTouchEnd);
+        saveWindowPosition(windowEl, windowKey);
+      }
+    }
+
+    /***********************************************
+     * windowState => localStorage
+     ***********************************************/
+    function saveWindowPosition(modalEl, windowKey) {
+      const left = parseInt(modalEl.style.left, 10) || 0;
+      const top = parseInt(modalEl.style.top, 10) || 0;
+      const zIndex = parseInt(modalEl.style.zIndex, 10) || 100;
+      windowState[windowKey] = { left, top, zIndex };
+      saveWindowState();
+    }
+    function saveWindowState() {
+      localStorage.setItem('tiktokDesktopState', JSON.stringify(windowState));
+    }
+    function loadWindowState() {
+      const data = localStorage.getItem('tiktokDesktopState');
+      if (data) {
+        windowState = JSON.parse(data);
+      }
+    }
+
+    /***********************************************
+     * HTML -> Template-Funktion
+     ***********************************************/
+    function getTemplate(key) {
+      switch (key) {
+        case 'window1': return template1;
+        case 'window2': return template2;
+        case 'window3': return template3;
+        case 'window4': return template4;
+        case 'window5': return template5;
+        case 'window6': return template6;
+        case 'window7': return template7;
+      }
+      return template1; // Fallback
+    }
+
+    /***********************************************
+     * App-Start
+     ***********************************************/
+    const modalContainer = document.getElementById('modalContainer');
+
+    // Navbar-Buttons (Fenster 1..5)
+    document.getElementById('openWindow1').addEventListener('click', (e) => {
+      e.preventDefault();
+      createWindow(template1, 'window1');
+    });
+    document.getElementById('openWindow2').addEventListener('click', (e) => {
+      e.preventDefault();
+      createWindow(template2, 'window2');
+    });
+    document.getElementById('openWindow3').addEventListener('click', (e) => {
+      e.preventDefault();
+      createWindow(template3, 'window3');
+    });
+    document.getElementById('openWindow4').addEventListener('click', (e) => {
+      e.preventDefault();
+      createWindow(template4, 'window4');
+    });
+    document.getElementById('openWindow5').addEventListener('click', (e) => {
+      e.preventDefault();
+      createWindow(template5, 'window5');
+    });
+
+    // Icon6 & Icon7 => Fenster 6 & 7
+    const icon6 = document.getElementById('icon6');
+    const icon7 = document.getElementById('icon7');
+
+    icon6.addEventListener('click', () => {
+      createWindow(template6, 'window6');
+    });
+    icon7.addEventListener('click', () => {
+      createWindow(template7, 'window7');
+    });
+
+    // Beim Laden
+    document.addEventListener('DOMContentLoaded', () => {
+      loadWindowState();
+      // Alle in localStorage vermerkten Fenster öffnen
+      for (const key in windowState) {
+        if (windowState.hasOwnProperty(key)) {
+          createWindow(getTemplate(key), key);
+        }
+      }
+    });
+  </script>
+  
+  
+  
+  <script>
+  // Button/Link-Referenz
+  const exportLink = document.getElementById('exportLink');
+  exportLink.addEventListener('click', (e) => {
+    // Nach Klick -> Deaktivieren (nur visuell/Frontend)
+    exportLink.style.pointerEvents = 'none';
+    exportLink.style.opacity = '0.5';
+
+    // 30s Timer
+    setTimeout(() => {
+      exportLink.style.pointerEvents = 'auto';
+      exportLink.style.opacity = '1';
+    }, 30000);
+  });
+  </script>
+  
+  
+  
+  
+  
+  
+  
+</body>
+</html>

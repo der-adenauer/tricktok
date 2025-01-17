@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="sticky-header">
+        <img src="{{ url_for('static', filename='banderole.png') }}" alt="Banderole" class="banderole">
+    </header>
+
+    <!-- Menü-Bereich: mittig, nicht sticky -->
+    <nav class="main-menu">
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('info') }}">Info</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>Kontakt</h1>
+        <p>Hier könnten Kontaktinformationen stehen.</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>TikTok-Link-Sammler</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Kopfbereich mit Banderole -->
+    <header class="sticky-header">
+        <img src="{{ url_for('static', filename='banderole.png') }}" alt="Banderole" class="banderole">
+    </header>
+
+    <!-- Menü-Bereich: mittig, nicht sticky -->
+    <nav class="main-menu">
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('info') }}">Info</a></li>
+            <li><a href="{{ url_for('contact') }}">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h1>TikTok-Link-Sammler</h1>
+        <span class="tooltip">
+            ?
+            <span class="tooltiptext">
+                Es kann immer nur ein Link gesendet werden. <br>
+                Nur eine Eingabe alle 10 Sekunden.<br>
+				Das Skript erkennt automatisch TikTok-Links<br>
+                Es werden keine Duplikate angelegt.  <br><br>
+                Beispieleingaben: <br>
+                tiktok.com/@afdfraktionimbundestag <br>
+                https://www.tiktok.com/@afdfraktionimbundestag/ <br>
+                https://www.tiktok.com/@afdfraktionimbundestag/video/743678530128616
+            </span>
+        </span>
+        <br><br>
+
+        <form method="POST" action="/">
+            <textarea name="eingabe_link" rows="2" placeholder="TikTok-Link" required></textarea>
+            <button type="submit">Speichern</button>
+        </form>
+
+        {% if fehlermeldung %}
+            <p class="error">{{ fehlermeldung }}</p>
+        {% endif %}
+
+        <p class="info">
+            Gesamtanzahl gespeicherter Einträge: <strong>{{ total_links }}</strong>
+        </p>
+
+        <h2>TikTok-Kanal Datenbank:</h2>
+        <ul class="link-list">
+            {% for (kanal, zeitstempel) in links %}
+                <li>
+                    <div>{{ loop.index }}.</div>
+                    <!-- Container für Kanal (links) und Link-Button (rechts) -->
+                    <div class="link-row">
+                        <div>
+                            <strong>Kanal:</strong> {{ kanal }}
+                        </div>
+                        <div>
+                            <a href="https://www.tiktok.com/@{{ kanal }}" target="_blank" class="link-button">LINK</a>
+                        </div>
+                    </div>
+                    <div>Zeitstempel: {{ zeitstempel }}</div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="pagination">
+            {% if page > 1 %}
+                <a href="?page={{ page - 1 }}" class="prev">« Zurück</a>
+            {% endif %}
+            {% if total_links > page * per_page %}
+                <a href="?page={{ page + 1 }}" class="next">Weiter »</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

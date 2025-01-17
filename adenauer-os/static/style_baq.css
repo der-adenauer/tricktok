@@ -1,0 +1,222 @@
+/* Allgemeine Einstellungen */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background-color: #000;
+    color: #fff;
+}
+
+/* Sticky Header für die Banderole */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: #000;
+    z-index: 999;
+}
+
+.banderole {
+    width: 100%;
+    display: block;
+}
+
+/* Haupt-Container */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Haupt-Menü (nicht sticky, zentriert) */
+.main-menu {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.main-menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+.main-menu li {
+    display: inline;
+    margin: 0 15px;
+}
+
+.main-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.main-menu a:hover {
+    text-decoration: underline;
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    margin-left: 5px;
+    cursor: pointer;
+    color: #ff9900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 600px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 8px;
+    position: absolute;
+    z-index: 9999;
+    top: 125%;
+    left: 50%;
+    margin-left: -100px;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+/* Überschriften */
+h1, h2 {
+    text-align: center;
+}
+
+/* Formular */
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 80%;
+    max-width: 600px;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #444;
+}
+
+/* Fehlermeldung */
+.error {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Info-Text */
+.info {
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Link-Liste */
+.link-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.link-list li {
+    background-color: #111;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 4px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Container für Kanal (links) und Link-Button (rechts) */
+.link-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+/* [LINK] Button */
+.link-button {
+    margin-left: 10px;
+    background-color: #444;
+    color: #fff;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    border: 1px solid #fff;
+}
+
+.link-button:hover {
+    background-color: #666;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+    border: 1px solid #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.pagination a:hover {
+    background-color: #222;
+}
+
+/* Media Query für Mobilansicht */
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    textarea {
+        width: 90%;
+    }
+
+    .tooltip .tooltiptext {
+        width: 300px;
+        margin-left: -150px;
+    }
+
+    .link-list li {
+        font-size: 0.9rem;
+    }
+
+    h1, h2 {
+        font-size: 1.2rem;
+    }
+}
