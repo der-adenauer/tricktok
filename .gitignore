@@ -10,6 +10,8 @@ __pycache__/
 # Database
 
 *.db
+# Allow datanbank.db
+!datenbank.db
 
 
 # Distribution / packaging
