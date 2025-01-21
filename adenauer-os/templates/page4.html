@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Seite 4{% endblock %}
+
+{% block menu_items %}
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Datei
+  <ul role="menu">
+    <li role="menu-item"><a href="{{ url_for('index') }}">Zurück zur Startseite</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Bearbeiten
+  <ul role="menu">
+    <li role="menu-item"><a href="#" id="openWindow3">Search</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Ausführen
+  <ul role="menu">
+    <li role="menu-item"><a href="{{ url_for('contact') }}">Kontakt</a></li>
+  </ul>
+</li>
+{% endblock %}
+
+{% block content %}
+<h2>Seite 4</h2>
+<p>Noch eine Seite ohne Datenbank-Anzeige.</p>
+{% endblock %}

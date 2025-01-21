@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Seite 2 - Beispiel{% endblock %}
+
+{% block menu_items %}
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Datei
+  <ul role="menu">
+    <li role="menu-item"><a href="{{ url_for('index') }}">Zur Startseite</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Bearbeiten
+  <ul role="menu">
+    <li role="menu-item"><a href="#" id="openWindow3">Search</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Ausführen
+  <ul role="menu">
+    <li role="menu-item"><a href="{{ url_for('contact') }}">Kontakt</a></li>
+  </ul>
+</li>
+{% endblock %}
+
+{% block content %}
+<h2>Beispielseite 2</h2>
+<p>Weitere Beispielinhalte.</p>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block navbar %}
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Menu
+  <ul role="menu">
+    <li role="menu-item"><a href="#" id="openWindowX1">Fenster X1</a></li>
+    <li role="menu-item"><a href="#" id="openWindowX2">Fenster X2</a></li>
+  </ul>
+</li>
+{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+  <h2>Page3</h2>
+  <p>Weiterer Inhalt.</p>
+</div>
+{% endblock %}

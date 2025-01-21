@@ -80,8 +80,8 @@ body {
     position: absolute;
     z-index: 9999;
     top: 125%;
-    left: 50%;
-    margin-left: -100px;
+    left: 70%;
+    margin-left: -200px;
 }
 
 .tooltip:hover .tooltiptext {
@@ -218,7 +218,7 @@ button:hover {
 
     .tooltip .tooltiptext {
         width: 300px;
-        margin-left: -150px;
+        margin-left: -350px;
     }
 
     .link-list li {
@@ -229,3 +229,5 @@ button:hover {
         font-size: 1.2rem;
     }
 }
+
+

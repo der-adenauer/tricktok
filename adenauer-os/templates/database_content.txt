@@ -1,0 +1,11 @@
+<ul style="list-style-type: none; padding-left: 0;">
+  {% for kanal, zeitstempel in links %}
+  <li style="margin-bottom: 8px;">
+    <div><strong>Kanal:</strong> {{ kanal }}</div>
+    <div>
+      <a href="https://www.tiktok.com/@{{ kanal }}" target="_blank" class="btn">LINK</a>
+    </div>
+    <div>abgelegt: {{ zeitstempel }}</div>
+  </li>
+  {% endfor %}
+</ul>

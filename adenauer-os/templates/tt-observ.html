@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}tt-observ{% endblock %}
+
+{% block menu_items %}
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  tt-observ
+  <ul role="menu">
+    <li role="menu-item">
+      <!-- "Quelle" => iframe? Du sagtest "Quelle(iframe)", 
+           aber in Modals? Oder normaler Link? 
+           Hier als normaler Link: -->
+      <a href="#" id="openWindow9">Eigenschaften</a>
+    </li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Bearbeiten
+  <ul role="menu">
+    <li role="menu-item"><a href="#" id="openWindow10">Suche</a></li>
+    <li role="menu-item"><a href="#" id="openWindow11">Kanal melden</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Ansicht
+  <ul role="menu">
+    <li role="menu-item"><a href="#" id="openWindow12">Logo</a></li>
+  </ul>
+</li>
+<li role="menu-item" tabindex="0" aria-haspopup="true">
+  Ausführen
+  <ul role="menu">
+    <li role="menu-item"><a href="{{ url_for('index') }}">Desktop</a></li>
+    <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
+    <li role="menu-item"><a href="{{ url_for('contact') }}">Kontakt</a></li>
+    <li role="menu-item"><a href="{{ url_for('tt_tube') }}">tt-tube</a></li>
+    <li role="menu-item"><a href="{{ url_for('tt_observ') }}">tt-observ</a></li>
+    <li role="menu-item"><a href="{{ url_for('tt_sammler') }}">tt-sammler</a></li>
+  </ul>
+</li>
+{% endblock %}
+
+{% block content %}
+<h2>TT-Observ Seite</h2>
+<p>Hier kann dein TT-Observ-Inhalt stehen.</p>
+{% endblock %}
