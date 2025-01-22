@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Fahndungsliste Modal</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    a {
+      color: #fff;
+      text-decoration: none;
+    }
+    .container {
+      padding: 20px;
+    }
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+    .link-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .link-list li {
+      background: #333;
+      margin-bottom: 5px;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  {% if fehlermeldung %}
+    <div class="error">{{ fehlermeldung }}</div>
+  {% endif %}
+
+  <p>Gesamtzahl: {{ total_links }}</p>
+
+  <ul class="link-list">
+    {% for item in links %}
+    <li>{{ item.kanal }} | {{ item.zeitstempel }}</li>
+    {% endfor %}
+  </ul>
+
+  <form method="post">
+    <label for="eingabe_link">TikTok-Link:</label><br>
+    <input type="text" name="eingabe_link" id="eingabe_link" style="width:300px;">
+    <button type="submit">Speichern</button>
+  </form>
+
+  <!-- Pagination -->
+  <p>
+    <a href="{{ url_for('fahndungsliste_db', page=page - 1) }}"
+       style="visibility:{% if page > 1 %}visible{% else %}hidden{% endif %};">
+      &laquo; Zurück
+    </a>
+    |
+    <a href="{{ url_for('fahndungsliste_db', page=page + 1) }}">
+      Weiter &raquo;
+    </a>
+  </p>
+
+  <!-- CSV-Export -->
+  <p><a href="{{ url_for('export_csv') }}" id="exportLink">Export CSV</a></p>
+</div>
+</body>
+</html>

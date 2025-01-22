@@ -34,7 +34,7 @@ def get_db():
                 last_export REAL
             )
         """)
-        # Falls last_export fehlt => anlegen
+        # Test, ob Spalte 'last_export' existiert; wenn nicht => hinzufügen
         try:
             db.execute("SELECT last_export FROM ip_cooldowns LIMIT 1")
         except sqlite3.OperationalError:
@@ -49,7 +49,7 @@ def close_connection(exception):
 
 def extract_channel(link):
     """
-    Extrahiert den TikTok-Kanal (@username) aus dem Link.
+    Extrahiert aus einer TikTok-URL den Kanalnamen (@username).
     """
     pattern = r"(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@([^\/]+)"
     match = re.search(pattern, link.strip())
@@ -58,7 +58,7 @@ def extract_channel(link):
     return None
 
 # ----------------------------------
-# Startseite (index): leerer Desktop
+# Startseite (Desktop)
 # ----------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -74,15 +74,15 @@ def export_csv():
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
     aktuelle_zeit = time.time()
 
+    # Cooldown 30s pro IP
     row_cooldown = cursor.execute("SELECT last_export FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
     last_export = row_cooldown[0] if row_cooldown else 0
     if (aktuelle_zeit - (last_export or 0)) < 30:
-        # Nur Fehlermeldung (für TT-Sammler z.B.)
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) FROM links").fetchone()[0]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
         return render_template(
-            "tt-sammler-modal.html",
+            "fahndungsliste-modal.html",
             fehlermeldung=fehlermeldung,
             total_links=total_links,
             links=rows,
@@ -90,19 +90,20 @@ def export_csv():
             per_page=5
         )
 
-    # CSV
+    # Alle Kanäle aus DB
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
     csv_data = "id,kanal,zeitstempel\n"
     for (id_val, kanal_val, zeit_val) in rows:
         csv_data += f"{id_val},{kanal_val},{zeit_val}\n"
 
+    # Zeitstempel (Export)
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
         VALUES (?, COALESCE((SELECT last_submit FROM ip_cooldowns WHERE ip=?), 0), ?)
     """, (ip, ip, aktuelle_zeit))
     db.commit()
 
-    return Response(csv_data, mimetype="text/csv", headers={"Content-disposition":"attachment; filename=links_export.csv"})
+    return Response(csv_data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=links_export.csv"})
 
 # ----------------------------------
 # Info / Kontakt
@@ -120,32 +121,31 @@ def channel_extractor():
     return render_template("channel-link-extractor.html")
 
 # ----------------------------------
-# tt-tube
+# Archiv (vormals tt_tube)
 # ----------------------------------
-@app.route("/tt_tube")
-def tt_tube():
-    return render_template("tt-tube.html")
+@app.route("/archiv")
+def archiv():
+    return render_template("archiv.html")
 
 # ----------------------------------
-# tt-observ
+# Observierung (vormals tt_observ)
 # ----------------------------------
-@app.route("/tt_observ")
-def tt_observ():
-    return render_template("tt-observ.html")
+@app.route("/observierung")
+def observierung():
+    return render_template("observierung.html")
 
 # ----------------------------------
-# tt-sammler (Seite)
+# Fahndungsliste (vormals tt_sammler)
 # ----------------------------------
-@app.route("/tt_sammler")
-def tt_sammler():
-    return render_template("tt-sammler.html")
+@app.route("/fahndungsliste")
+def fahndungsliste():
+    return render_template("fahndungsliste.html")
 
 # ----------------------------------
-# TT-Sammler DB & Formular
-#    => wird im Modal-Fenster per Iframe angezeigt
+# Fahndungsliste DB & Formular (iframe in Modal)
 # ----------------------------------
-@app.route("/tt_sammler_db", methods=["GET", "POST"])
-def tt_sammler_db():
+@app.route("/fahndungsliste_db", methods=["GET", "POST"])
+def fahndungsliste_db():
     db = get_db()
     page = int(request.args.get("page", 1))
     per_page = 5
@@ -170,9 +170,9 @@ def tt_sammler_db():
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown[0] if row_cooldown else 0
         if (aktuelle_zeit - (last_submit or 0)) < 10:
-            fehlermeldung = "Nur alle 10 Sekunden möglich (TT-Sammler)."
+            fehlermeldung = "Nur alle 10 Sekunden möglich (Fahndungsliste)."
             return render_template(
-                "tt-sammler-modal.html",
+                "fahndungsliste-modal.html",
                 fehlermeldung=fehlermeldung,
                 total_links=total_links,
                 links=rows,
@@ -180,13 +180,12 @@ def tt_sammler_db():
                 per_page=per_page
             )
 
-        # Eingabe
         eingabe = request.form.get("eingabe_link", "").strip()
         kanal_name = extract_channel(eingabe)
         if not kanal_name:
-            fehlermeldung = "Keine gültige TikTok-URL gefunden (TT-Sammler)."
+            fehlermeldung = "Keine gültige TikTok-URL gefunden (Fahndungsliste)."
             return render_template(
-                "tt-sammler-modal.html",
+                "fahndungsliste-modal.html",
                 fehlermeldung=fehlermeldung,
                 total_links=total_links,
                 links=rows,
@@ -194,13 +193,12 @@ def tt_sammler_db():
                 per_page=per_page
             )
 
-        # Duplikat?
+        # Prüfen auf Duplikat
         cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,))
         duplikat = cursor.fetchone()
         if duplikat:
             vorhandenes_datum = duplikat[0]
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
-            # last_submit updaten
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
@@ -208,7 +206,7 @@ def tt_sammler_db():
             db.commit()
 
             return render_template(
-                "tt-sammler-modal.html",
+                "fahndungsliste-modal.html",
                 fehlermeldung=fehlermeldung,
                 total_links=total_links,
                 links=rows,
@@ -216,7 +214,7 @@ def tt_sammler_db():
                 per_page=per_page
             )
         else:
-            # Neu einfügen
+            # Einfügen
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
             cursor.execute("""
@@ -225,31 +223,31 @@ def tt_sammler_db():
             """, (kanal_name, zeit, user_agent, ip))
             db.commit()
 
-            # last_submit
+            # last_submit aktualisieren
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
             """, (ip, aktuelle_zeit, ip))
             db.commit()
 
-        # Erfolgreich => Reload
-        return redirect(url_for("tt_sammler_db", page=page))
+        return redirect(url_for("fahndungsliste_db", page=page))
 
-    # GET => Liste
+    # GET => Liste anzeigen
     return render_template(
-        "tt-sammler-modal.html",
+        "fahndungsliste-modal.html",
         fehlermeldung=fehlermeldung,
         total_links=total_links,
         links=rows,
         page=page,
         per_page=per_page
     )
-    
-    
+
+# ----------------------------------
+# Expressmodus
+# ----------------------------------
 @app.route("/expressmodus")
 def expressmodus():
     return render_template("expressmodus.html")
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

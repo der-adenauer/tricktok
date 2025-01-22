@@ -1,39 +1,28 @@
 {% extends "base.html" %}
-{% block title %}tt-sammler{% endblock %}
+{% block title %}Fahndungsliste{% endblock %}
 
 {% block menu_items %}
-<li role="menu-item" tabindex="0" aria-haspopup="true">
-  Datei
-  <ul role="menu">
+<li role="menu-item" tabindex="0" aria-haspopup="true" style="list-style:none;">
+  Fahndungsliste
+  <ul role="menu" style="list-style:none; padding-left:0;">
     <li role="menu-item"><a href="#" id="openWindow19">Neu</a></li>
   </ul>
 </li>
-<li role="menu-item" tabindex="0" aria-haspopup="true">
-  Bearbeiten
-  <ul role="menu">
+<li role="menu-item" tabindex="0" aria-haspopup="true" style="list-style:none;">
+  Optionen
+  <ul role="menu" style="list-style:none; padding-left:0;">
     <li role="menu-item"><a href="https://example.com" target="_blank">Expressmodus</a></li>
   </ul>
 </li>
-<li role="menu-item" tabindex="0" aria-haspopup="true">
+<li role="menu-item" tabindex="0" aria-haspopup="true" style="list-style:none;">
   Ansicht
-  <ul role="menu">
+  <ul role="menu" style="list-style:none; padding-left:0;">
     <li role="menu-item"><a href="#" id="openWindow16">Logo</a></li>
-  </ul>
-</li>
-<li role="menu-item" tabindex="0" aria-haspopup="true">
-  Ausführen
-  <ul role="menu">
-    <li role="menu-item"><a href="{{ url_for('index') }}">Desktop</a></li>
-    <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
-    <li role="menu-item"><a href="{{ url_for('contact') }}">Kontakt</a></li>
-    <li role="menu-item"><a href="{{ url_for('tt_tube') }}">tt-tube</a></li>
-    <li role="menu-item"><a href="{{ url_for('tt_observ') }}">tt-observ</a></li>
-    <li role="menu-item"><a href="{{ url_for('tt_sammler') }}">tt-sammler</a></li>
   </ul>
 </li>
 {% endblock %}
 
 {% block content %}
-<h2>TT-Sammler</h2>
-<p>Infos. </p>
+<h2>Fahndungsliste</h2>
+<p>Inhalt zur Fahndungsliste.</p>
 {% endblock %}

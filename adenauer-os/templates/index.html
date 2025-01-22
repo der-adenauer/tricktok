@@ -1,11 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Startseite{% endblock %}
 
-{% block menu_items %}
-{{ super() }}
-{% endblock %}
-
 {% block content %}
-<h2>Desktop</h2>
-<p>text.</p>
+<h2 style="color:#fff; text-align:center;">Desktop</h2>
+
+<div style="position: relative; width:100%; height:80vh;">
+  <!-- icon6 => Verzeichnis/Index => öffnet Fenster #1 -->
+  <div style="position:absolute; top:50px; left:20px;">
+    <img src="{{ url_for('static', filename='icon6.png') }}" alt="Icon6"
+         class="icon-launcher" id="icon6">
+    <div class="icon-label">Index</div>
+  </div>
+
+  <!-- icon7 => Benutzeraccount => öffnet Fenster #2 -->
+  <div style="position:absolute; top:50px; left:120px;">
+    <img src="{{ url_for('static', filename='icon7.png') }}" alt="Icon7"
+         class="icon-launcher" id="icon7">
+    <div class="icon-label">Benutzer</div>
+  </div>
+
+  <!-- icon8 => Fahndungsliste (iframe) => Fenster #8 -->
+  <div style="position:absolute; top:50px; left:220px;">
+    <img src="{{ url_for('static', filename='icon8.png') }}" alt="Icon8"
+         class="icon-launcher" id="icon8">
+    <div class="icon-label">Fahndung</div>
+  </div>
+
+  <!-- icon9 => Suche => Fenster #9 -->
+  <div style="position:absolute; top:50px; left:320px;">
+    <img src="{{ url_for('static', filename='icon9.png') }}" alt="Icon9"
+         class="icon-launcher" id="icon9">
+    <div class="icon-label">Suche</div>
+  </div>
+
+  <!-- icon10 => Notiz => Fenster #10 -->
+  <div style="position:absolute; top:50px; left:420px;">
+    <img src="{{ url_for('static', filename='icon10.png') }}" alt="Icon10"
+         class="icon-launcher" id="icon10">
+    <div class="icon-label">Notiz</div>
+  </div>
+</div>
 {% endblock %}

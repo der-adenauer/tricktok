@@ -4,46 +4,131 @@
   <meta charset="UTF-8">
   <title>{% block title %}Adenauer OS Desktop{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+
+  <style>
+    /* Retro-Schrift für Systemzeit */
+    #systemTime {
+      float: right;
+      font-family: "Courier New", monospace;
+      color: #000;
+      margin-right: 20px;
+    }
+
+    /* Kopfzeile + Menü */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background-color: #e1e1e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px;
+    }
+    .menu-bar {
+      padding: 0;
+      margin: 0;
+    }
+    .menu-bar ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+    .menu-bar ul li {
+      position: relative;
+      margin-right: 15px;
+      cursor: default;
+    }
+    .menu-bar ul li ul {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #e1e1e1;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      min-width: 100px;
+      border: 1px solid #000;
+    }
+    .menu-bar ul li:hover > ul {
+      display: block;
+    }
+    .menu-bar ul li ul li {
+      margin: 0;
+      border-bottom: 1px solid #000;
+    }
+    .menu-bar ul li ul li:last-child {
+      border-bottom: none;
+    }
+    .menu-bar ul li a {
+      text-decoration: none;
+      color: #000;
+      padding: 5px;
+      display: inline-block;
+    }
+    .menu-bar ul li a:hover {
+      background-color: #ccc;
+    }
+
+    /* Desktop-Icons (Layout in index.html per inline style) */
+    .icon-launcher {
+      width: 64px;
+      height: 64px;
+      position: absolute;
+      cursor: pointer;
+    }
+    .icon-label {
+      font-size: 0.8rem;
+      color: #000;
+      text-align: center;
+      width: 80px;
+      position: absolute;
+      top: 70px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+    }
+  </style>
 </head>
 <body>
 
-<header style="position:sticky; top:0; z-index:999; background-color:#e1e1e1;">
-  <div class="menu-bar" style="padding:4px 8px;">
+<header>
+  <div class="menu-bar">
     <ul role="menu-bar">
-      {% block menu_items %}
       <li role="menu-item" tabindex="0" aria-haspopup="true">
         System
         <ul role="menu">
-          <li role="menu-item"><a href="#" id="openWindow3">Programmquelle</a></li>
-          <li role="menu-item"><a href="#" id="openWindow4">Einstellungen</a></li>
+          <li role="menu-item"><a href="#" id="openWindow3">Hilfe</a></li>
+          <li role="menu-item"><a href="#" id="openWindow4">Programmquelle</a></li>
         </ul>
       </li>
-      <li role="menu-item" tabindex="0" aria-haspopup="true">
-        Ausführen
-        <ul role="menu">
-          <li role="menu-item"><a href="{{ url_for('index') }}">Desktop</a></li>
-          <li role="menu-item"><a href="{{ url_for('info') }}">Info</a></li>
-          <li role="menu-item"><a href="{{ url_for('contact') }}">Kontakt</a></li>
-          <li role="menu-item"><a href="{{ url_for('tt_tube') }}">tt-tube</a></li>
-          <li role="menu-item"><a href="{{ url_for('tt_observ') }}">tt-observ</a></li>
-          <li role="menu-item"><a href="{{ url_for('tt_sammler') }}">tt-sammler</a></li>
-        </ul>
-      </li>
-      {% endblock %}
     </ul>
   </div>
+  <div id="systemTime"></div>
 </header>
-
-<img src="{{ url_for('static', filename='icon6.png') }}" alt="Icon6" id="icon6"
-     class="icon-launcher" style="bottom:20px; left:20px;">
-<img src="{{ url_for('static', filename='icon7.png') }}" alt="Icon7" id="icon7"
-     class="icon-launcher" style="bottom:20px; right:20px;">
 
 <div id="modalContainer"></div>
 
 <main>
   {% block content %}{% endblock %}
 </main>
+
+<script>
+  function updateSystemTime() {
+    const el = document.getElementById("systemTime");
+    if (!el) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const ss = String(now.getSeconds()).padStart(2,"0");
+    el.textContent = hh + ":" + mm + ":" + ss;
+  }
+  setInterval(updateSystemTime, 1000);
+  updateSystemTime();
+</script>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

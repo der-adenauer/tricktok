@@ -157,7 +157,7 @@ button:hover {
 
 /* Container für Kanal (links) und Link-Button (rechts) */
 .link-row {
-    display: flex;
+    display: flex;b
     justify-content: space-between;
     align-items: center;
     margin-top: 5px;
@@ -230,4 +230,20 @@ button:hover {
     }
 }
 
+/* Close-Button anpassen */
+.close {
+    border: 2px solid #000;     /* Schwarzer Rand */
+    background-color: #fff;     /* Weißer Hintergrund */
+    color: #000;                /* Schwarze Schrift */
+    display: inline-block;
+    padding: 4px 8px;           /* Größeres Padding für Touch */
+    margin-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+}
+
+.close:hover {
+    background-color: #eee;
+}
 
