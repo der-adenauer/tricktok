@@ -30,18 +30,17 @@ let windowState = {};
 /***********************************************
  * TEMPLATES
  ***********************************************/
-
 // #1: Verzeichnis (Index)
 const template1 = `
 <div class="window modal-window" data-win="win1" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Verzeichnis (Fenster #1)</h1>
+    <h1 class="title">Index</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>Liste von Einträgen:</p>
     <ul>
-      <li><a href="#" class="entry-link" data-target="window14">Wortwolke (#14)</a></li>
+      <li><a href="#" class="entry-link" data-target="window14">Wortwolke </a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Eintrag C (#16)</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Eintrag D (#17)</a></li>
@@ -71,25 +70,26 @@ const template3 = `
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-  <h3>Hilfeseite</h3>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <p>Hilfe-Inhalt oder Hilfetexte.</p>
   </div>
 </div>
 `;
 
 // #4: Programmquelle
 const template4 = `
-<div class="window modal-window" data-win="win4" style="width:400px;">
+<div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Programmquelle (Fenster #4)</h1>
+    <h2 class="title">Programmquelle </h2>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Quellcode-Info oder Hinweise.</p>
+    <h2>Adenauer OS - Projekt Tricktok</h2>
+    <p>Dieses Programm ist ein Betriebs- und Datenbanksystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
+    <p>Version: v.02 | Buildnummer: 1933.1</p>
+    <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
 </div>
 `;
-
 // #8: Fahndungsliste (Iframe)
 const template8 = `
 <div class="window modal-window" data-win="win8" style="width:800px; height:600px;">
@@ -105,7 +105,7 @@ const template8 = `
 
 // #9: Suche (Iframe)
 const template9 = `
-<div class="window modal-window" data-win="win9" style="width:800px; height:600px;">
+<div class="window modal-window" data-win="win9" style="width:800px; height:650px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Suche</h1>
     <span class="close">[x]</span>
@@ -129,22 +129,23 @@ const template10 = `
 </div>
 `;
 
-// #14..#17: Unterfenster vom Verzeichnis #1
 const template14 = `
-<div class="window modal-window" data-win="win14" style="width:600px;">
+<div class="window modal-window" data-win="win14" style="width:800px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Wortwolke (Fenster #14)</h1>
+    <h1 class="title">Wortwolke (#14)</h1>
     <span class="close">[x]</span>
   </div>
-  <div class="window-pane" style="text-align:center;">
-    <img src="/static/wolke.png" alt="Wolke" style="max-width:100%; height:auto;">
+  <div class="window-pane" style="text-align:center; display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 40px); padding:10px;">
+    <img src="/static/wolke.png" alt="Wolke" style="transform: scale(0.16); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
 </div>
 `;
+
+
 const template15 = `
 <div class="window modal-window" data-win="win15" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag B (Fenster #15)</h1>
+    <h1 class="title">Eintrag B (#15)</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
@@ -155,7 +156,7 @@ const template15 = `
 const template16 = `
 <div class="window modal-window" data-win="win16" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag C (Fenster #16)</h1>
+    <h1 class="title">Eintrag C (#16)</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
@@ -166,7 +167,7 @@ const template16 = `
 const template17 = `
 <div class="window modal-window" data-win="win17" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag D (Fenster #17)</h1>
+    <h1 class="title">Eintrag D (#17)</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
@@ -180,7 +181,7 @@ const template17 = `
  ***********************************************/
 function createWindow(template, windowKey) {
   if (openedWindows[windowKey]) {
-    return; // Fenster bereits offen
+    return;
   }
   openedWindows[windowKey] = true;
 
@@ -188,11 +189,9 @@ function createWindow(template, windowKey) {
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
 
-  // Z-Index hochsetzen
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
 
-  // Position aus localStorage?
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -202,19 +201,16 @@ function createWindow(template, windowKey) {
       zIndexCounter = Math.max(zIndexCounter, zIndex);
     }
   } else {
-    // Standard-Position
     modalEl.style.left = "60px";
-    modalEl.style.top = "60px";
+    modalEl.style.top = "160px"; // Start weiter unten, falls gewünscht
   }
 
-  // Klick aufs Fenster => in den Vordergrund
   modalEl.addEventListener('mousedown', () => {
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
   });
 
-  // Schließen
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
@@ -225,10 +221,9 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // Draggable
   makeDraggable(modalEl, windowKey);
 
-  // Spezieller Fall: Verzeichnis (#1) => Links, die Unterfenster öffnen
+  // Beim Verzeichnisfenster (#1) => Links anklickbar
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -252,9 +247,7 @@ function makeDraggable(windowEl, windowKey) {
   let offsetX = 0, offsetY = 0;
   let isDragging = false;
 
-  // Maus
   titleBar.addEventListener('mousedown', onMouseDown);
-  // Touch
   titleBar.addEventListener('touchstart', onTouchStart, { passive: false });
 
   function onMouseDown(e) {
@@ -345,19 +338,19 @@ function loadWindowState() {
  ***********************************************/
 function getTemplate(key) {
   switch (key) {
-    case 'window1':  return template1;  // Index/Verzeichnis
-    case 'window2':  return template2;  // Benutzerinfo
-    case 'window3':  return template3;  // Hilfe
-    case 'window4':  return template4;  // Programmquelle
-    case 'window8':  return template8;  // Fahndungsliste
-    case 'window9':  return template9;  // Suche
-    case 'window10': return template10; // Notiz
-    case 'window14': return template14; // Wortwolke
+    case 'window1':  return template1;
+    case 'window2':  return template2;
+    case 'window3':  return template3;
+    case 'window4':  return template4;
+    case 'window8':  return template8;
+    case 'window9':  return template9;
+    case 'window10': return template10;
+    case 'window14': return template14;
     case 'window15': return template15;
     case 'window16': return template16;
     case 'window17': return template17;
     default:
-      return template4; // Fallback => "Programmquelle"
+      return template4; // Fallback
   }
 }
 
@@ -368,7 +361,6 @@ const modalContainer = document.getElementById('modalContainer');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
-  // Bereits geöffnete Fenster aus localStorage wiederherstellen
   for (const key in windowState) {
     if (windowState.hasOwnProperty(key)) {
       createWindow(getTemplate(key), key);
@@ -424,7 +416,7 @@ if (icon10) {
   });
 }
 
-// Beispiel: Export-Link Cooldown
+// Export-Link Cooldown (falls vorhanden)
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {

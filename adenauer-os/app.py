@@ -34,7 +34,6 @@ def get_db():
                 last_export REAL
             )
         """)
-        # Test, ob Spalte 'last_export' existiert; wenn nicht => hinzufügen
         try:
             db.execute("SELECT last_export FROM ip_cooldowns LIMIT 1")
         except sqlite3.OperationalError:
@@ -57,16 +56,10 @@ def extract_channel(link):
         return match.group(1)
     return None
 
-# ----------------------------------
-# Startseite (Desktop)
-# ----------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
 
-# ----------------------------------
-# CSV-Export
-# ----------------------------------
 @app.route("/export_csv")
 def export_csv():
     db = get_db()
@@ -74,7 +67,6 @@ def export_csv():
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
     aktuelle_zeit = time.time()
 
-    # Cooldown 30s pro IP
     row_cooldown = cursor.execute("SELECT last_export FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
     last_export = row_cooldown[0] if row_cooldown else 0
     if (aktuelle_zeit - (last_export or 0)) < 30:
@@ -90,13 +82,11 @@ def export_csv():
             per_page=5
         )
 
-    # Alle Kanäle aus DB
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
     csv_data = "id,kanal,zeitstempel\n"
     for (id_val, kanal_val, zeit_val) in rows:
         csv_data += f"{id_val},{kanal_val},{zeit_val}\n"
 
-    # Zeitstempel (Export)
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
         VALUES (?, COALESCE((SELECT last_submit FROM ip_cooldowns WHERE ip=?), 0), ?)
@@ -105,9 +95,6 @@ def export_csv():
 
     return Response(csv_data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=links_export.csv"})
 
-# ----------------------------------
-# Info / Kontakt
-# ----------------------------------
 @app.route("/info")
 def info():
     return render_template("info.html")
@@ -120,30 +107,18 @@ def contact():
 def channel_extractor():
     return render_template("channel-link-extractor.html")
 
-# ----------------------------------
-# Archiv (vormals tt_tube)
-# ----------------------------------
 @app.route("/archiv")
 def archiv():
     return render_template("archiv.html")
 
-# ----------------------------------
-# Observierung (vormals tt_observ)
-# ----------------------------------
 @app.route("/observierung")
 def observierung():
     return render_template("observierung.html")
 
-# ----------------------------------
-# Fahndungsliste (vormals tt_sammler)
-# ----------------------------------
 @app.route("/fahndungsliste")
 def fahndungsliste():
     return render_template("fahndungsliste.html")
 
-# ----------------------------------
-# Fahndungsliste DB & Formular (iframe in Modal)
-# ----------------------------------
 @app.route("/fahndungsliste_db", methods=["GET", "POST"])
 def fahndungsliste_db():
     db = get_db()
@@ -166,7 +141,6 @@ def fahndungsliste_db():
         aktuelle_zeit = time.time()
         cursor = db.cursor()
 
-        # 10s-Cooldown
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown[0] if row_cooldown else 0
         if (aktuelle_zeit - (last_submit or 0)) < 10:
@@ -193,7 +167,6 @@ def fahndungsliste_db():
                 per_page=per_page
             )
 
-        # Prüfen auf Duplikat
         cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,))
         duplikat = cursor.fetchone()
         if duplikat:
@@ -214,7 +187,6 @@ def fahndungsliste_db():
                 per_page=per_page
             )
         else:
-            # Einfügen
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
             cursor.execute("""
@@ -223,7 +195,6 @@ def fahndungsliste_db():
             """, (kanal_name, zeit, user_agent, ip))
             db.commit()
 
-            # last_submit aktualisieren
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
@@ -232,7 +203,6 @@ def fahndungsliste_db():
 
         return redirect(url_for("fahndungsliste_db", page=page))
 
-    # GET => Liste anzeigen
     return render_template(
         "fahndungsliste-modal.html",
         fehlermeldung=fehlermeldung,
@@ -242,9 +212,6 @@ def fahndungsliste_db():
         per_page=per_page
     )
 
-# ----------------------------------
-# Expressmodus
-# ----------------------------------
 @app.route("/expressmodus")
 def expressmodus():
     return render_template("expressmodus.html")

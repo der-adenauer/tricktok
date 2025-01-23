@@ -2,71 +2,83 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Fahndungsliste Modal</title>
-  <style>
-    body {
-      background-color: #222;
-      color: #fff;
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    a {
-      color: #fff;
-      text-decoration: none;
-    }
-    .container {
-      padding: 20px;
-    }
-    .error {
-      color: red;
-      margin-bottom: 10px;
-    }
-    .link-list {
-      list-style: none;
-      padding-left: 0;
-    }
-    .link-list li {
-      background: #333;
-      margin-bottom: 5px;
-      padding: 5px;
-    }
-  </style>
+  <title>Fahndungsliste</title>
+  <!-- System-CSS einbinden (Pfad ggf. anpassen) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
 </head>
 <body>
-<div class="container">
+
+<div style="max-width: 600px; margin: 1rem auto; border: 2px solid #000; padding: 1rem; background: #fff;">
+  
+  <!-- Überschrift -->
+  <h2 class="heading">Neuer Link</h2>
+
+  <!-- Formular: Neuer Link eintragen -->
+  <!-- "method=post" => passt zu deinem Flask-Handler -->
+  <form method="post" style="margin-bottom: 1rem;">
+    <div class="field-row" style="margin-bottom: 1rem;">
+      <input 
+        type="text" 
+        name="eingabe_link" 
+        placeholder="TikTok-Kanal-URL" 
+        style="width: 100%;"
+      >
+    </div>
+    <button type="submit" class="btn" style="font-size: 18px; padding: 0.5rem 1rem;">
+      Speichern
+    </button>
+  </form>
+
+  <!-- Fehlermeldung, falls vorhanden -->
   {% if fehlermeldung %}
-    <div class="error">{{ fehlermeldung }}</div>
+    <div style="color: red; margin-bottom: 0.5rem;">
+      {{ fehlermeldung }}
+    </div>
   {% endif %}
 
-  <p>Gesamtzahl: {{ total_links }}</p>
+  <!-- Gesamtzahl -->
+  <p style="margin-top: 1rem; margin-bottom: 0.5rem;">
+    <strong>Gesamtzahl:</strong> {{ total_links }}
+  </p>
 
-  <ul class="link-list">
-    {% for item in links %}
-    <li>{{ item.kanal }} | {{ item.zeitstempel }}</li>
+  <!-- Teilüberschrift -->
+  <h3 style="margin-top: 0; margin-bottom: 1rem;">
+    Tiktok-Kanal Fahndungsliste
+  </h3>
+
+  <!-- Auflistung der Datensätze (4 pro Seite) -->
+  <!-- Jinja-Schleife für Einträge -->
+  <ul class="list-group" style="margin-bottom: 1rem;">
+    {% for eintrag in links %}
+      <li class="list-group-item">
+        {{ eintrag.kanal }} 
+        <span style="float:right;">{{ eintrag.zeitstempel }}</span>
+      </li>
     {% endfor %}
   </ul>
 
-  <form method="post">
-    <label for="eingabe_link">TikTok-Link:</label><br>
-    <input type="text" name="eingabe_link" id="eingabe_link" style="width:300px;">
-    <button type="submit">Speichern</button>
-  </form>
-
   <!-- Pagination -->
-  <p>
-    <a href="{{ url_for('fahndungsliste_db', page=page - 1) }}"
-       style="visibility:{% if page > 1 %}visible{% else %}hidden{% endif %};">
-      &laquo; Zurück
-    </a>
-    |
-    <a href="{{ url_for('fahndungsliste_db', page=page + 1) }}">
-      Weiter &raquo;
-    </a>
-  </p>
+  <div style="display:flex; justify-content: space-between; margin-top: 1rem;">
+    <!-- Zurück-Link nur anzeigen, falls page > 1 -->
+    {% if page > 1 %}
+      <a href="{{ url_for('fahndungsliste_db', page=page - 1) }}" class="btn">
+        Zurück
+      </a>
+    {% else %}
+      <span></span> <!-- Platzhalter für Layout -->
+    {% endif %}
 
-  <!-- CSV-Export -->
-  <p><a href="{{ url_for('export_csv') }}" id="exportLink">Export CSV</a></p>
+    <!-- Weiter-Link => wenn es potenziell mehr Einträge gibt -->
+    {% if links|length >= per_page %}
+      <a href="{{ url_for('fahndungsliste_db', page=page + 1) }}" class="btn">
+        Weiter
+      </a>
+    {% else %}
+      <span></span>
+    {% endif %}
+  </div>
+
 </div>
+
 </body>
 </html>

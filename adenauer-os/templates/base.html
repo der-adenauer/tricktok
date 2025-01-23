@@ -73,24 +73,84 @@
       background-color: #ccc;
     }
 
-    /* Desktop-Icons (Layout in index.html per inline style) */
-    .icon-launcher {
+    /* Container für Icons direkt unter dem Header */
+    .icon-bar {
+      position: relative;
+      margin-top: 1000px; /* Abstand zum Header */
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 40px; /* Abstand zwischen den Icons */
+      padding-left: 320px;  /* linksbündiger Versatz */
+    }
+    .icon-item {
+      position: relative;
       width: 64px;
       height: 64px;
-      position: absolute;
       cursor: pointer;
     }
     .icon-label {
       font-size: 0.8rem;
       color: #000;
       text-align: center;
-      width: 80px;
+      width: 64px;
       position: absolute;
       top: 70px;
       left: 0;
       right: 0;
       margin: 0 auto;
     }
+
+    /* 
+     * =============== NEUE ÜBERSTEUERUNG ===============
+     * Damit jedes Icon individuell positioniert werden kann.
+     * Wir überschreiben die flex-Styles, etc. 
+     */
+    .icon-bar {
+      /* Statt flex => block oder relative/fixed 
+         (je nachdem ob "global fixiert" = fixed sein soll). 
+         Hier ein Beispiel mit 'fixed' 
+         => Icons sind "global fixiert" am Desktop:
+      */
+      position: fixed !important;   /* fixiert am Viewport */
+      top: 60px !important;         /* Abstand vom oberen Browserrand */
+      left: 0 !important;          
+      width: 100% !important;       /* füllt ggf. die Fensterbreite */
+      height: 200px !important;     /* ein Beispiel: definierte Höhe */
+      display: block !important;    /* NICHT flex */
+      margin-top: 0 !important;     /* überschreibt die 1000px  */
+      padding-left: 0 !important;   /* entfernt linksbündigen Versatz */
+    }
+
+    /* Jedes Icon absolute in der .icon-bar positionieren */
+    .icon-item {
+      position: absolute !important;
+    }
+
+    /* Beispiel-Positionen pro Icon: 
+       Du kannst hier top/left anpassen, um sie individuell zu platzieren
+    */
+    #icon6 {
+      top: 20px;
+      left: 50px;
+    }
+    #icon7 {
+      top: 20px;
+      left: 150px;
+    }
+    #icon8 {
+      top: 20px;
+      left: 250px;
+    }
+    #icon9 {
+      top: 20px;
+      left: 350px;
+    }
+    #icon10 {
+      top: 20px;
+      left: 450px;
+    }
+
   </style>
 </head>
 <body>
@@ -110,6 +170,10 @@
   <div id="systemTime"></div>
 </header>
 
+<!-- 
+  modalContainer kann unterhalb vom Header liegen. 
+  Icons-Bar ebenfalls direkt unter dem Header.
+-->
 <div id="modalContainer"></div>
 
 <main>
