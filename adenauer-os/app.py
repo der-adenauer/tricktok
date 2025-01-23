@@ -173,7 +173,7 @@ def fahndungsliste_db():
                 page=page,
                 per_page=per_page
             )
-
+#
         # Duplikat?
         duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
         if duplikat:
