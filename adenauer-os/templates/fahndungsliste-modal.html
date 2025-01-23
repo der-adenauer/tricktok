@@ -5,6 +5,33 @@
   <title>Fahndungsliste</title>
   <!-- System-CSS einbinden (Pfad ggf. anpassen) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+  <style>
+    /* Zusätzliche CSS-Optimierungen für schmaleres Layout */
+    body {
+      font-size: 16px; /* Globale Schriftgröße leicht reduzieren */
+    }
+    .field-row {
+      margin-bottom: 0.5rem; /* Weniger Abstand bei Eingabefeldern */
+    }
+    input[type="text"] {
+      padding: 0.3rem; /* Weniger Innenabstand */
+    }
+    .btn {
+      padding: 0.3rem 0.8rem; /* Kompaktere Buttons */
+      font-size: 16px; /* Schriftgröße in Buttons reduzieren */
+    }
+    .list-group-item {
+      padding: 0.5rem 0.8rem; /* Weniger Innenabstand in der Liste */
+      font-size: 14px; /* Kleinere Schrift in der Liste */
+    }
+    h2.heading,
+    h3 {
+      margin-bottom: 0.8rem; /* Weniger Abstand unter den Überschriften */
+    }
+    p {
+      margin-bottom: 0.3rem; /* Weniger Abstand in Paragraphen */
+    }
+  </style>
 </head>
 <body>
 
@@ -14,9 +41,8 @@
   <h2 class="heading">Neuer Link</h2>
 
   <!-- Formular: Neuer Link eintragen -->
-  <!-- "method=post" => passt zu deinem Flask-Handler -->
-  <form method="post" style="margin-bottom: 1rem;">
-    <div class="field-row" style="margin-bottom: 1rem;">
+  <form method="post" style="margin-bottom: 0.8rem;">
+    <div class="field-row">
       <!-- Tooltip-Container -->
       <div class="tooltip" style="width: 100%; display: block;">
         <input 
@@ -26,7 +52,7 @@
           style="width: 100%;"
         >
         <!-- Tooltip-Text -->
-        <span class="tooltiptext" style="text-align: left; width: 300px;">
+        <span class="tooltiptext" style="text-align: left; width: 250px; font-size: 14px; padding: 0.3rem;">
           Es kann immer nur ein Link gesendet werden.<br>
           Nur eine Eingabe alle 10 Sekunden.<br>
           Das Programm erkennt automatisch TikTok-Links.<br>
@@ -35,37 +61,35 @@
       </div>
     </div>
 
-    <button type="submit" class="btn" style="font-size: 18px; padding: 0.5rem 1rem;">
+    <button type="submit" class="btn">
       Speichern
     </button>
   </form>
 
   <!-- Fehlermeldung, falls vorhanden -->
   {% if fehlermeldung %}
-    <div style="color: red; margin-bottom: 0.5rem;">
+    <div style="color: red; margin-bottom: 0.5rem; font-size: 14px;">
       {{ fehlermeldung }}
     </div>
   {% endif %}
 
   <!-- Gesamtzahl -->
-  <p style="margin-top: 1rem; margin-bottom: 0.5rem;">
+  <p>
     <strong>Gesamtzahl:</strong> {{ total_links }}
   </p>
 
   <!-- Export CSV-Button -->
-  <p style="margin-bottom:1rem;">
-    <a href="{{ url_for('export_csv') }}" class="btn" style="font-size:18px; padding:0.5rem 1rem;">
+  <p>
+    <a href="{{ url_for('export_csv') }}" class="btn">
       Export CSV
     </a>
   </p>
 
   <!-- Teilüberschrift -->
-  <h3 style="margin-top: 0; margin-bottom: 1rem;">
-    Tiktok-Kanal Fahndungsliste
-  </h3>
+  <h3>Tiktok-Kanal Fahndungsliste</h3>
 
   <!-- Auflistung der Datensätze (4 pro Seite) -->
-  <ul class="list-group" style="margin-bottom: 1rem;">
+  <ul class="list-group">
     {% for eintrag in links %}
       <li class="list-group-item">
         {{ eintrag.kanal }} 
@@ -75,7 +99,7 @@
   </ul>
 
   <!-- Pagination -->
-  <div style="display:flex; justify-content: space-between; margin-top: 1rem;">
+  <div style="display:flex; justify-content: space-between; margin-top: 0.8rem;">
     <!-- Zurück-Link nur anzeigen, falls page > 1 -->
     {% if page > 1 %}
       <a href="{{ url_for('fahndungsliste_db', page=page - 1) }}" class="btn">
