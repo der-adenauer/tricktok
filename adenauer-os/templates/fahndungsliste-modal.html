@@ -17,13 +17,24 @@
   <!-- "method=post" => passt zu deinem Flask-Handler -->
   <form method="post" style="margin-bottom: 1rem;">
     <div class="field-row" style="margin-bottom: 1rem;">
-      <input 
-        type="text" 
-        name="eingabe_link" 
-        placeholder="TikTok-Kanal-URL" 
-        style="width: 100%;"
-      >
+      <!-- Tooltip-Container -->
+      <div class="tooltip" style="width: 100%; display: block;">
+        <input 
+          type="text" 
+          name="eingabe_link" 
+          placeholder="TikTok-Kanal-URL" 
+          style="width: 100%;"
+        >
+        <!-- Tooltip-Text -->
+        <span class="tooltiptext" style="text-align: left; width: 300px;">
+          Es kann immer nur ein Link gesendet werden.<br>
+          Nur eine Eingabe alle 10 Sekunden.<br>
+          Das Programm erkennt automatisch TikTok-Links.<br>
+          Duplikate werden übersprungen.
+        </span>
+      </div>
     </div>
+
     <button type="submit" class="btn" style="font-size: 18px; padding: 0.5rem 1rem;">
       Speichern
     </button>
@@ -41,13 +52,19 @@
     <strong>Gesamtzahl:</strong> {{ total_links }}
   </p>
 
+  <!-- Export CSV-Button -->
+  <p style="margin-bottom:1rem;">
+    <a href="{{ url_for('export_csv') }}" class="btn" style="font-size:18px; padding:0.5rem 1rem;">
+      Export CSV
+    </a>
+  </p>
+
   <!-- Teilüberschrift -->
   <h3 style="margin-top: 0; margin-bottom: 1rem;">
     Tiktok-Kanal Fahndungsliste
   </h3>
 
   <!-- Auflistung der Datensätze (4 pro Seite) -->
-  <!-- Jinja-Schleife für Einträge -->
   <ul class="list-group" style="margin-bottom: 1rem;">
     {% for eintrag in links %}
       <li class="list-group-item">

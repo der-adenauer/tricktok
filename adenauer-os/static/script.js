@@ -154,13 +154,13 @@ const template15 = `
 </div>
 `;
 const template16 = `
-<div class="window modal-window" data-win="win16" style="width:400px;">
-  <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag C (#16)</h1>
-    <span class="close">[x]</span>
+<div class="window modal-window" data-win="win16" style="width:auto; max-width:800px; margin:auto; background-color:#fff;">
+  <div class="title-bar" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
+    <h1 class="title" style="margin:0;">Logo</h1>
+    <span class="close" style="cursor:pointer;">[x]</span>
   </div>
-  <div class="window-pane" style="padding:1rem;">
-    <p>Detail zu Eintrag C.</p>
+  <div class="window-pane" style="text-align:center; display:flex; justify-content:center; align-items:center; width:100%; padding:1px;">
+    <img src="/static/banderole2.png" alt="logo" style="width:auto; height:auto; max-width:100%; max-height:calc(100vh - 100px);">
   </div>
 </div>
 `;

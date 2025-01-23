@@ -17,7 +17,12 @@ app.secret_key = "irgendein_schluessel"
 def get_db():
     db = getattr(g, "_database", None)
     if db is None:
+        # 1) Connect
         db = g._database = sqlite3.connect("datenbank.db")
+        # 2) Row Factory
+        db.row_factory = sqlite3.Row
+
+        # 3) Tabellen anlegen / Spalte prüfen
         db.execute("""
             CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,9 +52,6 @@ def close_connection(exception):
         db.close()
 
 def extract_channel(link):
-    """
-    Extrahiert aus einer TikTok-URL den Kanalnamen (@username).
-    """
     pattern = r"(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@([^\/]+)"
     match = re.search(pattern, link.strip())
     if match:
@@ -68,10 +70,10 @@ def export_csv():
     aktuelle_zeit = time.time()
 
     row_cooldown = cursor.execute("SELECT last_export FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
-    last_export = row_cooldown[0] if row_cooldown else 0
+    last_export = row_cooldown["last_export"] if row_cooldown else 0  # dank row_factory => ["last_export"]
     if (aktuelle_zeit - (last_export or 0)) < 30:
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
-        total_links = db.execute("SELECT COUNT(*) FROM links").fetchone()[0]
+        total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
         return render_template(
             "fahndungsliste-modal.html",
@@ -84,16 +86,21 @@ def export_csv():
 
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
     csv_data = "id,kanal,zeitstempel\n"
-    for (id_val, kanal_val, zeit_val) in rows:
-        csv_data += f"{id_val},{kanal_val},{zeit_val}\n"
+    for row in rows:
+        csv_data += f"{row['id']},{row['kanal']},{row['zeitstempel']}\n"
 
+    # last_export aktualisieren
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
-        VALUES (?, COALESCE((SELECT last_submit FROM ip_cooldowns WHERE ip=?), 0), ?)
+        VALUES (
+            ?,
+            COALESCE((SELECT last_submit FROM ip_cooldowns WHERE ip=?), 0),
+            ?
+        )
     """, (ip, ip, aktuelle_zeit))
     db.commit()
 
-    return Response(csv_data, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=links_export.csv"})
+    return Response(csv_data, mimetype="text/csv", headers={"Content-disposition":"attachment; filename=links_export.csv"})
 
 @app.route("/info")
 def info():
@@ -126,7 +133,7 @@ def fahndungsliste_db():
     per_page = 5
     offset = (page - 1) * per_page
 
-    total_links = db.execute("SELECT COUNT(*) FROM links").fetchone()[0]
+    total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
     rows = db.execute("""
         SELECT kanal, zeitstempel
         FROM links
@@ -142,7 +149,7 @@ def fahndungsliste_db():
         cursor = db.cursor()
 
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
-        last_submit = row_cooldown[0] if row_cooldown else 0
+        last_submit = row_cooldown["last_submit"] if row_cooldown else 0
         if (aktuelle_zeit - (last_submit or 0)) < 10:
             fehlermeldung = "Nur alle 10 Sekunden möglich (Fahndungsliste)."
             return render_template(
@@ -167,10 +174,10 @@ def fahndungsliste_db():
                 per_page=per_page
             )
 
-        cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,))
-        duplikat = cursor.fetchone()
+        # Duplikat?
+        duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
         if duplikat:
-            vorhandenes_datum = duplikat[0]
+            vorhandenes_datum = duplikat["zeitstempel"]
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
@@ -187,6 +194,7 @@ def fahndungsliste_db():
                 per_page=per_page
             )
         else:
+            # Neu einfügen
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
             cursor.execute("""
@@ -195,6 +203,7 @@ def fahndungsliste_db():
             """, (kanal_name, zeit, user_agent, ip))
             db.commit()
 
+            # last_submit aktualisieren
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
@@ -215,6 +224,11 @@ def fahndungsliste_db():
 @app.route("/expressmodus")
 def expressmodus():
     return render_template("expressmodus.html")
+    
+@app.route("/Metadaten")
+def metadaten():
+    return render_template("database_content.html")
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
