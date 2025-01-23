@@ -12,9 +12,11 @@
     }
     .field-row {
       margin-bottom: 0.5rem; /* Weniger Abstand bei Eingabefeldern */
+      position: relative;    /* Für absolute Positionierung der Tooltip-Schaltfläche */
     }
     input[type="text"] {
       padding: 0.3rem; /* Weniger Innenabstand */
+      width: 100%;     /* Eingabefeld nimmt komplette Breite ein */
     }
     .btn {
       padding: 0.3rem 0.8rem; /* Kompaktere Buttons */
@@ -31,6 +33,49 @@
     p {
       margin-bottom: 0.3rem; /* Weniger Abstand in Paragraphen */
     }
+
+    /* Tooltip-Button ([?]) oben rechts über dem Eingabefeld */
+    .tooltip-button {
+      position: absolute;
+      top: -18px;       /* Auf gleiche Höhe wie das Input-Feld */
+      right: 0;     /* Rechtsbündig im field-row-Container */
+      transform: translateY(-50%); /* Minimal nach oben gerückt */
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0.2rem;
+      background: #000;
+      color: #fff;
+      border: 1px solid #000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      line-height: 18px;
+      font-family: sans-serif;
+    }
+
+    /* Tooltip-Text in der Mitte des Bildschirms */
+    .tooltiptext {
+      position: fixed; /* Wichtig: fixed => am Fenster klebend */
+      top: 33%;
+      left: 68%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      background-color: #000;
+      color: #fff;
+      font-size: 14px;
+      padding: 0.6rem;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      text-align: left;
+      display: none; /* Versteckt, bis man auf das [?] klickt oder hovered */
+      z-index: 9999; /* Ganz oben */
+    }
+
+    /* Style für sichtbare Tooltip (z. B. per JS toggeln) */
+    .tooltiptext.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -43,22 +88,20 @@
   <!-- Formular: Neuer Link eintragen -->
   <form method="post" style="margin-bottom: 0.8rem;">
     <div class="field-row">
-      <!-- Tooltip-Container -->
-      <div class="tooltip" style="width: 100%; display: block;">
-        <input 
-          type="text" 
-          name="eingabe_link" 
-          placeholder="TikTok-Kanal-URL" 
-          style="width: 100%;"
-        >
-        <!-- Tooltip-Text -->
-        <span class="tooltiptext" style="text-align: left; width: 250px; font-size: 14px; padding: 0.3rem;">
-          Es kann immer nur ein Link gesendet werden.<br>
-          Nur eine Eingabe alle 10 Sekunden.<br>
-          Das Programm erkennt automatisch TikTok-Links.<br>
-          Duplikate werden übersprungen.
-        </span>
-      </div>
+      <input 
+        type="text" 
+        name="eingabe_link" 
+        placeholder="TikTok-Kanal-URL"
+      >
+      <!-- Tooltip-Button ([?]) -->
+      <div class="tooltip-button" id="tooltipBtn">?</div>
+    </div>
+    <!-- Tooltip-Text (fest in HTML, per JS ein-/ausblenden) -->
+    <div class="tooltiptext" id="tooltipBox">
+      Es kann immer nur ein Link gesendet werden.<br>
+      Nur eine Eingabe alle 10 Sekunden.<br>
+      Das Programm erkennt automatisch TikTok-Links.<br>
+      Duplikate werden übersprungen.
     </div>
 
     <button type="submit" class="btn">
@@ -100,16 +143,14 @@
 
   <!-- Pagination -->
   <div style="display:flex; justify-content: space-between; margin-top: 0.8rem;">
-    <!-- Zurück-Link nur anzeigen, falls page > 1 -->
     {% if page > 1 %}
       <a href="{{ url_for('fahndungsliste_db', page=page - 1) }}" class="btn">
         Zurück
       </a>
     {% else %}
-      <span></span> <!-- Platzhalter für Layout -->
+      <span></span>
     {% endif %}
 
-    <!-- Weiter-Link => wenn es potenziell mehr Einträge gibt -->
     {% if links|length >= per_page %}
       <a href="{{ url_for('fahndungsliste_db', page=page + 1) }}" class="btn">
         Weiter
@@ -120,6 +161,23 @@
   </div>
 
 </div>
+
+<script>
+  // Tooltip-Logik: Klick auf [?] => Toggle show/hide
+  const tooltipBtn = document.getElementById('tooltipBtn');
+  const tooltipBox = document.getElementById('tooltipBox');
+
+  tooltipBtn.addEventListener('click', () => {
+    tooltipBox.classList.toggle('show');
+  });
+
+  // Schließen, wenn man irgendwo anders klickt
+  document.addEventListener('click', (e) => {
+    if (!tooltipBtn.contains(e.target) && !tooltipBox.contains(e.target)) {
+      tooltipBox.classList.remove('show');
+    }
+  });
+</script>
 
 </body>
 </html>

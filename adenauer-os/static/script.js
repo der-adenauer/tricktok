@@ -42,7 +42,7 @@ const template1 = `
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Wortwolke </a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
-      <li><a href="#" class="entry-link" data-target="window16">Eintrag C (#16)</a></li>
+      <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Eintrag D (#17)</a></li>
     </ul>
   </div>
@@ -53,7 +53,7 @@ const template1 = `
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Benutzerinfo (Fenster #2)</h1>
+    <h1 class="title">Benutzerkonto</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
@@ -66,11 +66,11 @@ const template2 = `
 const template3 = `
 <div class="window modal-window" data-win="win3" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Hilfe (Fenster #3)</h1>
+    <h1 class="title">Hilfe</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Hilfe-Inhalt oder Hilfetexte.</p>
+    <p>Hilfe-Inhalt</p>
   </div>
 </div>
 `;
@@ -120,11 +120,11 @@ const template9 = `
 const template10 = `
 <div class="window modal-window" data-win="win10" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Notiz (Fenster #10)</h1>
+    <h1 class="title">Notiz 10</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Leeres Fenster für Notizen (Platzhalter).</p>
+    <p>(Platzhalter).</p>
   </div>
 </div>
 `;
