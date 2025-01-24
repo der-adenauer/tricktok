@@ -92,7 +92,7 @@ const template4 = `
 `;
 // #8: Fahndungsliste (Iframe)
 const template8 = `
-<div class="window modal-window" data-win="win8" style="width:800px; height:600px;">
+<div class="window modal-window" data-win="win8" style="width:800px; height:680px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Fahndungsliste</h1>
     <span class="close">[x]</span>

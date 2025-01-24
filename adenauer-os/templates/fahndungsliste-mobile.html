@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Fahndungsliste (Mobile)</title>
+  <!-- System-CSS einbinden -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-size: 16px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background-color: #e1e1e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px;
+      border-bottom: 1px solid #000;
+    }
+    .marquee-container {
+      flex: 0.8;
+      text-align: center;
+    }
+    marquee {
+      font-size: 16px;
+      color: #000;
+    }
+    .menu-bar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu-bar li {
+      display: inline-block;
+    }
+    .menu-bar a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #000;
+    }
+    #systemTime {
+      font-family: "Courier New", monospace;
+      font-size: 0.9rem;
+      color: #000;
+    }
+
+    /* Optionale ASCII-Div (zwischen Header und Hauptcontainer) */
+    .ascii-art {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    /* Tooltip-Button ([?]) */
+    .tooltip-button {
+      position: absolute;
+      top: -18px; 
+      right: 0;   
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0.2rem;
+      background: #000;
+      color: #fff;
+      border: 1px solid #000;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      text-align: center;
+      line-height: 18px;
+      font-family: sans-serif;
+    }
+
+    /* Tooltip-Text (fest in HTML, per JS getoggelt) */
+    .tooltiptext {
+      position: fixed;
+      top: 33%;
+      left: 68%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      background-color: #000;
+      color: #fff;
+      font-size: 14px;
+      padding: 0.6rem;
+      border: 2px solid #fff;
+      border-radius: 6px;
+      display: none; /* Unsichtbar bis Klick */
+      z-index: 9999; /* Ganz oben */
+    }
+    .tooltiptext.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <!-- Link (AdenauerOS) -->
+  <div class="menu-bar">
+    <ul>
+      <li>
+        <a href="https://tricktok.afd-verbot.de" target="_self">AdenauerOS</a>
+      </li>
+    </ul>
+  </div>
+  <!-- Lauftext (Marquee) -->
+  <div class="marquee-container">
+    <marquee behavior="scroll" direction="left" scrollamount="5">
+      Tricktok Fahndungsliste – Meldestelle für verdächtige Tiktok Kanäle.  
+    </marquee>
+  </div>
+  <!-- Uhrzeit -->
+  <div id="systemTime"></div>
+</header>
+
+<!-- ASCII-Block zwischen Header und Inhalt -->
+<div class="ascii-art">
+<h2> Tricktok Fahndungsliste</h2>
+<h3> Annahmestelle für Tiktok-Links zur massenhaften Observierung.</h3>
+</div>
+
+<div style="max-width: 800px; margin: 1rem auto; border: 2px solid #000; padding: 1rem; background: #fff;">
+  <!-- Überschrift -->
+  <h2 class="heading">Neuer Link</h2>
+
+  <!-- Formular -->
+  <form method="post" style="margin-bottom: 0.8rem;">
+    <div class="field-row" style="position:relative;">
+      <input 
+        type="text" 
+        name="eingabe_link" 
+        placeholder="TikTok-Kanal-URL"
+      >
+      <!-- Tooltip-Button ([?]) -->
+      <div class="tooltip-button" id="tooltipBtn">?</div>
+    </div>
+    <!-- Tooltip -->
+    <div class="tooltiptext" id="tooltipBox">
+      Es kann immer nur ein Link gesendet werden.<br>
+      Nur eine Eingabe alle 10 Sekunden.<br>
+      Das Programm erkennt automatisch TikTok-Links.<br>
+      Duplikate werden übersprungen.
+    </div>
+
+    <button type="submit" class="btn">
+      Speichern
+    </button>
+  </form>
+
+  <!-- Fehlermeldung -->
+  {% if fehlermeldung %}
+    <div style="color: red; margin-bottom: 0.5rem; font-size: 14px;">
+      {{ fehlermeldung }}
+    </div>
+  {% endif %}
+
+  <!-- Gesamtzahl -->
+  <p><strong>Gesamtzahl:</strong> {{ total_links }}</p>
+
+  <!-- Export CSV => 'export_csv_mobile' -->
+  <p>
+    <a href="{{ url_for('export_csv_mobile') }}" class="btn">Export CSV</a>
+  </p>
+
+  <h3>Tiktok-Kanal Fahndungsliste</h3>
+  <ul class="list-group">
+    {% for eintrag in links %}
+      <li class="list-group-item">
+        {{ eintrag.kanal }}
+        <span style="float:right;">{{ eintrag.zeitstempel }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <!-- Pagination -->
+  <div style="display:flex; justify-content: space-between; margin-top: 0.8rem;">
+    {% if page > 1 %}
+      <a href="{{ url_for('fahndungsliste_mobile', page=page - 1) }}" class="btn">Zurück</a>
+    {% else %}
+      <span></span>
+    {% endif %}
+
+    {% if links|length >= per_page %}
+      <a href="{{ url_for('fahndungsliste_mobile', page=page + 1) }}" class="btn">Weiter</a>
+    {% else %}
+      <span></span>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Zeit-Anzeige
+  function updateSystemTime() {
+    const el = document.getElementById("systemTime");
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString();
+  }
+  setInterval(updateSystemTime, 1000);
+  updateSystemTime();
+
+  // Tooltip-Logik
+  const tooltipBtn = document.getElementById('tooltipBtn');
+  const tooltipBox = document.getElementById('tooltipBox');
+
+  // Klick auf das Fragezeichen => Toggle "show"
+  tooltipBtn.addEventListener('click', () => {
+    tooltipBox.classList.toggle('show');
+  });
+
+  // Wenn irgendwo außerhalb des Tooltips geklickt wird => Tooltip ausblenden
+  document.addEventListener('click', (e) => {
+    if (!tooltipBtn.contains(e.target) && !tooltipBox.contains(e.target)) {
+      tooltipBox.classList.remove('show');
+    }
+  });
+</script>
+
+</body>
+</html>
