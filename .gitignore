@@ -178,3 +178,4 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 tt-link-sync/key.txt
+*.log
