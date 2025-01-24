@@ -75,7 +75,7 @@
       font-family: sans-serif;
     }
 
-    /* Tooltip-Text (fest in HTML, per JS getoggelt) */
+    /* Tooltip-Text */
     .tooltiptext {
       position: fixed;
       top: 33%;
@@ -88,11 +88,19 @@
       padding: 0.6rem;
       border: 2px solid #fff;
       border-radius: 6px;
-      display: none; /* Unsichtbar bis Klick */
-      z-index: 9999; /* Ganz oben */
+      display: none;
+      z-index: 9999;
     }
     .tooltiptext.show {
       display: block;
+    }
+
+    /* Styling für das Banner-Bild */
+    .banner-image {
+      width: 100%; /* Vollbreite der Seite */
+      height: auto; /* Automatische Höhe */
+      display: block; /* Block-Level für korrekte Breite */
+      margin-top: 1rem; /* Abstand oberhalb des Bildes */
     }
   </style>
 </head>
@@ -110,7 +118,7 @@
   <!-- Lauftext (Marquee) -->
   <div class="marquee-container">
     <marquee behavior="scroll" direction="left" scrollamount="5">
-      Tricktok Fahndungsliste – Meldestelle für verdächtige Tiktok Kanäle.  
+      Tricktok Fahndungsliste – Annahmestelle für verdächtige Tiktok Kanäle.  
     </marquee>
   </div>
   <!-- Uhrzeit -->
@@ -191,6 +199,14 @@
     {% endif %}
   </div>
 </div>
+
+<div style="max-width: 800px; margin: 1rem auto; border: 2px solid #000; padding: 1rem; background: #fff;">
+<img src="/static/banderole2.png" alt="Banderole-Bild" class="banner-image">
+
+</div>
+
+
+
 
 <script>
   // Zeit-Anzeige
