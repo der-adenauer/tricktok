@@ -335,7 +335,7 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
 
-        # Duplikat?
+        # Duplikat
         duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
         if duplikat:
             vorhandenes_datum = duplikat["zeitstempel"]
