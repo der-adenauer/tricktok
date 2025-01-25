@@ -278,7 +278,7 @@ textarea {
   flex-direction: column;
   margin: 1rem auto;
   min-width: 320px;
-  max-width: 800px;
+  max-width: 1200px;
   padding: 1rem;
   box-shadow: 4px 4px 0 #000;
   overflow: hidden;
