@@ -105,7 +105,7 @@ const template8 = `
 
 // #9: Suche (Iframe)
 const template9 = `
-<div class="window modal-window" data-win="win9" style="width:1000px; height:650px;">
+<div class="window modal-window" data-win="win9" style="width:1200px; height:800px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Suche</h1>
     <span class="close">[x]</span>
@@ -115,6 +115,7 @@ const template9 = `
   </div>
 </div>
 `;
+
 
 // #10: Notiz
 const template10 = `
