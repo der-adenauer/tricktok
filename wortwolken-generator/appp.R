@@ -1,8 +1,9 @@
 #!/usr/bin/env Rscript
 # -*- coding: utf-8 -*-
 
-# Erweiterte Shiny-App mit Reset-Knopf, Zufallsanzeige und zwei Slidern
-# zur Steuerung der Wortwolke
+# Shiny-App: Wortwolke mit Range-Slider für Häufigkeitsbereich
+#             und Slider für maximale Wortanzahl (auf Deutsch).
+# Angepasster Wertebereich: bis 2.500 für Frequenzen, bis 500 für Wortanzahl.
 
 # -----------------------------
 # Schritt 1: Installation der Pakete (falls nicht installiert)
@@ -15,7 +16,7 @@ required_packages <- c(
 
 install_if_missing <- function(packages) {
   installed <- installed.packages()[, "Package"]
-  for(pkg in packages){
+  for (pkg in packages) {
     if(!(pkg %in% installed)){
       install.packages(pkg, dependencies = TRUE, repos = "http://cran.rstudio.com/")
     }
@@ -42,7 +43,7 @@ library(stringr)
 # Schritt 3: Verbindung zur SQLite-Datenbank und Datenabruf
 # -----------------------------
 
-DB_PATH <- "media_metadata.db"
+DB_PATH <- "media_metadata.db"  # Anpassen, falls der Dateiname anders lautet
 
 if(!file.exists(DB_PATH)){
   stop(paste("Datenbankdatei nicht gefunden:", DB_PATH))
@@ -74,7 +75,7 @@ uploader_choices <- c("Alle", sort(unique(df$uploader)))
 # -----------------------------
 
 ui <- fluidPage(
-  titlePanel("Wortwolke mit Steuerung und Reset"),
+  titlePanel(""),
   
   sidebarLayout(
     sidebarPanel(
@@ -88,15 +89,34 @@ ui <- fluidPage(
       ),
       actionButton("reset", "Reset"),
       br(),
-      sliderInput("min_freq",
-                  "Minimum Frequency:",
-                  min = 1, max = 50, value = 3),
+      
+      # Range-Slider für minimale und maximale Worthäufigkeit
+      sliderInput("freq_range",
+                  "Häufigkeitsbereich (von - bis):",
+                  min = 1,
+                  max = 2500,
+                  value = c(3, 50),  # Beispielhafte Startwerte
+                  step = 1),
+      
+      # Slider für maximale Anzahl an Wörtern in der Wortwolke
       sliderInput("max_words",
-                  "Maximum Number of Words:",
-                  min = 1, max = 300, value = 100),
+                  "Maximale Anzahl der Wörter:",
+                  min = 1, max = 500, value = 100),
+      
       br(),
-      helpText("Reset setzt die Dropdown-Auswahl auf 'Alle' zurück. 
-               Slider steuern Wortwolke basierend auf Worthäufigkeit.")
+      helpText(
+        "Erläuterungen:",
+        br(),
+        "• 'Reset' setzt die Dropdown-Auswahl auf 'Alle' zurück.",
+        br(),
+        "• Der Häufigkeitsbereich-Slider legt fest, welche Wörter ",
+        "  anhand ihrer Vorkommen im Titel berücksichtigt werden. ",
+        "  (Beispiel: bei [3, 50] werden nur Wörter gezeigt, die ",
+        "  mindestens 3-mal und höchstens 50-mal vorkamen.)",
+        br(),
+        "• Die 'Maximale Anzahl der Wörter' begrenzt zusätzlich die ",
+        "  maximale Anzahl in der Wortwolke."
+      )
     ),
     
     mainPanel(
@@ -113,10 +133,12 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
+  # Reset-Knopf: Setzt den Uploader zurück auf "Alle"
   observeEvent(input$reset, {
     updateSelectInput(session, "selected_uploader", selected = "Alle")
   })
   
+  # Daten filtern nach Uploader
   data_filtered <- reactive({
     if (input$selected_uploader == "Alle") {
       df
@@ -125,27 +147,37 @@ server <- function(input, output, session) {
     }
   })
   
+  # Wort-Frequenzen berechnen
   word_counts <- reactive({
     data_subset <- data_filtered() %>%
       filter(!is.na(title)) %>%
       unnest_tokens(word, title) %>%
-      anti_join(tibble(word = stopwords::stopwords("de")), by = "word") %>%
+      anti_join(tibble(word = stopwords("de")), by = "word") %>%
       filter(!grepl("^[0-9]+$", word)) %>%
       count(word, sort = TRUE)
     
-    # Anwendung der Slider-Filter:
+    # Range-Filter für die Worthäufigkeit
+    freq_min <- input$freq_range[1]
+    freq_max <- input$freq_range[2]
+    
     data_subset <- data_subset %>%
-      filter(n >= input$min_freq) %>%
+      # Nur Wörter behalten, deren Häufigkeit innerhalb von [freq_min, freq_max] liegt
+      filter(n >= freq_min & n <= freq_max)
+    
+    # Zusätzliche Begrenzung auf die gewünschten max_words
+    data_subset <- data_subset %>%
       top_n(input$max_words, n)
     
     data_subset
   })
   
+  # Erzeugung der Wortwolke
   output$wordcloud <- renderWordcloud2({
     df_wc <- word_counts()
     
     if (nrow(df_wc) == 0) {
-      return(wordcloud2(data.frame(word = "Keine Titel gefunden", freq = 1), size = 1))
+      return(wordcloud2(data.frame(word = "Keine Titel gefunden", freq = 1),
+                        size = 1))
     }
     
     # Farbpalette für Wortwolke
@@ -159,9 +191,10 @@ server <- function(input, output, session) {
     )
   })
   
+  # Zufällig gemischte Datentabelle anzeigen
   output$filtered_tbl <- renderDT({
     data_subset <- data_filtered() %>%
-      sample_frac(1) %>%  # Zufällige Reihenfolge
+      sample_frac(1) %>%
       select(id, url, title, uploader)
     
     datatable(
