@@ -41,8 +41,8 @@ const template1 = `
     <p>Liste von Einträgen:</p>
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Wortwolke </a></li>
+	  <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
-      <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
     </ul>
   </div>
@@ -195,7 +195,7 @@ const template17 = `
       Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
     </p>
     <p>
-      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig 
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig. 
       Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
     </p>
 <center>
