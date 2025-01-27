@@ -70,10 +70,36 @@ const template3 = `
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Hilfe-Inhalt</p>
+    <p>
+      Offizielle Dienstanweisung zur Verwendung von AdenauerOS einem Betriebssystem zur massenhaften Observierung potenziell rechtsradikaler Inhalte auf TikTok. Gewährleistet werden strukturierte Erfassung und zentrale Archivierung relevanter Daten. Folgende Teilfunktionen sind vorgesehen:<br><br>
+      
+  
+      
+ <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
+         <strong>Index</strong>  <br>
+	 Verzeichnisstruktur für unterschiedlichste Dateien zum laufenden Vorhaben. Umfasst archivierte Vorgänge zuständiger Dienststellen.<br><br>
+      
+
+
+
+	  <img src="/static/icon8.png" alt="icon8" width="64" height="64"><br>
+      <strong>Fahndungsliste</strong><br>
+  
+      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. Zentrale Datenbank mit Lese- und Schreibzugriff im gesamten Bundesgebiet. Ziel besteht in der Dokumentation sämtlicher relevanter Inhalte.<br><br>
+	  
+	  Ein spezieller Zugriff für die Ermittlungen in Telearbeit ist im Verzeichnis <strong>"Telearbeit - Fahndungsliste"</strong> hinterlegt.
+      <br><br>
+	  
+	  <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
+      <strong>Suche</strong><br>
+      
+      Umfassende Durchsuchungs- und Filterfunktionen für alle observierten Videotitel. Konfigurierbare Verteilung häufig verwendeter Wörter per Wortwolke erleichtern die Observierung der Kanäle. 
+	  
+    </p>
   </div>
 </div>
 `;
+
 
 // #4: Programmquelle
 const template4 = `
@@ -84,7 +110,7 @@ const template4 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS - Projekt Tricktok</h2>
-    <p>Dieses Programm ist ein Betriebs- und Datenbanksystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
+    <p>Dieses Programm ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
