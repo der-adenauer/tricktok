@@ -1,3 +1,4 @@
+ls
 #!/bin/bash
 
 # Set the path for conda

@@ -1,28 +1,29 @@
 #!/usr/bin/env Rscript
 # -*- coding: utf-8 -*-
 
-# Shiny-App: Wortwolke mit Range-Slider für Häufigkeitsbereich
-#             und Slider für maximale Wortanzahl (auf Deutsch).
-# Angepasster Wertebereich: bis 2.500 für Frequenzen, bis 500 für Wortanzahl.
+# interactive_wordcloud_app.R
+# Dieses Skript erstellt eine interaktive Wortwolke mit Shiny basierend auf Daten aus einer SQLite-Datenbank.
+# Es ist für die Ausführung auf einer entfernten Maschine konfiguriert und öffnet keinen Browser automatisch.
 
 # -----------------------------
 # Schritt 1: Installation der Pakete (falls nicht installiert)
 # -----------------------------
 
-required_packages <- c(
-  "RSQLite", "DBI", "dplyr", "tidytext", "wordcloud2", 
-  "stopwords", "shiny", "DT", "stringr"
-)
+# Liste der benötigten Pakete
+required_packages <- c("RSQLite", "DBI", "dplyr", "tidytext", "wordcloud2", 
+                       "stopwords", "shiny", "DT", "stringr")
 
+# Funktion zur Installation fehlender Pakete
 install_if_missing <- function(packages) {
-  installed <- installed.packages()[, "Package"]
-  for (pkg in packages) {
+  installed <- installed.packages()[,"Package"]
+  for(pkg in packages){
     if(!(pkg %in% installed)){
       install.packages(pkg, dependencies = TRUE, repos = "http://cran.rstudio.com/")
     }
   }
 }
 
+# Installiere fehlende Pakete
 install_if_missing(required_packages)
 
 # -----------------------------
@@ -40,175 +41,132 @@ library(DT)
 library(stringr)
 
 # -----------------------------
-# Schritt 3: Verbindung zur SQLite-Datenbank und Datenabruf
+# Schritt 3: Verbindung zur SQLite-Datenbank herstellen und Daten abrufen
 # -----------------------------
 
-DB_PATH <- "media_metadata.db"  # Anpassen, falls der Dateiname anders lautet
+# Definiere den Pfad zur Datenbank
+DB_PATH <- "tiktok_media_metadata.db"
 
+# Überprüfe, ob die Datenbankdatei existiert
 if(!file.exists(DB_PATH)){
-  stop(paste("Datenbankdatei nicht gefunden:", DB_PATH))
+  stop(paste("Die Datenbankdatei wurde nicht gefunden:", DB_PATH))
 }
 
-con <- dbConnect(SQLite(), DB_PATH)
+# Stelle eine Verbindung zur SQLite-Datenbank her
+con <- dbConnect(RSQLite::SQLite(), DB_PATH)
+
+# Überprüfe, ob die Tabelle 'media_metadata' existiert
 tables <- dbListTables(con)
 if(!"media_metadata" %in% tables){
   dbDisconnect(con)
-  stop("Tabelle 'media_metadata' nicht in der Datenbank vorhanden.")
+  stop("Die Tabelle 'media_metadata' existiert nicht in der Datenbank.")
 }
 
+# Lese die Tabelle 'media_metadata' in einen DataFrame
 df <- dbReadTable(con, "media_metadata")
+
+# Schließe die Datenbankverbindung
 dbDisconnect(con)
 
+# Sicherstellen, dass die Spalte 'title' als Zeichenkette vorliegt
 if(!"title" %in% colnames(df)){
-  stop("Spalte 'title' nicht in der Tabelle 'media_metadata' vorhanden.")
+  stop("Die Spalte 'title' wurde in der Tabelle 'media_metadata' nicht gefunden.")
 }
 df$title <- as.character(df$title)
 
 # -----------------------------
-# Schritt 4: Eindeutige Uploader + "Alle" hinzufügen
+# Schritt 4: Textverarbeitung
 # -----------------------------
 
-uploader_choices <- c("Alle", sort(unique(df$uploader)))
+# Textverarbeitung: Tokenisierung, Entfernen von Stoppwörtern und Zählen der Wortfrequenzen
+word_counts <- df %>%
+  filter(!is.na(title)) %>%
+  unnest_tokens(word, title) %>%
+  # Entferne Stoppwörter in deutscher Sprache
+  anti_join(tibble(word = stopwords::stopwords("de")), by = "word") %>%
+  # Entferne Wörter, die nur aus Zahlen bestehen
+  filter(!grepl("^[0-9]+$", word)) %>%
+  # Zähle die Häufigkeit der Wörter
+  count(word, sort = TRUE)
 
 # -----------------------------
-# Schritt 5: Shiny-Benutzeroberfläche (UI)
+# Schritt 5: Definieren der benutzerdefinierten Farbpalette
 # -----------------------------
 
+my_palette <- c("#2ea9df", "#0073c0", "#ff2e17")
+
+# -----------------------------
+# Schritt 6: Definition der Shiny-App
+# -----------------------------
+
+# Benutzeroberfläche (UI) der Shiny-App
 ui <- fluidPage(
-  titlePanel(""),
+  titlePanel("Tricktok Suche"),
   
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(
-        inputId = "selected_uploader",
-        label = "Uploader auswählen oder suchen:",
-        choices = uploader_choices,
-        selected = "Alle",
-        multiple = FALSE,
-        selectize = TRUE
-      ),
-      actionButton("reset", "Reset"),
-      br(),
-      
-      # Range-Slider für minimale und maximale Worthäufigkeit
-      sliderInput("freq_range",
-                  "Häufigkeitsbereich (von - bis):",
-                  min = 1,
-                  max = 2500,
-                  value = c(3, 50),  # Beispielhafte Startwerte
-                  step = 1),
-      
-      # Slider für maximale Anzahl an Wörtern in der Wortwolke
-      sliderInput("max_words",
-                  "Maximale Anzahl der Wörter:",
-                  min = 1, max = 500, value = 100),
-      
-      br(),
-      helpText(
-        "Erläuterungen:",
-        br(),
-        "• 'Reset' setzt die Dropdown-Auswahl auf 'Alle' zurück.",
-        br(),
-        "• Der Häufigkeitsbereich-Slider legt fest, welche Wörter ",
-        "  anhand ihrer Vorkommen im Titel berücksichtigt werden. ",
-        "  (Beispiel: bei [3, 50] werden nur Wörter gezeigt, die ",
-        "  mindestens 3-mal und höchstens 50-mal vorkamen.)",
-        br(),
-        "• Die 'Maximale Anzahl der Wörter' begrenzt zusätzlich die ",
-        "  maximale Anzahl in der Wortwolke."
-      )
-    ),
-    
-    mainPanel(
-      wordcloud2Output("wordcloud", width = "100%", height = "500px"),
-      br(),
-      DTOutput("filtered_tbl")
-    )
-  )
+  # Suchfeld für die Textsuche
+  textInput("search_term", "Suchbegriff eingeben:", ""),
+  
+  # Wortwolke anzeigen
+  wordcloud2Output("wordcloud", width = "100%", height = "600px"),
+  
+  # Tabelle anzeigen
+  DTOutput("filtered_tbl"),
+  
+  # JavaScript zur Erfassung von Klickereignissen auf der Wortwolke
+  tags$script(HTML(
+    "
+    $(document).on('click', '.wordcloud2-canvas', function(e) {
+      var word = e.target.textContent;
+      if (word) {
+        Shiny.setInputValue('clicked_word', word, {priority: 'event'});
+      }
+    });
+    "
+  ))
 )
 
-# -----------------------------
-# Schritt 6: Server-Logik
-# -----------------------------
-
+# Server-Logik der Shiny-App
 server <- function(input, output, session) {
   
-  # Reset-Knopf: Setzt den Uploader zurück auf "Alle"
-  observeEvent(input$reset, {
-    updateSelectInput(session, "selected_uploader", selected = "Alle")
-  })
-  
-  # Daten filtern nach Uploader
-  data_filtered <- reactive({
-    if (input$selected_uploader == "Alle") {
-      df
-    } else {
-      df %>% filter(uploader == input$selected_uploader)
-    }
-  })
-  
-  # Wort-Frequenzen berechnen
-  word_counts <- reactive({
-    data_subset <- data_filtered() %>%
-      filter(!is.na(title)) %>%
-      unnest_tokens(word, title) %>%
-      anti_join(tibble(word = stopwords("de")), by = "word") %>%
-      filter(!grepl("^[0-9]+$", word)) %>%
-      count(word, sort = TRUE)
-    
-    # Range-Filter für die Worthäufigkeit
-    freq_min <- input$freq_range[1]
-    freq_max <- input$freq_range[2]
-    
-    data_subset <- data_subset %>%
-      # Nur Wörter behalten, deren Häufigkeit innerhalb von [freq_min, freq_max] liegt
-      filter(n >= freq_min & n <= freq_max)
-    
-    # Zusätzliche Begrenzung auf die gewünschten max_words
-    data_subset <- data_subset %>%
-      top_n(input$max_words, n)
-    
-    data_subset
-  })
-  
-  # Erzeugung der Wortwolke
+  # Render die Wortwolke
   output$wordcloud <- renderWordcloud2({
-    df_wc <- word_counts()
-    
-    if (nrow(df_wc) == 0) {
-      return(wordcloud2(data.frame(word = "Keine Titel gefunden", freq = 1),
-                        size = 1))
-    }
-    
-    # Farbpalette für Wortwolke
-    my_palette <- c("#2ea9df", "#0073c0", "#ff2e17")
-    
     wordcloud2(
-      data = df_wc,
-      color = rep_len(my_palette, nrow(df_wc)),
-      size = 2.5,
+      data = word_counts,
+      color = rep_len(my_palette, nrow(word_counts)),
+      size = 5.2,
       backgroundColor = "white"
     )
   })
   
-  # Zufällig gemischte Datentabelle anzeigen
+  # Reaktive Funktion zur Filterung der Daten basierend auf dem Suchbegriff oder dem geklickten Wort
+  filtered_data <- reactive({
+    if (input$search_term != "") {
+      search_term <- tolower(input$search_term)
+      df %>%
+        filter(str_detect(tolower(title), fixed(search_term))) %>%
+        select(id, url, title)
+    } else {
+      req(input$clicked_word)
+      clicked_word <- str_remove(input$clicked_word, ":[0-9]+$")
+      df %>%
+        filter(str_detect(tolower(title), fixed(tolower(clicked_word)))) %>%
+        select(id, url, title)
+    }
+  })
+  
+  # Render die gefilterte Tabelle
   output$filtered_tbl <- renderDT({
-    data_subset <- data_filtered() %>%
-      sample_frac(1) %>%
-      select(id, url, title, uploader)
-    
-    datatable(
-      data_subset,
-      options = list(pageLength = 10)
-    )
+    datatable(filtered_data(), options = list(pageLength = 10))
   })
 }
 
 # -----------------------------
-# Schritt 7: Starten der Shiny-App
+# Schritt 7: Starten der Shiny-App ohne Browser zu öffnen
 # -----------------------------
 
-app_port <- 9432
-app_host <- "0.0.0.0"
+# Definiere die Portnummer und Host (0.0.0.0 für alle Verbindungen)
+app_port <- 9432  # Geänderter Port
+app_host <- "0.0.0.0"  # Hört auf allen Netzwerk-Schnittstellen
 
+# Starte die Shiny-App
 shinyApp(ui, server, options = list(host = app_host, port = app_port, launch.browser = FALSE))
