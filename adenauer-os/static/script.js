@@ -40,7 +40,7 @@ const template1 = `
   <div class="window-pane" style="padding:1rem;">
     <p>Liste von Einträgen:</p>
     <ul>
-      <li><a href="#" class="entry-link" data-target="window14">Wortwolke </a></li>
+      <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke </a></li>
 	  <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
@@ -57,6 +57,7 @@ const template2 = `
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
+  <img src="/static/icon7.png" alt="icon7" width="64" height="64">
     <p>Infos zum angemeldeten Benutzer (Platzhalter).</p>
   </div>
 </div>
@@ -148,9 +149,9 @@ const template10 = `
 `;
 
 const template14 = `
-<div class="window modal-window" data-win="win14" style="width:800px; height:600px;">
+<div class="window modal-window" data-win="win14" style="width:1000px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Wortwolke (#14)</h1>
+    <h1 class="title">Hashtag - Wortwolke</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="text-align:center; display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 40px); padding:10px;">
