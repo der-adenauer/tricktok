@@ -43,7 +43,7 @@ const template1 = `
       <li><a href="#" class="entry-link" data-target="window14">Wortwolke </a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
-      <li><a href="#" class="entry-link" data-target="window17">Eintrag D (#17)</a></li>
+      <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
     </ul>
   </div>
 </div>
@@ -64,42 +64,32 @@ const template2 = `
 
 // #3: Hilfe
 const template3 = `
-<div class="window modal-window" data-win="win3" style="width:400px;">
+<div class="window modal-window" data-win="win3" style="width:800px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Hilfe</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>
-      Offizielle Dienstanweisung zur Verwendung von AdenauerOS einem Betriebssystem zur massenhaften Observierung potenziell rechtsradikaler Inhalte auf TikTok. Gewährleistet werden strukturierte Erfassung und zentrale Archivierung relevanter Daten. Folgende Teilfunktionen sind vorgesehen:<br><br>
-      
-  
-      
- <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
-         <strong>Index</strong>  <br>
-	 Verzeichnisstruktur für unterschiedlichste Dateien zum laufenden Vorhaben. Umfasst archivierte Vorgänge zuständiger Dienststellen.<br><br>
-      
+      Offizielle Dienstanweisung zur Verwendung von AdenauerOS .  Folgende Teilfunktionen sind vorgesehen:<br><br>
 
+      <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
+      <strong>Index</strong><br>
+      Verzeichnisstruktur für unterschiedlichste Dateien zum laufenden Vorhaben. Umfasst archivierte Vorgänge zuständiger Dienststellen.<br><br>
 
-
-	  <img src="/static/icon8.png" alt="icon8" width="64" height="64"><br>
+      <img src="/static/icon8.png" alt="icon8" width="64" height="64"><br>
       <strong>Fahndungsliste</strong><br>
-  
-      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. Zentrale Datenbank mit Lese- und Schreibzugriff im gesamten Bundesgebiet. Ziel besteht in der Dokumentation sämtlicher relevanter Inhalte.<br><br>
-	  
-	  Ein spezieller Zugriff für die Ermittlungen in Telearbeit ist im Verzeichnis <strong>"Telearbeit - Fahndungsliste"</strong> hinterlegt.
+      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. Zentrale Datenbank mit Lese- und Schreibzugriff im gesamten Bundesgebiet. Ziel besteht in der Dokumentation sämtlicher relevanter Inhalte von der Unterhaltungsplatform Tiktok.<br><br>
+      Ein spezieller Zugriff für die Ermittlungen in Telearbeit ist im Index unter: <strong>"Anweisungen zu Telearbeit"</strong> hinterlegt.
       <br><br>
-	  
-	  <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
+
+      <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
       <strong>Suche</strong><br>
-      
-      Umfassende Durchsuchungs- und Filterfunktionen für alle observierten Videotitel. Konfigurierbare Verteilung häufig verwendeter Wörter per Wortwolke erleichtern die Observierung der Kanäle. 
-	  
+      Umfassende Durchsuchungs- und Filterfunktionen für alle observierten Videotitel. Konfigurierbare Verteilung häufig verwendeter Wörter per Wortwolke erleichtern die Observierung der Kanäle.
     </p>
   </div>
 </div>
 `;
-
 
 // #4: Programmquelle
 const template4 = `
@@ -116,6 +106,7 @@ const template4 = `
   </div>
 </div>
 `;
+
 // #8: Fahndungsliste (Iframe)
 const template8 = `
 <div class="window modal-window" data-win="win8" style="width:800px; height:680px;">
@@ -131,7 +122,7 @@ const template8 = `
 
 // #9: Suche (Iframe)
 const template9 = `
-<div class="window modal-window" data-win="win9" style="width:1200px; height:800px;">
+<div class="window modal-window" data-win="win9" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Suche</h1>
     <span class="close">[x]</span>
@@ -168,7 +159,6 @@ const template14 = `
 </div>
 `;
 
-
 const template15 = `
 <div class="window modal-window" data-win="win15" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -182,7 +172,7 @@ const template15 = `
 `;
 
 const template16 = `
-<div class="window modal-window" data-win="win16" style="width:auto; max-width:800px; margin:auto; background-color:#fff;">
+<div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
   <div class="title-bar" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
     <h1 class="title" style="margin:0;">Logo</h1>
     <span class="close" style="cursor:pointer;">[x]</span>
@@ -192,34 +182,50 @@ const template16 = `
   </div>
 </div>
 `;
+
 const template17 = `
-<div class="window modal-window" data-win="win17" style="width:400px;">
+<div class="window modal-window" data-win="win17" style="width:800px; height:800px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag D (#17)</h1>
+    <h1 class="title">Anweisungen zu Telearbeit</h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Detail zu Eintrag D.</p>
-  </div>
+    <h2>Anweisungen zu Telearbeit</h2>
+    <p>
+      Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
+    </p>
+    <p>
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig 
+      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
+    </p>
+<center>
+    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
+</center>
+ </div>
 </div>
 `;
+
 
 /***********************************************
  * createWindow()
  ***********************************************/
 function createWindow(template, windowKey) {
+  // Keine Dopplung, falls bereits geöffnet:
   if (openedWindows[windowKey]) {
     return;
   }
   openedWindows[windowKey] = true;
 
+  // Template in DOM-Element umwandeln:
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
 
+  // Z-Index erhöhen
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
 
+  // Position via localStorage laden, sonst Default:
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -230,15 +236,17 @@ function createWindow(template, windowKey) {
     }
   } else {
     modalEl.style.left = "60px";
-    modalEl.style.top = "160px"; // Start weiter unten, falls gewünscht
+    modalEl.style.top = "160px";
   }
 
+  // Klick => Fensterebene nach oben (zIndex)
   modalEl.addEventListener('mousedown', () => {
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
   });
 
+  // Close-Button
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
@@ -249,9 +257,10 @@ function createWindow(template, windowKey) {
     });
   }
 
+  // Draggable
   makeDraggable(modalEl, windowKey);
 
-  // Beim Verzeichnisfenster (#1) => Links anklickbar
+  // Bei Fenster #1 => Interne Links
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -263,6 +272,7 @@ function createWindow(template, windowKey) {
     });
   }
 
+  // An DOM anhängen
   modalContainer.appendChild(modalEl);
 }
 
@@ -283,12 +293,15 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
+
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
+
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
+
   function onMouseMove(e) {
     if (!isDragging) return;
     let newLeft = e.clientX - offsetX;
@@ -300,6 +313,7 @@ function makeDraggable(windowEl, windowKey) {
     windowEl.style.left = newLeft + 'px';
     windowEl.style.top = newTop + 'px';
   }
+
   function onMouseUp() {
     isDragging = false;
     document.removeEventListener('mousemove', onMouseMove);
@@ -313,13 +327,16 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
+
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
     offsetY = touch.clientY - rect.top;
+
     document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', onTouchEnd);
   }
+
   function onTouchMove(e) {
     if (!isDragging) return;
     e.preventDefault();
@@ -333,6 +350,7 @@ function makeDraggable(windowEl, windowKey) {
     windowEl.style.left = newLeft + 'px';
     windowEl.style.top = newTop + 'px';
   }
+
   function onTouchEnd() {
     isDragging = false;
     document.removeEventListener('touchmove', onTouchMove);
@@ -351,9 +369,11 @@ function saveWindowPosition(modalEl, windowKey) {
   windowState[windowKey] = { left, top, zIndex };
   saveWindowState();
 }
+
 function saveWindowState() {
   localStorage.setItem('tiktokDesktopState', JSON.stringify(windowState));
 }
+
 function loadWindowState() {
   const data = localStorage.getItem('tiktokDesktopState');
   if (data) {
@@ -389,6 +409,7 @@ const modalContainer = document.getElementById('modalContainer');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
+  // Bereits geöffnete Fenster aus localStorage erneut öffnen:
   for (const key in windowState) {
     if (windowState.hasOwnProperty(key)) {
       createWindow(getTemplate(key), key);
@@ -444,7 +465,7 @@ if (icon10) {
   });
 }
 
-// Export-Link Cooldown (falls vorhanden)
+// Beispiel: Cooldown für Export-Link (optional)
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {

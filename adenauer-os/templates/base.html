@@ -101,35 +101,21 @@
       margin: 0 auto;
     }
 
-    /* 
-     * =============== NEUE ÜBERSTEUERUNG ===============
-     * Damit jedes Icon individuell positioniert werden kann.
-     * Wir überschreiben die flex-Styles, etc. 
-     */
     .icon-bar {
-      /* Statt flex => block oder relative/fixed 
-         (je nachdem ob "global fixiert" = fixed sein soll). 
-         Hier ein Beispiel mit 'fixed' 
-         => Icons sind "global fixiert" am Desktop:
-      */
-      position: fixed !important;   /* fixiert am Viewport */
-      top: 60px !important;         /* Abstand vom oberen Browserrand */
-      left: 0 !important;          
-      width: 100% !important;       /* füllt ggf. die Fensterbreite */
-      height: 200px !important;     /* ein Beispiel: definierte Höhe */
-      display: block !important;    /* NICHT flex */
-      margin-top: 0 !important;     /* überschreibt die 1000px  */
-      padding-left: 0 !important;   /* entfernt linksbündigen Versatz */
+      position: fixed !important;
+      top: 60px !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 200px !important;
+      display: block !important;
+      margin-top: 0 !important;
+      padding-left: 0 !important;
     }
 
-    /* Jedes Icon absolute in der .icon-bar positionieren */
     .icon-item {
       position: absolute !important;
     }
 
-    /* Beispiel-Positionen pro Icon: 
-       Du kannst hier top/left anpassen, um sie individuell zu platzieren
-    */
     #icon6 {
       top: 20px;
       left: 50px;
@@ -170,10 +156,6 @@
   <div id="systemTime"></div>
 </header>
 
-<!-- 
-  modalContainer kann unterhalb vom Header liegen. 
-  Icons-Bar ebenfalls direkt unter dem Header.
--->
 <div id="modalContainer"></div>
 
 <main>
