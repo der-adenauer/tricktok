@@ -185,14 +185,15 @@ const template17 = `
   <div class="window-pane" style="padding:1rem;">
     <h2>Anweisungen zu Telearbeit</h2>
     <p>
-      Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit ausschließlich über die hierfür vorgesehene Plattform. 
+      Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
     </p>
     <p>
-      Bei Sichtung verdächtiger Inhalte: Meldung des entsprechenden Kanals in der zentralen Fahndungsliste.
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig 
+      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
     </p>
-    <center>
-      <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
-    </center>
+<center>
+    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
+</center>
   </div>
 </div>
 `;
