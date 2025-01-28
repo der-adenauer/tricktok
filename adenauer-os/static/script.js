@@ -217,13 +217,17 @@ const template13 = `
     <h1 class="title">Archiv</h1>
     <span class="close">[x]</span>
   </div>
-  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <!-- Verweis auf bestehende Route /archiv -->
-    <iframe src="/archiv" style="width:100%; height:100%; border:none;"></iframe>
+
   </div>
 </div>
 `;
 
+
+
+/*  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <!-- Verweis auf bestehende Route /archiv -->
+    <iframe src="/archiv" style="width:100%; height:100%; border:none;"></iframe>*/
+	
 /***********************************************
  * createWindow()
  ***********************************************/
