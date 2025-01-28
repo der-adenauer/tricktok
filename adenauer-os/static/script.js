@@ -35,7 +35,7 @@ const template1 = `
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Liste von Einträgen:</p>
+    <p>Verzeichnis</p>
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
