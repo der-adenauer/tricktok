@@ -420,5 +420,12 @@ server <- function(input, output, session) {
   })
 }
 
-# Shiny-App starten
-shiny::runApp('.', host = '0.0.0.0', port = 9666, launch.browser = FALSE)
+shinyApp(
+  ui = ui,
+  server = server,
+  options = list(
+    host = "0.0.0.0",
+    port = 5010,           # Fester Port
+    launch.browser = FALSE # Browser nicht automatisch öffnen
+  )
+)
