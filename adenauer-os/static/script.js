@@ -72,7 +72,7 @@ const template3 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>
-      Offizielle Dienstanweisung zur Verwendung von AdenauerOS .  Folgende Teilfunktionen sind vorgesehen:<br><br>
+      Offizielle Dienstanweisung zur Verwendung von AdenauerOS .<br>
 
       <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
       <strong>Index</strong><br>
@@ -82,7 +82,7 @@ const template3 = `
       <strong>Fahndungsliste</strong><br>
       Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. Zentrale Datenbank mit Lese- und Schreibzugriff im gesamten Bundesgebiet. Ziel besteht in der Dokumentation sämtlicher relevanter Inhalte von der Unterhaltungsplatform Tiktok.<br><br>
       Ein spezieller Zugriff für die Ermittlungen in Telearbeit ist im Index unter: <strong>"Anweisungen zu Telearbeit"</strong> hinterlegt.
-      <br><br>
+      <br>
 
       <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
       <strong>Suche</strong><br>
