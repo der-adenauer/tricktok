@@ -388,6 +388,13 @@ def expressmodus():
 @app.route("/Metadaten")
 def metadaten():
     return render_template("database_content.html")
+    
+# Zusätzliche Route für Statistiktok (für das Iframe)
+@app.route("/statistiktok")
+def statistiktok():
+    return render_template("statistiktok.html")
+
+
 
 
 if __name__ == "__main__":

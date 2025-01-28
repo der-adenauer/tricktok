@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
 
   <style>
-    /* Retro-Schrift für Systemzeit */
     #systemTime {
       float: right;
       font-family: "Courier New", monospace;
@@ -14,7 +13,6 @@
       margin-right: 20px;
     }
 
-    /* Kopfzeile + Menü */
     header {
       position: sticky;
       top: 0;
@@ -73,18 +71,18 @@
       background-color: #ccc;
     }
 
-    /* Container für Icons direkt unter dem Header */
     .icon-bar {
-      position: relative;
-      margin-top: 1000px; /* Abstand zum Header */
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 40px; /* Abstand zwischen den Icons */
-      padding-left: 320px;  /* linksbündiger Versatz */
+      position: fixed !important;
+      top: 60px !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 200px !important;
+      display: block !important;
+      margin-top: 0 !important;
+      padding-left: 0 !important;
     }
     .icon-item {
-      position: relative;
+      position: absolute !important;
       width: 64px;
       height: 64px;
       cursor: pointer;
@@ -99,21 +97,6 @@
       left: 0;
       right: 0;
       margin: 0 auto;
-    }
-
-    .icon-bar {
-      position: fixed !important;
-      top: 60px !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 200px !important;
-      display: block !important;
-      margin-top: 0 !important;
-      padding-left: 0 !important;
-    }
-
-    .icon-item {
-      position: absolute !important;
     }
 
     #icon6 {
@@ -135,6 +118,15 @@
     #icon10 {
       top: 20px;
       left: 450px;
+    }
+    /* Neue Icons */
+    #icon12 {
+      top: 20px;
+      left: 550px;
+    }
+    #icon13 {
+      top: 20px;
+      left: 650px;
     }
 
   </style>

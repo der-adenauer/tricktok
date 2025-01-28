@@ -1,6 +1,3 @@
-/***********************************************
- * Globale Variablen
- ***********************************************/
 let zIndexCounter = 100;
 const openedWindows = {
   window1: false,
@@ -30,7 +27,7 @@ let windowState = {};
 /***********************************************
  * TEMPLATES
  ***********************************************/
-// #1: Verzeichnis (Index)
+
 const template1 = `
 <div class="window modal-window" data-win="win1" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -40,8 +37,8 @@ const template1 = `
   <div class="window-pane" style="padding:1rem;">
     <p>Liste von Einträgen:</p>
     <ul>
-      <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke </a></li>
-	  <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
+      <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
+      <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
     </ul>
@@ -49,7 +46,6 @@ const template1 = `
 </div>
 `;
 
-// #2: Benutzeraccount
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -57,11 +53,12 @@ const template2 = `
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-  <img src="/static/icon7.png" alt="icon7" width="64" height="64">
+    <img src="/static/icon7.png" alt="icon7" width="64" height="64">
     <p>Infos zum angemeldeten Benutzer (Platzhalter).</p>
   </div>
 </div>
 `;
+
 
 // #3: Hilfe
 const template3 = `
@@ -92,23 +89,21 @@ const template3 = `
 </div>
 `;
 
-// #4: Programmquelle
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h2 class="title">Programmquelle </h2>
+    <h2 class="title">Programmquelle</h2>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS - Projekt Tricktok</h2>
-    <p>Dieses Programm ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
+    <p>Programm zur Identifizierung rechtsradikaler Inhalte auf TikTok.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
 </div>
 `;
 
-// #8: Fahndungsliste (Iframe)
 const template8 = `
 <div class="window modal-window" data-win="win8" style="width:800px; height:680px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -121,7 +116,6 @@ const template8 = `
 </div>
 `;
 
-// #9: Suche (Iframe)
 const template9 = `
 <div class="window modal-window" data-win="win9" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -134,16 +128,14 @@ const template9 = `
 </div>
 `;
 
-
-// #10: Notiz
 const template10 = `
 <div class="window modal-window" data-win="win10" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Notiz 10</h1>
+    <h1 class="title">Notiz </h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>(Platzhalter).</p>
+    <p>Die Seite befindet sich im Aufbau.</p>
   </div>
 </div>
 `;
@@ -193,40 +185,61 @@ const template17 = `
   <div class="window-pane" style="padding:1rem;">
     <h2>Anweisungen zu Telearbeit</h2>
     <p>
-      Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
+      Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit ausschließlich über die hierfür vorgesehene Plattform. 
     </p>
     <p>
-      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig. 
-      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
+      Bei Sichtung verdächtiger Inhalte: Meldung des entsprechenden Kanals in der zentralen Fahndungsliste.
     </p>
-<center>
-    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
-</center>
- </div>
+    <center>
+      <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
+    </center>
+  </div>
 </div>
 `;
 
+/* Neue Fenster #12 und #13 */
+const template12 = `
+<div class="window modal-window" data-win="win12" style="width:1200px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Statistiktok</h1>
+    <span class="close">[x]</span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <!-- Beispiel-Iframe, verweist auf die Route /statistiktok -->
+    <iframe src="https://py.afd-verbot.de/statistiktok" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+const template13 = `
+<div class="window modal-window" data-win="win13" style="width:1000px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Archiv</h1>
+    <span class="close">[x]</span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <!-- Verweis auf bestehende Route /archiv -->
+    <iframe src="/archiv" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
 
 /***********************************************
  * createWindow()
  ***********************************************/
 function createWindow(template, windowKey) {
-  // Keine Dopplung, falls bereits geöffnet:
   if (openedWindows[windowKey]) {
     return;
   }
   openedWindows[windowKey] = true;
 
-  // Template in DOM-Element umwandeln:
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
 
-  // Z-Index erhöhen
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
 
-  // Position via localStorage laden, sonst Default:
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -240,14 +253,12 @@ function createWindow(template, windowKey) {
     modalEl.style.top = "160px";
   }
 
-  // Klick => Fensterebene nach oben (zIndex)
   modalEl.addEventListener('mousedown', () => {
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
   });
 
-  // Close-Button
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => {
@@ -258,10 +269,8 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // Draggable
   makeDraggable(modalEl, windowKey);
 
-  // Bei Fenster #1 => Interne Links
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -273,7 +282,6 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // An DOM anhängen
   modalContainer.appendChild(modalEl);
 }
 
@@ -322,7 +330,6 @@ function makeDraggable(windowEl, windowKey) {
     saveWindowPosition(windowEl, windowKey);
   }
 
-  // Touch
   function onTouchStart(e) {
     e.preventDefault();
     isDragging = true;
@@ -398,6 +405,8 @@ function getTemplate(key) {
     case 'window15': return template15;
     case 'window16': return template16;
     case 'window17': return template17;
+    case 'window12': return template12; /* Neu */
+    case 'window13': return template13; /* Neu */
     default:
       return template4; // Fallback
   }
@@ -410,7 +419,6 @@ const modalContainer = document.getElementById('modalContainer');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
-  // Bereits geöffnete Fenster aus localStorage erneut öffnen:
   for (const key in windowState) {
     if (windowState.hasOwnProperty(key)) {
       createWindow(getTemplate(key), key);
@@ -418,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Menü => Hilfe(#3), Programmquelle(#4)
 const btn3 = document.getElementById('openWindow3');
 if (btn3) {
   btn3.addEventListener('click', (e) => {
@@ -434,7 +441,6 @@ if (btn4) {
   });
 }
 
-// Desktop-Icons
 const icon6 = document.getElementById('icon6');
 if (icon6) {
   icon6.addEventListener('click', () => {
@@ -466,7 +472,20 @@ if (icon10) {
   });
 }
 
-// Beispiel: Cooldown für Export-Link (optional)
+/* Neue Icons #12 und #13 */
+const icon12 = document.getElementById('icon12');
+if (icon12) {
+  icon12.addEventListener('click', () => {
+    createWindow(getTemplate('window12'), 'window12');
+  });
+}
+const icon13 = document.getElementById('icon13');
+if (icon13) {
+  icon13.addEventListener('click', () => {
+    createWindow(getTemplate('window13'), 'window13');
+  });
+}
+
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {

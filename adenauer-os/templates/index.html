@@ -3,34 +3,42 @@
 
 {% block content %}
 <div class="icon-bar" style="margin-top:30px;">
-  <!-- icon6 => Verzeichnis/Index => öffnet Fenster #1 -->
+
   <div class="icon-item" id="icon6">
     <img src="{{ url_for('static', filename='icon6.png') }}" alt="icon6" width="64" height="64">
     <div class="icon-label">Index</div>
   </div>
 
-  <!-- icon7 => Benutzeraccount => Fenster #2 -->
   <div class="icon-item" id="icon7">
     <img src="{{ url_for('static', filename='icon7.png') }}" alt="icon7" width="64" height="64">
     <div class="icon-label">Benutzer</div>
   </div>
 
-  <!-- icon8 => Fahndungsliste => Fenster #8 -->
   <div class="icon-item" id="icon8">
     <img src="{{ url_for('static', filename='icon8.png') }}" alt="icon8" width="64" height="64">
     <div class="icon-label">Fahndung</div>
   </div>
 
-  <!-- icon9 => Suche => Fenster #9 -->
   <div class="icon-item" id="icon9">
     <img src="{{ url_for('static', filename='icon9.png') }}" alt="icon9" width="64" height="64">
     <div class="icon-label">Suche</div>
   </div>
 
-  <!-- icon10 => Notiz => Fenster #10 -->
   <div class="icon-item" id="icon10">
     <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon10" width="64" height="64">
     <div class="icon-label">Notiz</div>
   </div>
+
+  <!-- Neue Icons -->
+  <div class="icon-item" id="icon12">
+    <img src="{{ url_for('static', filename='icon12.svg') }}" alt="icon12" width="64" height="64">
+    <div class="icon-label">Statistiktok</div>
+  </div>
+
+  <div class="icon-item" id="icon13">
+    <img src="{{ url_for('static', filename='icon13.svg') }}" alt="icon13" width="64" height="64">
+    <div class="icon-label">Archiv</div>
+  </div>
+
 </div>
 {% endblock %}
