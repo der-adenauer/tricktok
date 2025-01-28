@@ -4,9 +4,10 @@
 # interactive_wordcloud_app.R
 # Zeigt Wortwolke für einen auswählbaren Kanal (oder alle),
 # Hashtag-Umschaltung, min/max Frequenz, max. Wortanzahl, Suchfeld
+# ohne req(...), stattdessen Fallbacks für Inputs.
 
 # -----------------------------
-# Schritt 1: Pakete
+# 1) Pakete
 # -----------------------------
 
 required_packages <- c(
@@ -16,8 +17,8 @@ required_packages <- c(
 
 install_if_missing <- function(packages) {
   installed <- installed.packages()[,"Package"]
-  for(pkg in packages){
-    if(!(pkg %in% installed)){
+  for (pkg in packages) {
+    if (!(pkg %in% installed)) {
       install.packages(pkg, dependencies = TRUE, repos = "http://cran.rstudio.com/")
     }
   }
@@ -37,7 +38,7 @@ library(stringr)
 library(shiny.fluent)
 
 # -----------------------------
-# Schritt 2: Verbindung zur SQLite-Datenbank
+# 2) Verbindung zur SQLite-Datenbank
 # -----------------------------
 
 DB_PATH <- "media_metadata.db"
@@ -62,11 +63,10 @@ if (!"title" %in% colnames(df)) {
 df$title <- as.character(df$title)
 
 # -----------------------------
-# Schritt 3: UI
+# 3) UI
 # -----------------------------
 
 ui <- fluidPage(
-  # Kompakteres Layout + CSS
   tags$head(
     tags$style(HTML("
       .container-fluid {
@@ -112,13 +112,12 @@ ui <- fluidPage(
     ),
     column(
       width = 3,
-      # Zwei-Griff-Slider: freq_range
       sliderInput(
         "freq_range",
         "Häufigkeitsbereich",
         min   = 0,
         max   = 3000,
-        value = c(0, 3000),  # Default
+        value = c(0, 3000),
         step  = 1
       )
     ),
@@ -155,26 +154,47 @@ ui <- fluidPage(
 )
 
 # -----------------------------
-# Schritt 4: Server
+# 4) Server
 # -----------------------------
 
 server <- function(input, output, session) {
 
-  # Schritt A: Daten gefiltert nach Uploader (oder ALLE)
+  # Kanal-Filter (uploader)
   df_filtered_uploader <- reactive({
-    if (input$uploader_select == "ALLE") {
+    upl <- input$uploader_select
+    if (is.null(upl)) {
+      upl <- "ALLE"
+    }
+    if (upl == "ALLE") {
       df
     } else {
-      df %>% filter(uploader == input$uploader_select)
+      df %>% filter(uploader == upl)
     }
   })
 
-  # Schritt B: Wortfrequenzen
+  # Wortfrequenzen
   word_counts_reactive <- reactive({
     sub_df <- df_filtered_uploader()
 
-    # Hashtag vs. Normal
-    if (input$hashtag_mode) {
+    # 1) Fallbacks für fehlende oder unvollständige Inputs:
+    freq_range <- input$freq_range
+    if (is.null(freq_range) || length(freq_range) < 2) {
+      freq_range <- c(0, 3000)
+    }
+
+    max_words <- input$max_words
+    if (is.null(max_words) || max_words < 1) {
+      max_words <- 500
+    }
+
+    # 2) Hashtag-Modus abfragen mit Fallback
+    hashtag_mode <- FALSE
+    if (!is.null(input$hashtag_mode)) {
+      hashtag_mode <- isTRUE(input$hashtag_mode)
+    }
+
+    # 3) Hashtags vs Normal
+    if (hashtag_mode) {
       tmp <- sub_df %>%
         filter(!is.na(title)) %>%
         unnest_tokens(word, title, token = "regex", pattern = "\\s+") %>%
@@ -189,15 +209,15 @@ server <- function(input, output, session) {
         count(word, sort = TRUE)
     }
 
-    # Frequenzgrenzen
+    # 4) Frequenzgrenzen anwenden
     tmp <- tmp %>%
-      filter(n >= input$freq_range[1], n <= input$freq_range[2])
+      filter(n >= freq_range[1], n <= freq_range[2])
 
-    # Auf max_words beschränken
-    head(tmp, input$max_words)
+    # 5) Auf max_words beschränken
+    head(tmp, max_words)
   })
 
-  # Schritt C: Wortwolke
+  # Wortwolke
   output$wordcloud <- renderWordcloud2({
     wc_data <- word_counts_reactive()
     if (nrow(wc_data) == 0) {
@@ -212,20 +232,29 @@ server <- function(input, output, session) {
     )
   })
 
-  # Schritt D: Tabelle - Filterung nach Suchbegriff oder geklicktem Wort
+  # Tabelle - Suchbegriff oder geklicktes Wort
   filtered_data <- reactive({
     sub_df <- df_filtered_uploader()
-    
-    if (nzchar(input$search_term)) {
+
+    srch <- input$search_term
+    if (is.null(srch)) {
+      srch <- ""
+    }
+
+    if (nzchar(srch)) {
       # Suche im Text
-      search_term <- tolower(input$search_term)
+      search_term <- tolower(srch)
       sub_df %>%
         filter(str_detect(tolower(title), fixed(search_term))) %>%
         select(id, url, title)
     } else {
       # Klick in der Wolke
-      req(input$clicked_word)
-      clicked_word <- str_remove(input$clicked_word, ":[0-9]+$")
+      cw <- input$clicked_word
+      if (is.null(cw)) {
+        # Falls kein Klick erfolgt -> leere Tabelle oder komplette Ausgabe
+        return(head(sub_df %>% select(id, url, title), 0))
+      }
+      clicked_word <- str_remove(cw, ":[0-9]+$")
       sub_df %>%
         filter(str_detect(tolower(title), fixed(tolower(clicked_word)))) %>%
         select(id, url, title)
@@ -242,7 +271,7 @@ server <- function(input, output, session) {
 }
 
 # -----------------------------
-# Schritt 5: App starten
+# 5) App starten
 # -----------------------------
 
 app_port <- 9432
