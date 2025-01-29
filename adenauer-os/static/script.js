@@ -46,15 +46,20 @@ const template1 = `
 </div>
 `;
 
+// Fenster #2: Platz für User-Agent
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Benutzerkonto</h1>
-    <span class="close"></span>
+    <span class="close">[x]</span>
   </div>
-  <div class="window-pane" style="padding:1rem;">
+  <div class="window-pane" style="padding:1rem; font-size:14px;">
     <img src="/static/icon7.png" alt="icon7" width="64" height="64">
-    <p>Infos zum angemeldeten Benutzer (Platzhalter).</p>
+    <p>Infos zum angemeldeten Benutzer:</p>
+    <!-- Platzhalter, wird nachträglich per fetch('/benutzer_info') gefüllt -->
+    <div id="userDetails" style="font-size:0.8rem; color:#666;">
+      ...User-Agent wird geladen...
+    </div>
   </div>
 </div>
 `;
@@ -70,20 +75,17 @@ const template3 = `
   <div class="window-pane" style="padding:1rem;">
     <p>
       Offizielle Dienstanweisung zur Verwendung von AdenauerOS .<br>
-
       <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
       <strong>Index</strong><br>
       Verzeichnisstruktur für unterschiedlichste Dateien zum laufenden Vorhaben. Umfasst archivierte Vorgänge zuständiger Dienststellen.<br><br>
 
       <img src="/static/icon8.png" alt="icon8" width="64" height="64"><br>
       <strong>Fahndungsliste</strong><br>
-      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. Zentrale Datenbank mit Lese- und Schreibzugriff im gesamten Bundesgebiet. Ziel besteht in der Dokumentation sämtlicher relevanter Inhalte von der Unterhaltungsplatform Tiktok.<br><br>
-      Ein spezieller Zugriff für die Ermittlungen in Telearbeit ist im Index unter: <strong>"Anweisungen zu Telearbeit"</strong> hinterlegt.
+      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. 
       <br>
-
       <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
       <strong>Suche</strong><br>
-      Umfassende Durchsuchungs- und Filterfunktionen für alle observierten Videotitel. Konfigurierbare Verteilung häufig verwendeter Wörter per Wortwolke erleichtern die Observierung der Kanäle.
+      Durchsuchungs- und Filterfunktionen ...
     </p>
   </div>
 </div>
@@ -97,7 +99,6 @@ const template4 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS - Projekt Tricktok</h2>
-    <p>Programm zur Identifizierung rechtsradikaler Inhalte auf TikTok.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
@@ -135,11 +136,10 @@ const template10 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-   <iframe 
-    src="https://py.afd-verbot.de/tricktok-archiv/" 
-    style="width:100%; height:500px; border:none;">
-</iframe>
-
+    <iframe 
+      src="https://py.afd-verbot.de/tricktok-archiv/" 
+      style="width:100%; height:500px; border:none;">
+    </iframe>
   </div>
 </div>
 `;
@@ -187,22 +187,11 @@ const template17 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <h2>Anweisungen zu Telearbeit</h2>
-    <p>
-      Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
-    </p>
-    <p>
-      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich diese Seite als besonders zweckmäßig 
-      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
-    </p>
-<center>
-    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
-</center>
+    <p>...</p>
   </div>
 </div>
 `;
 
-/* Neue Fenster #12 und #13 */
 const template12 = `
 <div class="window modal-window" data-win="win12" style="width:1200px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -210,7 +199,6 @@ const template12 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <!-- Beispiel-Iframe, verweist auf die Route /statistiktok -->
     <iframe src="https://py.afd-verbot.de/statistiktok" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
@@ -222,12 +210,9 @@ const template13 = `
     <h1 class="title">Player</h1>
     <span class="close"></span>
   </div>
-
-  </div>
 </div>
 `;
 
-/* NEUES FENSTER #19 => Nachrichten (800x600) */
 const template19 = `
 <div class="window modal-window" data-win="win19" style="width:800px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -235,12 +220,11 @@ const template19 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <!-- Iframe => https://neuters.de/search?query=tiktok -->
     <iframe src="https://neuters.de/search?query=tiktok" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
-<!-- NEUES TEMPLATE FÜR KONTAKT (#20) -->
+
 const template20 = `
 <div class="window modal-window" data-win="win20" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -253,16 +237,22 @@ const template20 = `
 </div>
 `;
 
+/***********************************************
+ * createWindow()
+ ***********************************************/
 function createWindow(template, windowKey) {
   if (openedWindows[windowKey]) {
     return;
   }
   openedWindows[windowKey] = true;
+
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
+
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
+
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -293,6 +283,8 @@ function createWindow(template, windowKey) {
   }
 
   makeDraggable(modalEl, windowKey);
+
+  // Falls Fenster #1, interne Links -> weitere Fenster öffnen
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -303,9 +295,28 @@ function createWindow(template, windowKey) {
       });
     });
   }
+
+  // === NEU: Falls Fenster #2 -> User-Agent nachladen ===
+  if (windowKey === 'window2') {
+    fetch('/benutzer_info')
+      .then(response => response.text())
+      .then(htmlSnippet => {
+        const userDiv = modalEl.querySelector('#userDetails');
+        if (userDiv) {
+          userDiv.innerHTML = htmlSnippet;
+        }
+      })
+      .catch(err => {
+        console.error("Fehler beim Laden von /benutzer_info:", err);
+      });
+  }
+
   modalContainer.appendChild(modalEl);
 }
 
+/***********************************************
+ * Draggable
+ ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
   const gridSize = 10;
@@ -381,6 +392,9 @@ function makeDraggable(windowEl, windowKey) {
   }
 }
 
+/***********************************************
+ * localStorage
+ ***********************************************/
 function saveWindowPosition(modalEl, windowKey) {
   const left = parseInt(modalEl.style.left, 10) || 0;
   const top = parseInt(modalEl.style.top, 10) || 0;
@@ -400,10 +414,13 @@ function loadWindowState() {
   }
 }
 
+/***********************************************
+ * getTemplate(key)
+ ***********************************************/
 function getTemplate(key) {
   switch (key) {
     case 'window1':  return template1;
-    case 'window2':  return template2;
+    case 'window2':  return template2;  // Hier das Benutzer-Fenster
     case 'window3':  return template3;
     case 'window4':  return template4;
     case 'window8':  return template8;
@@ -416,13 +433,17 @@ function getTemplate(key) {
     case 'window12': return template12;
     case 'window13': return template13;
     case 'window19': return template19;
-    case 'window20': return template20;  // NEU
+    case 'window20': return template20;
     default:
-      return template4;
+      return template4; // Fallback
   }
 }
 
+/***********************************************
+ * Init
+ ***********************************************/
 const modalContainer = document.getElementById('modalContainer');
+
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
   for (const key in windowState) {
@@ -432,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Button-Handler
 const btn3 = document.getElementById('openWindow3');
 if (btn3) {
   btn3.addEventListener('click', (e) => {
@@ -446,6 +468,8 @@ if (btn4) {
     createWindow(getTemplate('window4'), 'window4');
   });
 }
+
+// Icons #6..#10
 const icon6 = document.getElementById('icon6');
 if (icon6) {
   icon6.addEventListener('click', () => {
@@ -455,6 +479,7 @@ if (icon6) {
 const icon7 = document.getElementById('icon7');
 if (icon7) {
   icon7.addEventListener('click', () => {
+    // => window2
     createWindow(getTemplate('window2'), 'window2');
   });
 }
@@ -476,6 +501,8 @@ if (icon10) {
     createWindow(getTemplate('window10'), 'window10');
   });
 }
+
+// Icon #12, #13
 const icon12 = document.getElementById('icon12');
 if (icon12) {
   icon12.addEventListener('click', () => {
@@ -488,6 +515,8 @@ if (icon13) {
     createWindow(getTemplate('window13'), 'window13');
   });
 }
+
+// Icon #14 => Fenster #19
 const icon14 = document.getElementById('icon14');
 if (icon14) {
   icon14.addEventListener('click', () => {
@@ -495,6 +524,7 @@ if (icon14) {
   });
 }
 
+// evtl. Button #20
 const btn20 = document.getElementById('openWindow20');
 if (btn20) {
   btn20.addEventListener('click', (e) => {
@@ -503,6 +533,7 @@ if (btn20) {
   });
 }
 
+// CSV-Export Link (optional)
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {

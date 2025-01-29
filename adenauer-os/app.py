@@ -14,6 +14,15 @@ logging.basicConfig(
 app = Flask(__name__)
 app.secret_key = "irgendein_schluessel"
 
+
+@app.route("/benutzer_info")
+def benutzer_info():
+    user_agent = request.headers.get("User-Agent", "Unbekannt")
+    return f"<p style='font-size:12px; color:#666;'>User-Agent: {user_agent}</p>"
+
+
+
+
 def get_db():
     db = getattr(g, "_database", None)
     if db is None:
