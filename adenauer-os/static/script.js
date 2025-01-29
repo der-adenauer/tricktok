@@ -131,11 +131,15 @@ const template9 = `
 const template10 = `
 <div class="window modal-window" data-win="win10" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Notiz </h1>
+    <h1 class="title">Archiv </h1>
     <span class="close">[x]</span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Die Seite befindet sich im Aufbau.</p>
+   <iframe 
+    src="https://py.afd-verbot.de/tricktok-archiv/" 
+    style="width:100%; height:500px; border:none;">
+</iframe>
+
   </div>
 </div>
 `;
@@ -215,7 +219,7 @@ const template12 = `
 const template13 = `
 <div class="window modal-window" data-win="win13" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Archiv</h1>
+    <h1 class="title">Player</h1>
     <span class="close">[x]</span>
   </div>
 
