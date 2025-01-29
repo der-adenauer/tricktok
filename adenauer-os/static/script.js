@@ -223,12 +223,20 @@ const template13 = `
 </div>
 `;
 
+/* NEUES FENSTER #19 => Nachrichten (800x600) */
+const template19 = `
+<div class="window modal-window" data-win="win19" style="width:800px; height:600px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Nachrichten</h1>
+    <span class="close">[x]</span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <!-- Iframe => https://neuters.de/search?query=tiktok -->
+    <iframe src="https://neuters.de/search?query=tiktok" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
 
-
-/*  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <!-- Verweis auf bestehende Route /archiv -->
-    <iframe src="/archiv" style="width:100%; height:100%; border:none;"></iframe>*/
-	
 /***********************************************
  * createWindow()
  ***********************************************/
@@ -276,6 +284,7 @@ function createWindow(template, windowKey) {
 
   makeDraggable(modalEl, windowKey);
 
+  // Spezielle Einträge im "Index"-Fenster (window1) => öffnen weitere Fenster
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -410,8 +419,12 @@ function getTemplate(key) {
     case 'window15': return template15;
     case 'window16': return template16;
     case 'window17': return template17;
-    case 'window12': return template12; /* Neu */
-    case 'window13': return template13; /* Neu */
+    case 'window12': return template12; // Neu
+    case 'window13': return template13; // Neu
+
+    // NEU: window19 => template19
+    case 'window19': return template19;
+
     default:
       return template4; // Fallback
   }
@@ -446,6 +459,7 @@ if (btn4) {
   });
 }
 
+// Icons #6..#10
 const icon6 = document.getElementById('icon6');
 if (icon6) {
   icon6.addEventListener('click', () => {
@@ -477,7 +491,7 @@ if (icon10) {
   });
 }
 
-/* Neue Icons #12 und #13 */
+// Neue Icons #12, #13
 const icon12 = document.getElementById('icon12');
 if (icon12) {
   icon12.addEventListener('click', () => {
@@ -491,6 +505,15 @@ if (icon13) {
   });
 }
 
+// NEUES ICON #14 => Fenster #19
+const icon14 = document.getElementById('icon14');
+if (icon14) {
+  icon14.addEventListener('click', () => {
+    createWindow(getTemplate('window19'), 'window19');
+  });
+}
+
+// Optional: CSV-Export Link
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {
