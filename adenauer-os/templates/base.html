@@ -1,10 +1,11 @@
+<!-- base.html -->
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}Adenauer OS Desktop{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
-
   <style>
     #systemTime {
       float: right;
@@ -12,7 +13,6 @@
       color: #000;
       margin-right: 20px;
     }
-
     header {
       position: sticky;
       top: 0;
@@ -70,7 +70,6 @@
     .menu-bar ul li a:hover {
       background-color: #ccc;
     }
-
     .icon-bar {
       position: fixed !important;
       top: 60px !important;
@@ -98,41 +97,17 @@
       right: 0;
       margin: 0 auto;
     }
-
-    #icon6 {
-      top: 20px;
-      left: 50px;
-    }
-    #icon7 {
-      top: 20px;
-      left: 150px;
-    }
-    #icon8 {
-      top: 20px;
-      left: 250px;
-    }
-    #icon9 {
-      top: 20px;
-      left: 350px;
-    }
-    #icon10 {
-      top: 20px;
-      left: 450px;
-    }
-    /* Neue Icons */
-    #icon12 {
-      top: 20px;
-      left: 550px;
-    }
-    #icon13 {
-      top: 20px;
-      left: 650px;
-    }
-
+    #icon6 { top: 20px; left: 50px; }
+    #icon7 { top: 20px; left: 150px; }
+    #icon8 { top: 20px; left: 250px; }
+    #icon9 { top: 20px; left: 350px; }
+    #icon10 { top: 20px; left: 450px; }
+    #icon12 { top: 20px; left: 550px; }
+    #icon13 { top: 20px; left: 650px; }
+    #icon14 { top:120px; left:50px; position:absolute; }
   </style>
 </head>
 <body>
-
 <header>
   <div class="menu-bar">
     <ul role="menu-bar">
@@ -141,19 +116,18 @@
         <ul role="menu">
           <li role="menu-item"><a href="#" id="openWindow3">Hilfe</a></li>
           <li role="menu-item"><a href="#" id="openWindow4">Programmquelle</a></li>
+          <!-- Neuer Eintrag Kontakt -->
+          <li role="menu-item"><a href="#" id="openWindow20">Kontakt</a></li>
         </ul>
       </li>
     </ul>
   </div>
   <div id="systemTime"></div>
 </header>
-
 <div id="modalContainer"></div>
-
 <main>
   {% block content %}{% endblock %}
 </main>
-
 <script>
   function updateSystemTime() {
     const el = document.getElementById("systemTime");
@@ -167,7 +141,6 @@
   setInterval(updateSystemTime, 1000);
   updateSystemTime();
 </script>
-
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

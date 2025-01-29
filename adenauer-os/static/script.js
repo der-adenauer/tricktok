@@ -32,7 +32,7 @@ const template1 = `
 <div class="window modal-window" data-win="win1" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Index</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>Verzeichnis</p>
@@ -50,7 +50,7 @@ const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Benutzerkonto</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <img src="/static/icon7.png" alt="icon7" width="64" height="64">
@@ -65,7 +65,7 @@ const template3 = `
 <div class="window modal-window" data-win="win3" style="width:800px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Hilfe</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>
@@ -93,7 +93,7 @@ const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h2 class="title">Programmquelle</h2>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS - Projekt Tricktok</h2>
@@ -108,7 +108,7 @@ const template8 = `
 <div class="window modal-window" data-win="win8" style="width:800px; height:680px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Fahndungsliste</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
     <iframe src="/fahndungsliste_db" style="width:100%; height:100%; border:none;"></iframe>
@@ -120,7 +120,7 @@ const template9 = `
 <div class="window modal-window" data-win="win9" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Suche</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
     <iframe src="https://tricktok.afd-verbot.de/suche" style="width:100%; height:100%; border:none;"></iframe>
@@ -132,7 +132,7 @@ const template10 = `
 <div class="window modal-window" data-win="win10" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Archiv </h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
    <iframe 
@@ -148,7 +148,7 @@ const template14 = `
 <div class="window modal-window" data-win="win14" style="width:1000px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Hashtag - Wortwolke</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="text-align:center; display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 40px); padding:10px;">
     <img src="/static/wolke.png" alt="Wolke" style="transform: scale(0.16); width:auto; height:auto; max-width:none; max-height:none;">
@@ -160,7 +160,7 @@ const template15 = `
 <div class="window modal-window" data-win="win15" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Eintrag B (#15)</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <p>Detail zu Eintrag B.</p>
@@ -172,7 +172,7 @@ const template16 = `
 <div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
   <div class="title-bar" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
     <h1 class="title" style="margin:0;">Logo</h1>
-    <span class="close" style="cursor:pointer;">[x]</span>
+    <span class="close" style="cursor:pointer;"></span>
   </div>
   <div class="window-pane" style="text-align:center; display:flex; justify-content:center; align-items:center; width:100%; padding:1px;">
     <img src="/static/banderole2.png" alt="logo" style="width:auto; height:auto; max-width:100%; max-height:calc(100vh - 100px);">
@@ -184,7 +184,7 @@ const template17 = `
 <div class="window modal-window" data-win="win17" style="width:800px; height:800px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Anweisungen zu Telearbeit</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Anweisungen zu Telearbeit</h2>
@@ -207,7 +207,7 @@ const template12 = `
 <div class="window modal-window" data-win="win12" style="width:1200px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Statistiktok</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
     <!-- Beispiel-Iframe, verweist auf die Route /statistiktok -->
@@ -220,7 +220,7 @@ const template13 = `
 <div class="window modal-window" data-win="win13" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Player</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
 
   </div>
@@ -232,7 +232,7 @@ const template19 = `
 <div class="window modal-window" data-win="win19" style="width:800px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Nachrichten</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
     <!-- Iframe => https://neuters.de/search?query=tiktok -->
@@ -240,23 +240,29 @@ const template19 = `
   </div>
 </div>
 `;
+<!-- NEUES TEMPLATE FÜR KONTAKT (#20) -->
+const template20 = `
+<div class="window modal-window" data-win="win20" style="width:400px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Kontakt</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="padding:1rem;">
+    <p>Kontaktaufnahme über: [Kontaktmöglichkeiten]</p>
+  </div>
+</div>
+`;
 
-/***********************************************
- * createWindow()
- ***********************************************/
 function createWindow(template, windowKey) {
   if (openedWindows[windowKey]) {
     return;
   }
   openedWindows[windowKey] = true;
-
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
-
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
-
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -287,8 +293,6 @@ function createWindow(template, windowKey) {
   }
 
   makeDraggable(modalEl, windowKey);
-
-  // Spezielle Einträge im "Index"-Fenster (window1) => öffnen weitere Fenster
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -299,13 +303,9 @@ function createWindow(template, windowKey) {
       });
     });
   }
-
   modalContainer.appendChild(modalEl);
 }
 
-/***********************************************
- * Draggable
- ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
   const gridSize = 10;
@@ -320,11 +320,9 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
-
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
@@ -353,12 +351,10 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
     offsetY = touch.clientY - rect.top;
-
     document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', onTouchEnd);
   }
@@ -385,9 +381,6 @@ function makeDraggable(windowEl, windowKey) {
   }
 }
 
-/***********************************************
- * localStorage
- ***********************************************/
 function saveWindowPosition(modalEl, windowKey) {
   const left = parseInt(modalEl.style.left, 10) || 0;
   const top = parseInt(modalEl.style.top, 10) || 0;
@@ -407,9 +400,6 @@ function loadWindowState() {
   }
 }
 
-/***********************************************
- * getTemplate(key)
- ***********************************************/
 function getTemplate(key) {
   switch (key) {
     case 'window1':  return template1;
@@ -423,22 +413,16 @@ function getTemplate(key) {
     case 'window15': return template15;
     case 'window16': return template16;
     case 'window17': return template17;
-    case 'window12': return template12; // Neu
-    case 'window13': return template13; // Neu
-
-    // NEU: window19 => template19
+    case 'window12': return template12;
+    case 'window13': return template13;
     case 'window19': return template19;
-
+    case 'window20': return template20;  // NEU
     default:
-      return template4; // Fallback
+      return template4;
   }
 }
 
-/***********************************************
- * Init
- ***********************************************/
 const modalContainer = document.getElementById('modalContainer');
-
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
   for (const key in windowState) {
@@ -462,8 +446,6 @@ if (btn4) {
     createWindow(getTemplate('window4'), 'window4');
   });
 }
-
-// Icons #6..#10
 const icon6 = document.getElementById('icon6');
 if (icon6) {
   icon6.addEventListener('click', () => {
@@ -494,8 +476,6 @@ if (icon10) {
     createWindow(getTemplate('window10'), 'window10');
   });
 }
-
-// Neue Icons #12, #13
 const icon12 = document.getElementById('icon12');
 if (icon12) {
   icon12.addEventListener('click', () => {
@@ -508,8 +488,6 @@ if (icon13) {
     createWindow(getTemplate('window13'), 'window13');
   });
 }
-
-// NEUES ICON #14 => Fenster #19
 const icon14 = document.getElementById('icon14');
 if (icon14) {
   icon14.addEventListener('click', () => {
@@ -517,7 +495,14 @@ if (icon14) {
   });
 }
 
-// Optional: CSV-Export Link
+const btn20 = document.getElementById('openWindow20');
+if (btn20) {
+  btn20.addEventListener('click', (e) => {
+    e.preventDefault();
+    createWindow(getTemplate('window20'), 'window20');
+  });
+}
+
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {
