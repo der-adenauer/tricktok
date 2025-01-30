@@ -39,7 +39,7 @@ const template1 = `
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
-      <li><a href="#" class="entry-link" data-target="window15">Eintrag B (#15)</a></li>
+      <li><a href="#" class="entry-link" data-target="window15">leere Datei</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
     </ul>
   </div>
@@ -91,14 +91,17 @@ const template3 = `
 </div>
 `;
 
+// #4: Programmquelle
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h2 class="title">Programmquelle</h2>
+    <h2 class="title">Programmquelle </h2>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS - Projekt Tricktok</h2>
+    <p>Dieses Programm ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
+    <p>Programm zur Identifizierung rechtsextremer Inhalte auf TikTok.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
@@ -159,14 +162,16 @@ const template14 = `
 const template15 = `
 <div class="window modal-window" data-win="win15" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Eintrag B (#15)</h1>
+    <h1 class="title">leere Datei</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>Detail zu Eintrag B.</p>
   </div>
 </div>
 `;
+
+/*<iframe width=auto height="560" src="https://py.afd-verbot.de/tricktok-archiv/janwenzelschmidt/video/Der%20Verfassungsschutz%20wird%20durch%20die%20Regierung%20in%20Sachsen-Anhalt%20instrumentalisiert%20Was%20haltet%20ihr%20von%20diesen%20antidemokratischen%20Methoden%20AfD%20politics.mp4" frameborder="0" allowfullscreen></iframe>    <p>Detail zu Eintrag B.</p>*/
+
 
 const template16 = `
 <div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
@@ -187,7 +192,17 @@ const template17 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <p>...</p>
+  <h2>Anweisungen zu Telearbeit</h2>
+    <p>
+      Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
+    </p>
+    <p>
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich dieses Verfahren als besonders zweckmäßig. 
+      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
+    </p>
+<center>
+    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
+</center>
   </div>
 </div>
 `;
