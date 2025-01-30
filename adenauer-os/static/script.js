@@ -133,7 +133,7 @@ const template9 = `
 `;
 
 const template10 = `
-<div class="window modal-window" data-win="win10" style="width:400px;">
+<div class="window modal-window" data-win="win10" style="width:500px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Archiv </h1>
     <span class="close"></span>
