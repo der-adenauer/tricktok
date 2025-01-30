@@ -99,8 +99,8 @@ const template4 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-    <h2>Adenauer OS - Projekt Tricktok</h2>
-    <p>Dieses Programm ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
+    <h2>Adenauer OS <br> Projekt Tricktok</h2>
+    <p>Adenauer OS ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
     <p>Programm zur Identifizierung rechtsextremer Inhalte auf TikTok.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
@@ -133,19 +133,20 @@ const template9 = `
 `;
 
 const template10 = `
-<div class="window modal-window" data-win="win10" style="width:500px;">
+<div class="window modal-window" data-win="win10" style="width:750px; height:auto;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Archiv </h1>
+    <h1 class="title">Archiv</h1>
     <span class="close"></span>
   </div>
-  <div class="window-pane" style="padding:1rem;">
+  <div class="window-pane" style="padding:1rem; height:auto;">
     <iframe 
       src="https://py.afd-verbot.de/tricktok-archiv/" 
-      style="width:100%; height:500px; border:none;">
+      style="width:100%; min-height:600px; height:auto; border:none;">
     </iframe>
   </div>
 </div>
 `;
+
 
 const template14 = `
 <div class="window modal-window" data-win="win14" style="width:1000px; height:600px;">
