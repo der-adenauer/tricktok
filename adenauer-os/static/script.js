@@ -1,8 +1,11 @@
 // =========================================================================================
-//   script.js
+//   script.js (Vollständige Fassung mit Erweiterungen)
 // =========================================================================================
 
+// Zähler für Z-Indizes
 let zIndexCounter = 100;
+
+// Offene Fenster
 const openedWindows = {
   window1: false,
   window2: false,
@@ -26,18 +29,24 @@ const openedWindows = {
   window20: false
 };
 
+// Objekt zum Speichern von Position und Z-Index
 let windowState = {};
+
+/***********************************************
+ * Hilfsfunktionen zum Deaktivieren/ Aktivieren 
+ * von pointer-events bei iframes
+ ***********************************************/
+function setIframesPointerEvents(windowEl, enabled) {
+  const iframes = windowEl.querySelectorAll("iframe");
+  iframes.forEach(iframe => {
+    iframe.style.pointerEvents = enabled ? "auto" : "none";
+  });
+}
 
 /***********************************************
  * TEMPLATES
  ***********************************************/
 
-/*
-  NUR AN DIESER STELLE ANGEPASST:
-  Größere und fette Darstellung des Session-Namens in derselben Zeile
-  wie das Bild. Zusätzlich wird der Name aus /session_name geladen und
-  eingesetzt.
-*/
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -52,7 +61,6 @@ const template2 = `
       </span>
     </div>
     <p>Infos zum angemeldeten Benutzer:</p>
-    <!-- Platzhalter, wird nachträglich per fetch('/benutzer_info') gefüllt -->
     <div id="userDetails" style="font-size:0.8rem; color:#666;">
       ...User-Agent wird geladen...
     </div>
@@ -60,7 +68,6 @@ const template2 = `
 </div>
 `;
 
-// Fenster #1
 const template1 = `
 <div class="window modal-window" data-win="win1" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -79,7 +86,6 @@ const template1 = `
 </div>
 `;
 
-// #3: Hilfe
 const template3 = `
 <div class="window modal-window" data-win="win3" style="width:800px; height:550px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -87,14 +93,11 @@ const template3 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <!-- Iframe zeigt auf /hilfe_extended -->
     <iframe src="/hilfe_extended" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
 
-
-// #4: Programmquelle
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -103,7 +106,7 @@ const template4 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS <br> Projekt Tricktok</h2>
-    <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, dafür entwicklet, rechtsextreme Inhalte auf TikTok zu identifizieren. </p>
+    <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, dafür entwicklet, rechtsextreme Inhalte auf TikTok zu identifizieren.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
@@ -191,17 +194,17 @@ const template17 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
-  <h2>Anweisungen zu Telearbeit</h2>
+    <h2>Anweisungen zu Telearbeit</h2>
     <p>
       Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
     </p>
     <p>
-      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich dieses Verfahren als besonders zweckmäßig. 
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich dieses Verfahren als besonders zweckmäßig.
       Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
     </p>
-<center>
-    <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
-</center>
+    <center>
+      <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
+    </center>
   </div>
 </div>
 `;
@@ -253,21 +256,36 @@ const template20 = `
 `;
 
 /***********************************************
- * createWindow()
+ * createWindow() 
+ * --> Angepasst, um Fenster bei erneutem Klick
+ *     nur in den Vordergrund zu holen statt 
+ *     gar nicht zu reagieren
  ***********************************************/
 function createWindow(template, windowKey) {
+  // Falls bereits offen -> nach vorne holen und beenden
   if (openedWindows[windowKey]) {
+    const existingWin = document.querySelector(`.modal-window[data-win="${windowKey}"]`);
+    if (existingWin) {
+      zIndexCounter++;
+      existingWin.style.zIndex = zIndexCounter;
+      saveWindowPosition(existingWin, windowKey);
+    }
     return;
   }
+
+  // Markierung als offen
   openedWindows[windowKey] = true;
 
+  // Wrapper zum Einfügen
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
 
+  // Z-Index anheben
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
 
+  // Falls Position im State vorhanden -> übernehmen
   if (windowState[windowKey]) {
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
@@ -281,25 +299,32 @@ function createWindow(template, windowKey) {
     modalEl.style.top = "160px";
   }
 
+  // Klick auf Fenster -> in Vordergrund
   modalEl.addEventListener('mousedown', () => {
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
   });
 
+  // Close-Button-Logik (inkl. Touchend für mobile)
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
+    const handleClose = (evt) => {
+      evt.preventDefault();
+      // Entfernen aus DOM
       modalContainer.removeChild(modalEl);
       openedWindows[windowKey] = false;
       delete windowState[windowKey];
       saveWindowState();
-    });
+    };
+    closeBtn.addEventListener('click', handleClose);
+    closeBtn.addEventListener('touchend', handleClose, { passive: false });
   }
 
+  // Fenster per Drag verschiebbar
   makeDraggable(modalEl, windowKey);
 
-  // Fenster #1: Einträge öffnen
+  // Spezielle Logik bei Fenster #1: Klicken auf Einträge
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -311,7 +336,7 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // Beim Öffnen von Fenster #2 => User-Agent und Random-Name nachladen
+  // Beim Öffnen von Fenster #2 => Daten nachladen
   if (windowKey === 'window2') {
     // User-Agent
     fetch('/benutzer_info')
@@ -326,7 +351,7 @@ function createWindow(template, windowKey) {
         console.error("Fehler beim Laden von /benutzer_info:", err);
       });
 
-    // Random Name aus der Session
+    // Random-Name
     fetch('/session_name')
       .then(response => response.text())
       .then(zufallsName => {
@@ -344,7 +369,9 @@ function createWindow(template, windowKey) {
 }
 
 /***********************************************
- * Draggable
+ * makeDraggable() 
+ * --> Anpassen, um iframes beim Drag auszublenden 
+ *     (pointer-events: none), um Ruckeln zu verringern
  ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
@@ -360,6 +387,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
+    setIframesPointerEvents(windowEl, false); // iframes ausblenden
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -383,6 +411,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
+    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
     saveWindowPosition(windowEl, windowKey);
   }
 
@@ -391,6 +420,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
+    setIframesPointerEvents(windowEl, false); // iframes ausblenden
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
@@ -417,6 +447,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
+    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
     saveWindowPosition(windowEl, windowKey);
   }
 }
@@ -444,7 +475,7 @@ function loadWindowState() {
 }
 
 /***********************************************
- * getTemplate(key)
+ * getTemplate(key) 
  ***********************************************/
 function getTemplate(key) {
   switch (key) {
