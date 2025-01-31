@@ -4,9 +4,6 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <!-- Ergänzung: Meta-Viewport-Tag für mobile Skalierung -->
-  <meta name="viewport" content="width=device-width, initial-scale=0.8, minimum-scale=0.5, user-scalable=yes">
-
   <title>{% block title %}Adenauer OS Desktop{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
   <style>
@@ -131,7 +128,6 @@
 <main>
   {% block content %}{% endblock %}
 </main>
-
 <script>
   function updateSystemTime() {
     const el = document.getElementById("systemTime");

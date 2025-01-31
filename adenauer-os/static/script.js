@@ -1,5 +1,5 @@
 // =========================================================================================
-//   script.js (Vollständige Fassung mit Verbesserungen)
+//   script.js (Vollständige Fassung mit Erweiterungen)
 // =========================================================================================
 
 // Zähler für Z-Indizes
@@ -33,7 +33,7 @@ const openedWindows = {
 let windowState = {};
 
 /***********************************************
- * Hilfsfunktionen zum Deaktivieren/Aktivieren 
+ * Hilfsfunktionen zum Deaktivieren/ Aktivieren 
  * von pointer-events bei iframes
  ***********************************************/
 function setIframesPointerEvents(windowEl, enabled) {
@@ -101,7 +101,7 @@ const template3 = `
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h2 class="title">Programmquelle</h2>
+    <h2 class="title">Programmquelle </h2>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem;">
@@ -257,17 +257,17 @@ const template20 = `
 
 /***********************************************
  * createWindow() 
- * Wenn Fenster schon offen -> in den Vordergrund
+ * --> Angepasst, um Fenster bei erneutem Klick
+ *     nur in den Vordergrund zu holen statt 
+ *     gar nicht zu reagieren
  ***********************************************/
 function createWindow(template, windowKey) {
+  // Falls bereits offen -> nach vorne holen und beenden
   if (openedWindows[windowKey]) {
-    // Bereits offen: in den Vordergrund
     const existingWin = document.querySelector(`.modal-window[data-win="${windowKey}"]`);
     if (existingWin) {
       zIndexCounter++;
       existingWin.style.zIndex = zIndexCounter;
-      // Re-Anhängen, um es im DOM an letzte Stelle zu setzen (manche Browser rendern sonst falsch)
-      existingWin.parentNode.appendChild(existingWin);
       saveWindowPosition(existingWin, windowKey);
     }
     return;
@@ -306,11 +306,12 @@ function createWindow(template, windowKey) {
     saveWindowPosition(modalEl, windowKey);
   });
 
-  // Close-Button (inkl. Touchend für mobile)
+  // Close-Button-Logik (inkl. Touchend für mobile)
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
     const handleClose = (evt) => {
       evt.preventDefault();
+      // Entfernen aus DOM
       modalContainer.removeChild(modalEl);
       openedWindows[windowKey] = false;
       delete windowState[windowKey];
@@ -320,10 +321,10 @@ function createWindow(template, windowKey) {
     closeBtn.addEventListener('touchend', handleClose, { passive: false });
   }
 
-  // Fenster per Drag verschiebbar machen
+  // Fenster per Drag verschiebbar
   makeDraggable(modalEl, windowKey);
 
-  // Spezielle Logik bei Fenster #1: Unter-Fenster öffnen
+  // Spezielle Logik bei Fenster #1: Klicken auf Einträge
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -364,14 +365,13 @@ function createWindow(template, windowKey) {
       });
   }
 
-  // Anhängen ans modalContainer
   modalContainer.appendChild(modalEl);
 }
 
 /***********************************************
  * makeDraggable() 
- * Beim Draggen iframes ausblenden, um Ruckeln
- * durch iframe-Neuzeichnung zu vermeiden
+ * --> Anpassen, um iframes beim Drag auszublenden 
+ *     (pointer-events: none), um Ruckeln zu verringern
  ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
@@ -387,7 +387,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-    setIframesPointerEvents(windowEl, false); 
+    setIframesPointerEvents(windowEl, false); // iframes ausblenden
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -411,7 +411,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
-    setIframesPointerEvents(windowEl, true);
+    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
     saveWindowPosition(windowEl, windowKey);
   }
 
@@ -420,7 +420,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-    setIframesPointerEvents(windowEl, false);
+    setIframesPointerEvents(windowEl, false); // iframes ausblenden
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
@@ -447,13 +447,13 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
-    setIframesPointerEvents(windowEl, true);
+    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
     saveWindowPosition(windowEl, windowKey);
   }
 }
 
 /***********************************************
- * localStorage: Position & Z-Index merken
+ * localStorage
  ***********************************************/
 function saveWindowPosition(modalEl, windowKey) {
   const left = parseInt(modalEl.style.left, 10) || 0;
@@ -475,7 +475,7 @@ function loadWindowState() {
 }
 
 /***********************************************
- * getTemplate(key)
+ * getTemplate(key) 
  ***********************************************/
 function getTemplate(key) {
   switch (key) {
@@ -506,7 +506,6 @@ const modalContainer = document.getElementById('modalContainer');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadWindowState();
-  // Vorherige Fensterpositionen laden
   for (const key in windowState) {
     if (windowState.hasOwnProperty(key)) {
       createWindow(getTemplate(key), key);
