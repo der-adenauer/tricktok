@@ -91,7 +91,7 @@ const template3 = `
 </div>
 `;
 
-// #4: Programmquelle
+// #4: Programmquelle.
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
