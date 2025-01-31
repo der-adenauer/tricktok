@@ -12,16 +12,13 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.secret_key = "irgendein_schluessel"
+app.secret_key = "irgengsg4663463463463DFDFDsdgsgsdfdsfSFSDGAssel"
 
 
 @app.route("/benutzer_info")
 def benutzer_info():
     user_agent = request.headers.get("User-Agent", "Unbekannt")
     return f"<p style='font-size:12px; color:#666;'>User-Agent: {user_agent}</p>"
-
-
-
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -128,7 +125,6 @@ def export_csv_db():
 
     return Response(csv_data, mimetype="text/csv",
                     headers={"Content-disposition":"attachment; filename=links_export.csv"})
-
 
 @app.route("/export_csv_mobile")
 def export_csv_mobile():
@@ -295,7 +291,6 @@ def fahndungsliste_db():
         per_page=per_page
     )
 
-
 @app.route("/fahndungsliste", methods=["GET", "POST"])
 def fahndungsliste_mobile():
     db = get_db()
@@ -397,14 +392,47 @@ def expressmodus():
 @app.route("/Metadaten")
 def metadaten():
     return render_template("database_content.html")
-    
+
 # Zusätzliche Route für Statistiktok (für das Iframe)
 @app.route("/statistiktok")
 def statistiktok():
     return render_template("statistiktok.html")
 
 
+# ===================================================
+# NEUE ROUTE: Video-Feature (neue DB "filtered_tiktok_media.db")
+# ===================================================
+@app.route("/video_feature", methods=["GET"])
+def video_feature():
+    page = int(request.args.get("page", 1))
+    per_page = 10
+    offset = (page - 1) * per_page
 
+    # Verbindung zur neuen Datenbank
+    conn_new = sqlite3.connect("archiv/filtered_tiktok_media.db")
+    conn_new.row_factory = sqlite3.Row
+    cursor = conn_new.cursor()
+
+    # Gesamtanzahl Videos
+    total_videos = cursor.execute("SELECT COUNT(*) AS cnt FROM media_info").fetchone()["cnt"]
+    
+    # Datensätze für die aktuelle Seite
+    rows = cursor.execute("""
+        SELECT new_id, title, creation_date, length_seconds, screenshot_thumbnail_path, embedded_link
+        FROM media_info
+        ORDER BY new_id DESC
+        LIMIT ? OFFSET ?
+    """, (per_page, offset)).fetchall()
+
+    conn_new.close()
+
+    return render_template(
+        "video_feature.html",
+        total_videos=total_videos,
+        videos=rows,
+        page=page,
+        per_page=per_page
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

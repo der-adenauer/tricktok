@@ -100,8 +100,7 @@ const template4 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS <br> Projekt Tricktok</h2>
-    <p>Adenauer OS ist ein Betriebssystem, dafür entwicklet, rechtsradikale Inhalte auf TikTok zu identifizieren. </p>
-    <p>Programm zur Identifizierung rechtsextremer Inhalte auf TikTok.</p>
+    <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, dafür entwicklet, rechtsextreme Inhalte auf TikTok zu identifizieren. </p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
