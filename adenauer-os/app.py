@@ -12,7 +12,7 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.secret_key = "irgengsg4663463463463DFDFDsdgsgs%426gDhdfdsfSFSDGAssel"
+app.secret_key = "irgengsg4663463463463dfdsfSFSDGAssel"
 
 
 @app.route("/benutzer_info")
@@ -59,7 +59,7 @@ def close_connection(exception):
 
 def extract_channel(link):
     """
-    1) Link max. 120 Zeichen
+    1) Link max. 120 Zeichen.
     2) Regex: tiktok.com/@KanalName => bis / oder ? oder Ende
     """
     link = link.strip()
