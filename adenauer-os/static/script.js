@@ -51,7 +51,7 @@ const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Benutzerkonto</h1>
-    <span class="close">[x]</span>
+    <span class="close"></span>
   </div>
   <div class="window-pane" style="padding:1rem; font-size:14px;">
     <img src="/static/icon7.png" alt="icon7" width="64" height="64">
