@@ -1,7 +1,3 @@
-# =========================================================================================
-#   app.py
-# =========================================================================================
-
 import re
 import time
 import sqlite3
@@ -49,12 +45,8 @@ def session_name():
 def get_db():
     db = getattr(g, "_database", None)
     if db is None:
-        # 1) Connect
         db = g._database = sqlite3.connect("datenbank.db")
-        # 2) Row Factory
         db.row_factory = sqlite3.Row
-
-        # 3) Tabellen anlegen / Spalte prüfen
         db.execute("""
             CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,9 +100,6 @@ def index():
 
 @app.route("/export_csv_db")
 def export_csv_db():
-    """
-    Desktop/Modal CSV-Export
-    """
     db = get_db()
     cursor = db.cursor()
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
@@ -122,7 +111,6 @@ def export_csv_db():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
-        # Wenn fehlgeschlagen, Desktop-Template
         return render_template(
             "fahndungsliste-modal.html",
             fehlermeldung=fehlermeldung,
@@ -132,13 +120,11 @@ def export_csv_db():
             per_page=5
         )
 
-    # CSV generieren
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
         csv_data += f"{row['id']},{row['kanal']},{row['zeitstempel']}\n"
 
-    # last_export aktualisieren
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
         VALUES (
@@ -154,9 +140,6 @@ def export_csv_db():
 
 @app.route("/export_csv_mobile")
 def export_csv_mobile():
-    """
-    Mobile CSV-Export
-    """
     db = get_db()
     cursor = db.cursor()
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
@@ -168,7 +151,6 @@ def export_csv_mobile():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
-        # Wenn fehlgeschlagen, Mobile-Template
         return render_template(
             "fahndungsliste-mobile.html",
             fehlermeldung=fehlermeldung,
@@ -178,13 +160,11 @@ def export_csv_mobile():
             per_page=5
         )
 
-    # CSV generieren
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
         csv_data += f"{row['id']},{row['kanal']},{row['zeitstempel']}\n"
 
-    # last_export aktualisieren
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
         VALUES (
@@ -270,7 +250,6 @@ def fahndungsliste_db():
                 per_page=per_page
             )
 
-        # Duplikat?
         duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
         if duplikat:
             vorhandenes_datum = duplikat["zeitstempel"]
@@ -280,7 +259,6 @@ def fahndungsliste_db():
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
             """, (ip, aktuelle_zeit, ip))
             db.commit()
-
             return render_template(
                 "fahndungsliste-modal.html",
                 fehlermeldung=fehlermeldung,
@@ -290,7 +268,6 @@ def fahndungsliste_db():
                 per_page=per_page
             )
         else:
-            # Neu einfügen
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
             cursor.execute("""
@@ -299,7 +276,6 @@ def fahndungsliste_db():
             """, (kanal_name, zeit, user_agent, ip))
             db.commit()
 
-            # last_submit aktualisieren
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
@@ -365,7 +341,6 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
 
-        # Duplikat
         duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
         if duplikat:
             vorhandenes_datum = duplikat["zeitstempel"]
@@ -384,7 +359,6 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
         else:
-            # Neu einfügen
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
             cursor.execute("""
@@ -393,7 +367,6 @@ def fahndungsliste_mobile():
             """, (kanal_name, zeit, user_agent, ip))
             db.commit()
 
-            # last_submit aktualisieren
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
@@ -419,30 +392,21 @@ def expressmodus():
 def metadaten():
     return render_template("database_content.html")
 
-# Zusätzliche Route für Statistiktok (für das Iframe)
 @app.route("/statistiktok")
 def statistiktok():
     return render_template("statistiktok.html")
 
-
-# ===================================================
-# NEUE ROUTE: Video-Feature (neue DB "filtered_tiktok_media.db")
-# ===================================================
 @app.route("/video_feature", methods=["GET"])
 def video_feature():
     page = int(request.args.get("page", 1))
     per_page = 10
     offset = (page - 1) * per_page
 
-    # Verbindung zur neuen Datenbank
     conn_new = sqlite3.connect("archiv/filtered_tiktok_media.db")
     conn_new.row_factory = sqlite3.Row
     cursor = conn_new.cursor()
 
-    # Gesamtanzahl Videos
     total_videos = cursor.execute("SELECT COUNT(*) AS cnt FROM media_info").fetchone()["cnt"]
-    
-    # Datensätze für die aktuelle Seite
     rows = cursor.execute("""
         SELECT new_id, title, creation_date, length_seconds, screenshot_thumbnail_path, embedded_link
         FROM media_info
@@ -459,6 +423,13 @@ def video_feature():
         page=page,
         per_page=per_page
     )
+
+# ---------------------------------------------
+# NEUE ROUTE: Hilfeseite mit Navigation
+# ---------------------------------------------
+@app.route("/hilfe_extended")
+def hilfe_extended():
+    return render_template("hilfe_extended.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

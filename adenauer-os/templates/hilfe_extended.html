@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Erweiterte Hilfe</title>
+  <!-- System-CSS einbinden: Schriften, Buttons etc. -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+
+  <!-- Nur Minimal-CSS für Slide-/Tab-Funktion -->
+  <style>
+    .slide {
+      display: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fff;
+      margin: 1rem 0;
+      padding: 1rem;
+    }
+    .slide.active {
+      display: block;
+    }
+    .nav-btns {
+      display: flex;
+      justify-content: space-between;
+      max-width: 600px;
+      margin: 1rem auto;
+    }
+    .icon-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 1rem;
+    }
+    .icon-card {
+      text-align: center;
+      width: 80px;
+      cursor: pointer;
+    }
+    .icon-card img {
+      width: 64px;
+      height: 64px;
+    }
+    .icon-card .label {
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    /* Für die einzeln dargestellten Icons im Slide-Text */
+    .icon-in-slide {
+      float: left;
+      margin-right: 12px;
+      margin-bottom: 6px;
+      width: 64px;
+      height: 64px;
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- Slide 0: Übersichtsseite mit allen Icons -->
+<div class="slide active" id="slide0">
+  <h3>Adenauer OS - Funktionsübersicht</h3>
+
+  <div class="icon-row">
+    <div class="icon-card" data-goto="1">
+      <img src="/static/icon6.png" alt="icon6">
+      <div class="label">Index</div>
+    </div>
+    <div class="icon-card" data-goto="2">
+      <img src="/static/icon7.png" alt="icon7">
+      <div class="label">Benutzer</div>
+    </div>
+    <div class="icon-card" data-goto="3">
+      <img src="/static/icon8.png" alt="icon8">
+      <div class="label">Fahndung</div>
+    </div>
+    <div class="icon-card" data-goto="4">
+      <img src="/static/icon9.png" alt="icon9">
+      <div class="label">Suche</div>
+    </div>
+    <div class="icon-card" data-goto="5">
+      <img src="/static/icon10.png" alt="icon10">
+      <div class="label">Archiv</div>
+    </div>
+    <div class="icon-card" data-goto="6">
+      <img src="/static/icon12.svg" alt="icon12">
+      <div class="label">Statistiktok</div>
+    </div>
+    <div class="icon-card" data-goto="7">
+      <img src="/static/icon13.svg" alt="icon13">
+      <div class="label">Player</div>
+    </div>
+    <div class="icon-card" data-goto="8">
+      <img src="/static/icon14.svg" alt="icon14">
+      <div class="label">Nachrichten</div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <div></div>
+    <button class="btn" id="next0">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 1: Icon6 -->
+<div class="slide" id="slide1">
+  <img src="/static/icon6.png" alt="Icon6" class="icon-in-slide">
+  <h3>Index</h3>
+  <p>Ordnerstruktur und Dateisammlung der zuständigen Beamten für dienstliche Zwecke.<br></p>
+  
+  <div class="nav-btns">
+    <button class="btn" id="prev1">Zurück</button>
+    <button class="btn" id="next1">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 2: Icon7 -->
+<div class="slide" id="slide2">
+  <img src="/static/icon7.png" alt="Icon7" class="icon-in-slide">
+  <h3>Benutzer</h3>
+  <p>Zeigt Name und Verbindugsinformationen zum aktiven Konto des ermittelnden Beamten. </p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev2">Zurück</button>
+    <button class="btn" id="next2">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 3: Icon8 -->
+<div class="slide" id="slide3">
+  <img src="/static/icon8.png" alt="Icon8" class="icon-in-slide">
+  <h3>Fahndungsliste</h3>
+  <p>Sammelt Tiktok-Kanäle mit potenziell verfassungsfeindlichen Inhalten. Neue Kanäle können eingetragen werden.<br>
+  Das Dienstprogramm erkennt automatisch Tiktok-Kanalnamen aus einem Tiktok-Link.
+  
+  <br><br>
+  Beispiel:   afd_bestofclips<br><br>
+  tiktok.com/@afd_bestofclips<br>
+  https://www.tiktok.com/@afd_bestofclips<br>
+  https://www.tiktok.com/@afd_bestofclips/photo/245...<br>
+  https://www.tiktok.com/@afd_bestofclips/video/345...<br>
+  
+  
+  
+  
+  </p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev3">Zurück</button>
+    <button class="btn" id="next3">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 4: Icon9 -->
+<div class="slide" id="slide4">
+  <img src="/static/icon9.png" alt="Icon9" class="icon-in-slide">
+  <h3>Suche</h3>
+  <p>Die Tricktok-Suche ermöglicht die Analyse observierter TikTok-Kanäle anhand erfasster Metadaten.<br>
+
+Eine Wortwolke zeigt die Verteilung häufig verwendeter Begriffe und kann durch verschiedene Einstellungen angepasst werden. <br><br>Der Hashtag-Modus veranschaulicht die thematische Ausrichtung eines Kanals.
+
+Über ein Dropdown-Menü lassen sich einzelne Kanäle gezielt auswählen.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev4">Zurück</button>
+    <button class="btn" id="next4">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 5: Icon10 -->
+<div class="slide" id="slide5">
+  <img src="/static/icon10.png" alt="Icon10" class="icon-in-slide">
+  <h3>Archiv </h3>
+  <p>Langzeitspeicher für TikTok-Daten observierter Tiktok-Kanäle. Zeigt Archivstände aller erfassten Videos sowie Screenshots, Storyboards und einzellner Tonspuren.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev5">Zurück</button>
+    <button class="btn" id="next5">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 6: Icon12 -->
+<div class="slide" id="slide6">
+  <img src="/static/icon12.svg" alt="Icon12" class="icon-in-slide">
+  <h3>Statistiktok</h3>
+  <p>Der Statistik- und Analysebereich bietet eine Echtzeitauswertung der im Rahmen der laufenden Observierung erfassten Metadaten.
+
+Dargestellt werden unter anderem die Veröffentlichungshäufigkeit auf Tages- und Jahresebene, die durchschnittliche Videolänge, sowie eine Übersicht der 50 meistbeobachteten Kanäle. Ergänzend enthält die Analyse eine Zusammenstellung der 88 relevantesten Videos aus dem Datensatz.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev6">Zurück</button>
+    <button class="btn" id="next6">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 7: Icon13 -->
+<div class="slide" id="slide7">
+  <img src="/static/icon13.svg" alt="Icon13" class="icon-in-slide">
+  <h3>Player</h3>
+  <p>Video-Bereich außer Betrieb<br><br> Ein Systemadministrator wurde informiert.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev7">Zurück</button>
+    <button class="btn" id="next7">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 8: Icon14 -->
+<div class="slide" id="slide8">
+  <img src="/static/icon14.svg" alt="Icon14" class="icon-in-slide">
+  <h3>Nachrichten</h3>
+  <p>Die geschätzten Kollegen des Nachrichtendienstes Neuters leisten fortwährend wertvolle Unterstützung bei den laufenden Ermittlungen. Es wird stehts eine aktuelle Berichterstattung und Lagebild zur Unterhaltungsplattform TikTok gewährleistet.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev8">Zurück</button>
+    <div></div>
+  </div>
+</div>
+
+<!-- Minimales JS für Navigation -->
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    slides.forEach((sl, i) => {
+      sl.classList.remove('active');
+      if (i === index) {
+        sl.classList.add('active');
+      }
+    });
+    currentSlide = index;
+  }
+
+  // Slide 0 => "Weiter" -> Slide 1
+  const next0 = document.getElementById('next0');
+  if (next0) {
+    next0.addEventListener('click', () => showSlide(1));
+  }
+
+  // Buttons in Slide 1..8
+  for (let i = 1; i < slides.length; i++) {
+    const prevBtn = document.getElementById(`prev${i}`);
+    const nextBtn = document.getElementById(`next${i}`);
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        showSlide(i - 1);
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        showSlide(i + 1);
+      });
+    }
+  }
+
+  // Klick auf Icons in Slide0 => direkt zur gewünschten Slide
+  document.querySelectorAll('.icon-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const target = parseInt(card.dataset.goto, 10);
+      if (!isNaN(target)) {
+        showSlide(target);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

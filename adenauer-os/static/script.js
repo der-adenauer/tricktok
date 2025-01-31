@@ -81,29 +81,18 @@ const template1 = `
 
 // #3: Hilfe
 const template3 = `
-<div class="window modal-window" data-win="win3" style="width:800px;">
+<div class="window modal-window" data-win="win3" style="width:800px; height:550px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Hilfe</h1>
     <span class="close"></span>
   </div>
-  <div class="window-pane" style="padding:1rem;">
-    <p>
-      Offizielle Dienstanweisung zur Verwendung von AdenauerOS .<br>
-      <img src="/static/icon6.png" alt="icon6" width="64" height="64"><br>
-      <strong>Index</strong><br>
-      Verzeichnisstruktur für unterschiedlichste Dateien zum laufenden Vorhaben. Umfasst archivierte Vorgänge zuständiger Dienststellen.<br><br>
-
-      <img src="/static/icon8.png" alt="icon8" width="64" height="64"><br>
-      <strong>Fahndungsliste</strong><br>
-      Wachsende Sammlung potenziell verfassungsfeindlicher TikTok-Kanäle. 
-      <br>
-      <img src="/static/icon9.png" alt="icon9" width="64" height="64"><br>
-      <strong>Suche</strong><br>
-      Durchsuchungs- und Filterfunktionen ...
-    </p>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <!-- Iframe zeigt auf /hilfe_extended -->
+    <iframe src="/hilfe_extended" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
+
 
 // #4: Programmquelle
 const template4 = `
@@ -235,6 +224,7 @@ const template13 = `
     <h1 class="title">Player</h1>
     <span class="close"></span>
   </div>
+  <p>Video-Bereich außer Betrieb<br><br> Ein Systemadministrator wurde informiert.</p>
 </div>
 `;
 
