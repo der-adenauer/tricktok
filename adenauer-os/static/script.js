@@ -1,3 +1,7 @@
+// =========================================================================================
+//   script.js
+// =========================================================================================
+
 let zIndexCounter = 100;
 const openedWindows = {
   window1: false,
@@ -28,6 +32,35 @@ let windowState = {};
  * TEMPLATES
  ***********************************************/
 
+/*
+  NUR AN DIESER STELLE ANGEPASST:
+  Größere und fette Darstellung des Session-Namens in derselben Zeile
+  wie das Bild. Zusätzlich wird der Name aus /session_name geladen und
+  eingesetzt.
+*/
+const template2 = `
+<div class="window modal-window" data-win="win2" style="width:400px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Benutzerkonto</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="padding:1rem; font-size:14px;">
+    <div style="display:flex; align-items:center;">
+      <img src="/static/icon7.png" alt="icon7" width="64" height="64">
+      <span id="sessionName" style="font-size:1.2rem; font-weight:bold; margin-left:10px;">
+        ...Lade Zufallsnamen...
+      </span>
+    </div>
+    <p>Infos zum angemeldeten Benutzer:</p>
+    <!-- Platzhalter, wird nachträglich per fetch('/benutzer_info') gefüllt -->
+    <div id="userDetails" style="font-size:0.8rem; color:#666;">
+      ...User-Agent wird geladen...
+    </div>
+  </div>
+</div>
+`;
+
+// Fenster #1
 const template1 = `
 <div class="window modal-window" data-win="win1" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -45,25 +78,6 @@ const template1 = `
   </div>
 </div>
 `;
-
-// Fenster #2: Platz für User-Agent
-const template2 = `
-<div class="window modal-window" data-win="win2" style="width:400px;">
-  <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Benutzerkonto</h1>
-    <span class="close"></span>
-  </div>
-  <div class="window-pane" style="padding:1rem; font-size:14px;">
-    <img src="/static/icon7.png" alt="icon7" width="64" height="64">
-    <p>Infos zum angemeldeten Benutzer:</p>
-    <!-- Platzhalter, wird nachträglich per fetch('/benutzer_info') gefüllt -->
-    <div id="userDetails" style="font-size:0.8rem; color:#666;">
-      ...User-Agent wird geladen...
-    </div>
-  </div>
-</div>
-`;
-
 
 // #3: Hilfe
 const template3 = `
@@ -91,7 +105,7 @@ const template3 = `
 </div>
 `;
 
-// #4: Programmquelle.
+// #4: Programmquelle
 const template4 = `
 <div class="window modal-window" data-win="win4" style="width:600px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -146,7 +160,6 @@ const template10 = `
 </div>
 `;
 
-
 const template14 = `
 <div class="window modal-window" data-win="win14" style="width:1000px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -169,9 +182,6 @@ const template15 = `
   </div>
 </div>
 `;
-
-/*<iframe width=auto height="560" src="https://py.afd-verbot.de/tricktok-archiv/janwenzelschmidt/video/Der%20Verfassungsschutz%20wird%20durch%20die%20Regierung%20in%20Sachsen-Anhalt%20instrumentalisiert%20Was%20haltet%20ihr%20von%20diesen%20antidemokratischen%20Methoden%20AfD%20politics.mp4" frameborder="0" allowfullscreen></iframe>    <p>Detail zu Eintrag B.</p>*/
-
 
 const template16 = `
 <div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
@@ -299,7 +309,7 @@ function createWindow(template, windowKey) {
 
   makeDraggable(modalEl, windowKey);
 
-  // Falls Fenster #1, interne Links -> weitere Fenster öffnen
+  // Fenster #1: Einträge öffnen
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -311,8 +321,9 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // === NEU: Falls Fenster #2 -> User-Agent nachladen ===
+  // Beim Öffnen von Fenster #2 => User-Agent und Random-Name nachladen
   if (windowKey === 'window2') {
+    // User-Agent
     fetch('/benutzer_info')
       .then(response => response.text())
       .then(htmlSnippet => {
@@ -323,6 +334,19 @@ function createWindow(template, windowKey) {
       })
       .catch(err => {
         console.error("Fehler beim Laden von /benutzer_info:", err);
+      });
+
+    // Random Name aus der Session
+    fetch('/session_name')
+      .then(response => response.text())
+      .then(zufallsName => {
+        const nameSpan = modalEl.querySelector('#sessionName');
+        if (nameSpan) {
+          nameSpan.textContent = zufallsName;
+        }
+      })
+      .catch(err => {
+        console.error("Fehler beim Laden von /session_name:", err);
       });
   }
 
@@ -435,7 +459,7 @@ function loadWindowState() {
 function getTemplate(key) {
   switch (key) {
     case 'window1':  return template1;
-    case 'window2':  return template2;  // Hier das Benutzer-Fenster
+    case 'window2':  return template2;
     case 'window3':  return template3;
     case 'window4':  return template4;
     case 'window8':  return template8;
@@ -494,7 +518,6 @@ if (icon6) {
 const icon7 = document.getElementById('icon7');
 if (icon7) {
   icon7.addEventListener('click', () => {
-    // => window2
     createWindow(getTemplate('window2'), 'window2');
   });
 }
@@ -539,7 +562,7 @@ if (icon14) {
   });
 }
 
-// evtl. Button #20
+// Button #20
 const btn20 = document.getElementById('openWindow20');
 if (btn20) {
   btn20.addEventListener('click', (e) => {

@@ -1,9 +1,15 @@
+# =========================================================================================
+#   app.py
+# =========================================================================================
+
 import re
 import time
 import sqlite3
 import logging
+import random
+import os
 from datetime import datetime
-from flask import Flask, request, g, render_template, redirect, url_for, Response
+from flask import Flask, request, g, render_template, redirect, url_for, Response, session
 
 logging.basicConfig(
     filename="app.log",
@@ -12,13 +18,33 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.secret_key = "irgengsg4663463463463dfdsfSFSDGAssel"
-
+app.secret_key = "irgengsg4663463463463DFDFDsdgsgs%426gDhdfdsfSFSDGAssel"
 
 @app.route("/benutzer_info")
 def benutzer_info():
     user_agent = request.headers.get("User-Agent", "Unbekannt")
     return f"<p style='font-size:12px; color:#666;'>User-Agent: {user_agent}</p>"
+
+# -----------------------------------------------------------------------------
+# NEUE ROUTE FÜR SESSION-NAMEN AUS names.txt
+# -----------------------------------------------------------------------------
+@app.route("/session_name")
+def session_name():
+    """
+    Liefert pro Browser-Session einen zufälligen Namen aus names.txt,
+    der über die Session persistent bleibt.
+    """
+    if "random_name" not in session:
+        names_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "names.txt")
+        if not os.path.exists(names_path):
+            return "UnbekannterName"
+        with open(names_path, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+        if lines:
+            session["random_name"] = random.choice(lines)
+        else:
+            session["random_name"] = "UnbekannterName"
+    return session["random_name"]
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -59,7 +85,7 @@ def close_connection(exception):
 
 def extract_channel(link):
     """
-    1) Link max. 120 Zeichen.
+    1) Link max. 120 Zeichen
     2) Regex: tiktok.com/@KanalName => bis / oder ? oder Ende
     """
     link = link.strip()
