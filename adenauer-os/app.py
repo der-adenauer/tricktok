@@ -21,15 +21,8 @@ def benutzer_info():
     user_agent = request.headers.get("User-Agent", "Unbekannt")
     return f"<p style='font-size:12px; color:#666;'>User-Agent: {user_agent}</p>"
 
-# -----------------------------------------------------------------------------
-# NEUE ROUTE FÜR SESSION-NAMEN AUS names.txt
-# -----------------------------------------------------------------------------
 @app.route("/session_name")
 def session_name():
-    """
-    Liefert pro Browser-Session einen zufälligen Namen aus names.txt,
-    der über die Session persistent bleibt.
-    """
     if "random_name" not in session:
         names_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "names.txt")
         if not os.path.exists(names_path):
@@ -76,14 +69,9 @@ def close_connection(exception):
         db.close()
 
 def extract_channel(link):
-    """
-    1) Link max. 120 Zeichen
-    2) Regex: tiktok.com/@KanalName => bis / oder ? oder Ende
-    """
     link = link.strip()
     if len(link) > 120:
         return None
-
     pattern = r"(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@([^\/\?\s]+)"
     match = re.search(pattern, link)
     if match:
@@ -93,10 +81,6 @@ def extract_channel(link):
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
-
-# ==============================
-#  SEPARATE CSV-EXPORT-ROUTES
-# ==============================
 
 @app.route("/export_csv_db")
 def export_csv_db():
@@ -178,10 +162,6 @@ def export_csv_mobile():
     return Response(csv_data, mimetype="text/csv",
                     headers={"Content-disposition":"attachment; filename=links_export.csv"})
 
-# ==============================
-#  RESTLICHE ROUTES
-# ==============================
-
 @app.route("/info")
 def info():
     return render_template("info.html")
@@ -218,12 +198,10 @@ def fahndungsliste_db():
     """, (per_page, offset)).fetchall()
 
     fehlermeldung = None
-
     if request.method == "POST":
         ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
         aktuelle_zeit = time.time()
         cursor = db.cursor()
-
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown["last_submit"] if row_cooldown else 0
         if (aktuelle_zeit - (last_submit or 0)) < 10:
@@ -309,12 +287,10 @@ def fahndungsliste_mobile():
     """, (per_page, offset)).fetchall()
 
     fehlermeldung = None
-
     if request.method == "POST":
         ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
         aktuelle_zeit = time.time()
         cursor = db.cursor()
-
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown["last_submit"] if row_cooldown else 0
         if (aktuelle_zeit - (last_submit or 0)) < 10:
@@ -396,37 +372,65 @@ def metadaten():
 def statistiktok():
     return render_template("statistiktok.html")
 
+@app.route("/metadatenfilter")
+def metadatenfilter():
+    return render_template("tt-metadaten-filter.html")
+
+# Neue Video-Suche-Route für Filterung und Pagination
 @app.route("/video_feature", methods=["GET"])
 def video_feature():
+    # Optionaler Suchbegriff aus Parameter "q"
+    query = request.args.get("q", "").strip()
     page = int(request.args.get("page", 1))
     per_page = 10
     offset = (page - 1) * per_page
 
-    conn_new = sqlite3.connect("archiv/filtered_tiktok_media.db")
+    conn_new = sqlite3.connect("filtered_tiktok_media.db")
     conn_new.row_factory = sqlite3.Row
     cursor = conn_new.cursor()
 
-    total_videos = cursor.execute("SELECT COUNT(*) AS cnt FROM media_info").fetchone()["cnt"]
-    rows = cursor.execute("""
-        SELECT new_id, title, creation_date, length_seconds, screenshot_thumbnail_path, embedded_link
+    # Bedingung für Suche
+    condition = ""
+    params = []
+    if query:
+        condition = "WHERE title LIKE ? OR url LIKE ? OR uploader LIKE ?"
+        params = [f"%{query}%", f"%{query}%", f"%{query}%"]
+
+    # Gesamtanzahl ermitteln
+    total_query = f"SELECT COUNT(*) as cnt FROM media_info {condition}"
+    total_videos = cursor.execute(total_query, params).fetchone()["cnt"]
+
+    # Daten für aktuelle Seite
+    data_query = f"""
+        SELECT
+            new_id,
+            title,
+            creation_date,
+            length_seconds,
+            screenshot_thumbnail_path,
+            embedded_link,
+            url,
+            uploader
         FROM media_info
+        {condition}
         ORDER BY new_id DESC
         LIMIT ? OFFSET ?
-    """, (per_page, offset)).fetchall()
+    """
+    cursor.execute(data_query, params + [per_page, offset])
+    rows = cursor.fetchall()
 
     conn_new.close()
 
+    # Weitergabe an Template
     return render_template(
         "video_feature.html",
+        query=query,
         total_videos=total_videos,
         videos=rows,
         page=page,
         per_page=per_page
     )
 
-# ---------------------------------------------
-# NEUE ROUTE: Hilfeseite mit Navigation
-# ---------------------------------------------
 @app.route("/hilfe_extended")
 def hilfe_extended():
     return render_template("hilfe_extended.html")

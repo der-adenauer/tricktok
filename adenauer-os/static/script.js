@@ -79,7 +79,7 @@ const template1 = `
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
-      <li><a href="#" class="entry-link" data-target="window15">leere Datei</a></li>
+      <li><a href="#" class="entry-link" data-target="window15">Anweisungen zu Datenfilterung</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
     </ul>
   </div>
@@ -165,15 +165,17 @@ const template14 = `
 `;
 
 const template15 = `
-<div class="window modal-window" data-win="win15" style="width:400px;">
+<div class="window modal-window" data-win="win15" style="width:800px; height:600px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">leere Datei</h1>
+    <h1 class="title">Anweisung zu Datenfilterung</h1>
     <span class="close"></span>
   </div>
-  <div class="window-pane" style="padding:1rem;">
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <iframe src="/metadatenfilter" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
+
 
 const template16 = `
 <div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
@@ -227,8 +229,9 @@ const template13 = `
     <h1 class="title">Player</h1>
     <span class="close"></span>
   </div>
-  <p>Video-Bereich außer Betrieb<br><br> Ein Systemadministrator wurde informiert.</p>
-</div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+<iframe src="/video_feature" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
 `;
 
 const template19 = `
