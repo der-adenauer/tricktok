@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Video-Suche</title>
-  <!-- Optional: System-CSS einbinden -->
   <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
   <style>
     body {
@@ -13,6 +12,7 @@
       background-color: #ccc;
       font-family: "Chicago", sans-serif;
     }
+
     .container {
       width: 800px;
       height: 600px;
@@ -23,12 +23,15 @@
       display: flex;
       flex-direction: column;
       padding: 1rem;
-      overflow: auto;
+      overflow: auto; /* scollender Bereich */
+      position: relative;
     }
+
     h2 {
       margin: 0 0 1rem 0;
       font-size: 1.3rem;
     }
+
     .search-form {
       margin-bottom: 1rem;
       display: flex;
@@ -40,6 +43,7 @@
       padding: 0.3rem;
       font-size: 14px;
     }
+
     .btn {
       border: 2px solid #000;
       background: #fff;
@@ -51,16 +55,25 @@
       background: #000;
       color: #fff;
     }
+
     .info-text {
       margin-bottom: 0.8rem;
       font-size: 14px;
     }
-    .video-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    .msg {
+      font-weight: bold;
+      color: red;
       margin-bottom: 1rem;
     }
+
+    /* Bereich für Videos */
+    #videoList {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem; /* Platz nach unten, damit Sticky-Button nicht überlappt */
+    }
+
     .video-item {
       border: 1px solid #000;
       padding: 0.5rem;
@@ -74,7 +87,7 @@
     }
     .video-iframe {
       width: 100%;
-      height: 200px;
+      height: 300px;
       border: none;
       margin-bottom: 0.5rem;
     }
@@ -82,22 +95,37 @@
       font-size: 14px;
       line-height: 1.3;
     }
-    .pagination {
+
+    /* Bereich für den “Mehr laden”-Button */
+    .controls {
+      margin-top: 1rem;
       text-align: center;
     }
-    .pagination .btn {
-      margin: 0 5px;
-    }
-    .pagination span {
-      margin: 0 5px;
-      font-weight: bold;
+
+    /*
+      Sticky-Container für "Nächstes Video"-Button,
+      ohne Hintergrundfarbe
+    */
+    .next-video-container {
+      position: sticky;
+      bottom: 0;
+      text-align: right; 
+      background: transparent; 
+      padding: 0;
+      margin: 0;
+      border: none;
+      z-index: 999; 
     }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="videoContainer">
   <h2>Video-Suche</h2>
+
+  {% if msg %}
+    <p class="msg">{{ msg }}</p>
+  {% endif %}
 
   <!-- Suchformular -->
   <form class="search-form" method="get" action="{{ url_for('video_feature') }}">
@@ -105,66 +133,202 @@
     <button type="submit" class="btn">Suchen</button>
   </form>
 
-  <!-- Anzahl gefundener Videos -->
-  <p class="info-text">
-    Anzahl gefundener Videos: {{ total_videos }}
-  </p>
+  <p class="info-text">Gesamtanzahl Videos: {{ total_videos }}</p>
 
-  <!-- Anzeige der Videos falls vorhanden -->
-  {% if videos %}
-    <div class="video-grid">
+  <div id="videoList">
+    {% if videos %}
       {% for vid in videos %}
         <div class="video-item">
-          <img 
-            src="{{ vid.screenshot_thumbnail_path }}" 
-            alt="Thumbnail" 
-            class="thumbnail"
-          >
-          <iframe 
-            class="video-iframe" 
-            src="{{ vid.embedded_link }}" 
-            allowfullscreen>
-          </iframe>
+          <img src="{{ vid.screenshot_thumbnail_path }}" alt="" class="thumbnail">
+          <iframe class="video-iframe" src="{{ vid.embedded_link }}" allowfullscreen></iframe>
           <div class="video-info">
             <strong>Titel:</strong> {{ vid.title }}<br>
             <strong>Uploader:</strong> {{ vid.uploader }}<br>
             <strong>URL:</strong> {{ vid.url }}<br>
             <strong>Datum:</strong> {{ vid.creation_date }}<br>
-            <strong>Länge (Sek.):</strong> {{ vid.length_seconds }}
+            <strong>Flags:</strong> {{ vid.flag_count }}<br><br>
+
+            <!-- Flag-Formular -->
+            <form method="post" action="{{ url_for('flag_video') }}">
+              <input type="hidden" name="video_url" value="{{ vid.url }}">
+              <input type="hidden" name="page" value="{{ page }}">
+              <input type="hidden" name="query" value="{{ query }}">
+              <button type="submit" class="btn">VIDEO FLAGGEN</button>
+            </form>
           </div>
         </div>
       {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% set total_pages = (total_videos // per_page) + (1 if total_videos % per_page != 0 else 0) %}
-    {% if total_pages > 1 %}
-      <div class="pagination">
-        {% if page > 1 %}
-          <a href="{{ url_for('video_feature', q=query, page=page-1) }}" class="btn">
-            &laquo; Zurück
-          </a>
-        {% endif %}
-        {% for p in range(1, total_pages+1) %}
-          {% if p == page %}
-            <span>[{{ p }}]</span>
-          {% else %}
-            <a href="{{ url_for('video_feature', q=query, page=p) }}" class="btn">
-              {{ p }}
-            </a>
-          {% endif %}
-        {% endfor %}
-        {% if page < total_pages %}
-          <a href="{{ url_for('video_feature', q=query, page=page+1) }}" class="btn">
-            Weiter &raquo;
-          </a>
-        {% endif %}
-      </div>
+    {% else %}
+      <p>Keine Einträge vorhanden.</p>
     {% endif %}
-  {% else %}
-    <p>Keine Einträge vorhanden.</p>
-  {% endif %}
+  </div>
+
+  <!-- “Mehr laden”  -->
+  <div class="controls">
+    {% if videos|length == per_page and videos|length < total_videos %}
+      <button class="btn" id="loadMoreBtn">Mehr laden</button>
+    {% endif %}
+  </div>
+
+  <!-- Sticky-Bereich: nur der Button -->
+  <div class="next-video-container">
+    <button class="btn" id="nextVideoBtn">Nächstes Video &raquo;</button>
+  </div>
 </div>
+
+<script>
+/*****************************************************************
+ * Globale Variablen
+ *****************************************************************/
+const container = document.getElementById('videoContainer');
+const videoList = document.getElementById('videoList');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const nextVideoBtn = document.getElementById('nextVideoBtn');
+
+const queryParam = "{{ query|default('')|e }}";
+let loadedCount = {{ videos|length }};          // bereits geladene Videos
+let totalVideos = {{ total_videos }};           // Gesamtanzahl
+let currentIndex = 0;                           // aktuell angezeigtes Video
+
+
+/*****************************************************************
+ * Funktion: loadMore()
+ * -> Lädt 10 weitere Videos via AJAX
+ * -> Gibt Promise zurück, das die Zahl der neu geladenen Videos
+ *    liefert. Nach dem Einfügen in #videoList
+ *****************************************************************/
+async function loadMore() {
+  const url = new URL('/video_feature_load_more', window.location.origin);
+  url.searchParams.set('start', loadedCount);
+  if (queryParam) {
+    url.searchParams.set('q', queryParam);
+  }
+
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    console.error("Fehler beim Laden weiterer Videos:", resp.status);
+    return 0;
+  }
+  const data = await resp.json();
+  if (data.length > 0) {
+    data.forEach(vid => {
+      const div = document.createElement('div');
+      div.classList.add('video-item');
+      div.innerHTML = `
+        <img src="${vid.screenshot_thumbnail_path}" alt="Thumbnail" class="thumbnail">
+        <iframe class="video-iframe" src="${vid.embedded_link}" allowfullscreen></iframe>
+        <div class="video-info">
+          <strong>Titel:</strong> ${vid.title}<br>
+          <strong>Uploader:</strong> ${vid.uploader}<br>
+          <strong>URL:</strong> ${vid.url}<br>
+          <strong>Datum:</strong> ${vid.creation_date}<br>
+          <strong>Flags:</strong> ${vid.flag_count}<br><br>
+          <form method="post" action="/flag_video">
+            <input type="hidden" name="video_url" value="${vid.url}">
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="query" value="${queryParam}">
+            <button type="submit" class="btn">VIDEO FLAGGEN</button>
+          </form>
+        </div>
+      `;
+      videoList.appendChild(div);
+    });
+    loadedCount += data.length;
+  }
+
+  // Falls <10 zurückkamen oder loadedCount >= totalVideos => Button verbergen
+  if (data.length < 10 || loadedCount >= totalVideos) {
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display = 'none';
+    }
+  }
+
+  return data.length;
+}
+
+/*****************************************************************
+ * loadMoreBtn-Klick
+ *****************************************************************/
+if (loadMoreBtn) {
+  loadMoreBtn.addEventListener('click', async () => {
+    await loadMore(); // ignoriert Rückgabewert
+  });
+}
+
+/*****************************************************************
+ * “Nächstes Video” Logik
+ * 1) Falls currentIndex+1 < (Anzahl geladener Videos) => normal
+ * 2) Falls wir am letzten Video sind & noch mehr da => loadMore()
+ *    Dann zum ersten neu geladenen Video scrollen.
+ *****************************************************************/
+function scrollToIndex(idx) {
+  const items = document.querySelectorAll('.video-item');
+  if (idx < 0 || idx >= items.length) return;
+  currentIndex = idx;
+  items[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateCurrentIndex() {
+  const items = document.querySelectorAll('.video-item');
+  let minDist = Infinity;
+  let closest = 0;
+  const containerTop = container.getBoundingClientRect().top;
+  items.forEach((item, i) => {
+    const rect = item.getBoundingClientRect();
+    const dist = Math.abs(rect.top - containerTop);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = i;
+    }
+  });
+  currentIndex = closest;
+}
+
+async function nextVideo() {
+  updateCurrentIndex();
+  const items = document.querySelectorAll('.video-item');
+  const nextIndex = currentIndex + 1;
+
+  if (nextIndex < items.length) {
+    // Haben noch ein Video in der bereits geladenen Liste
+    scrollToIndex(nextIndex);
+  } else {
+    // Sind am Ende => schauen, ob es noch mehr Videos (auf DB-Ebene) gibt
+    if (loadedCount < totalVideos) {
+      // Noch nicht alle geladen => hole 10 weitere
+      const newlyLoaded = await loadMore();
+      if (newlyLoaded > 0) {
+        // Nach dem Laden => Index war das alte Ende, also
+        // items.length hat sich geändert
+        const newItems = document.querySelectorAll('.video-item');
+        // neuItemsCount = newItems.length
+        // Der erste neu geladene Eintrag hat Index = altes items.length
+        const firstNewIndex = newItems.length - newlyLoaded;
+        scrollToIndex(firstNewIndex);
+      }
+    } else {
+      // Keine weiteren Videos vorhanden => optional Meldung
+      console.log("Keine weiteren Videos mehr verfügbar.");
+    }
+  }
+}
+
+/*****************************************************************
+ * nextVideoBtn-Klick
+ *****************************************************************/
+if (nextVideoBtn) {
+  nextVideoBtn.addEventListener('click', () => {
+    nextVideo();
+  });
+}
+
+/*****************************************************************
+ * Scroll-Event => currentIndex aktualisieren
+ *****************************************************************/
+container.addEventListener('scroll', () => {
+  updateCurrentIndex();
+});
+</script>
 
 </body>
 </html>
