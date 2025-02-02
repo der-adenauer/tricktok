@@ -16,6 +16,15 @@ logging.basicConfig(
 app = Flask(__name__)
 app.secret_key = "irge223442s243426gDhfhadgaewz363u234Assel"
 
+def is_mobile_user_agent(user_agent_string):
+    pattern = r"Mobi|Android|iPhone|iPad|Phone"
+    return bool(re.search(pattern, user_agent_string, re.IGNORECASE))
+
+@app.context_processor
+def inject_is_mobile():
+    user_agent = request.headers.get("User-Agent", "")
+    return dict(IS_MOBILE=is_mobile_user_agent(user_agent))
+
 @app.route("/benutzer_info")
 def benutzer_info():
     user_agent = request.headers.get("User-Agent", "Unbekannt")
@@ -65,13 +74,13 @@ def get_db():
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE ip_cooldowns ADD COLUMN last_export REAL")
 
-        # Neue Spalte last_flag für 5-Minuten-Cooldown
+        # Neue Spalte last_flag
         try:
             db.execute("SELECT last_flag FROM ip_cooldowns LIMIT 1")
         except sqlite3.OperationalError:
             db.execute("ALTER TABLE ip_cooldowns ADD COLUMN last_flag REAL")
 
-        # Tabelle flag_log (um pro IP+Video nur 1x zu flaggen)
+        # Tabelle flag_log
         db.execute("""
             CREATE TABLE IF NOT EXISTS flag_log (
                 url TEXT,
@@ -81,7 +90,7 @@ def get_db():
             )
         """)
 
-        # Tabelle video_flags (Flag-Zähler je Video)
+        # Tabelle video_flags
         db.execute("""
             CREATE TABLE IF NOT EXISTS video_flags (
                 url TEXT PRIMARY KEY,
@@ -110,7 +119,6 @@ def extract_channel(link):
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
-
 
 @app.route("/export_csv_db")
 def export_csv_db():
@@ -418,15 +426,12 @@ def flag_video():
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
     aktuelle_zeit = time.time()
 
-    # IP in ip_cooldowns prüfen
     row_cooldown = cursor.execute("SELECT last_flag FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
     last_flag = row_cooldown["last_flag"] if row_cooldown and row_cooldown["last_flag"] else 0
 
-    # 5-Minuten-Grenze (300 Sekunden)
     if (aktuelle_zeit - last_flag) < 300:
         return redirect(url_for("video_feature", q=query, page=page, msg="FLAG-COOLDOWN"))
 
-    # Prüfen, ob IP+URL schon in flag_log
     row_flag_log = db.execute(
         "SELECT COUNT(*) as cnt FROM flag_log WHERE ip=? AND url=?",
         (ip, video_url)
@@ -434,13 +439,11 @@ def flag_video():
     if row_flag_log and row_flag_log["cnt"] > 0:
         return redirect(url_for("video_feature", q=query, page=page, msg="ALREADY_FLAGGED"))
 
-    # Eintrag in flag_log
     cursor.execute("""
         INSERT INTO flag_log (url, ip, flag_time)
         VALUES (?, ?, ?)
     """, (video_url, ip, aktuelle_zeit))
 
-    # Video-Flags erhöhen
     row_flags = db.execute("SELECT count FROM video_flags WHERE url=?", (video_url,)).fetchone()
     if row_flags:
         new_count = row_flags["count"] + 1
@@ -448,7 +451,6 @@ def flag_video():
     else:
         cursor.execute("INSERT INTO video_flags (url, count) VALUES (?, ?)", (video_url, 1))
 
-    # ip_cooldowns.last_flag aktualisieren
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export, last_flag)
         VALUES (
@@ -462,14 +464,8 @@ def flag_video():
 
     return redirect(url_for("video_feature", q=query, page=page, msg="FLAGGED_OK"))
 
-# -----------------------------
-# video_feature: Erste 10 Videos
-# -----------------------------
 @app.route("/video_feature", methods=["GET"])
 def video_feature():
-    """
-    Lädt erste 10 Einträge, zeigt in Template: video_feature.html
-    """
     query = request.args.get("q", "").strip()
     msg = request.args.get("msg", "")
     page = int(request.args.get("page", 1))
@@ -487,11 +483,9 @@ def video_feature():
         condition = "WHERE title LIKE ? OR url LIKE ? OR uploader LIKE ?"
         params = [f"%{query}%", f"%{query}%", f"%{query}%"]
 
-    # Gesamtzahl
     total_query = f"SELECT COUNT(*) as cnt FROM media_info {condition}"
     total_videos = cursor.execute(total_query, params).fetchone()["cnt"]
 
-    # Erste 10 laden
     data_query = f"""
         SELECT
             new_id,
@@ -529,14 +523,8 @@ def video_feature():
         per_page=per_page
     )
 
-# -----------------------------------------
-# AJAX-Route: weitere 10 Videos als JSON
-# -----------------------------------------
 @app.route("/video_feature_load_more", methods=["GET"])
 def video_feature_load_more():
-    """
-    JSON-Endpoint für 'Mehr laden' ab einem bestimmten Start-Index.
-    """
     query = request.args.get("q", "").strip()
     start_index = int(request.args.get("start", 0))
 
