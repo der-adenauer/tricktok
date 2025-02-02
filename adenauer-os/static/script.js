@@ -1,7 +1,3 @@
-// =========================================================================================
-//   script.js (Vollständige Fassung mit Erweiterungen)
-// =========================================================================================
-
 // Zähler für Z-Indizes
 let zIndexCounter = 100;
 
@@ -32,8 +28,11 @@ const openedWindows = {
 // Objekt zum Speichern von Position und Z-Index
 let windowState = {};
 
+// Globaler Zähler für versetztes Öffnen (in createWindow)
+let openCount = 0;
+
 /***********************************************
- * Hilfsfunktionen zum Deaktivieren/ Aktivieren 
+ * Hilfsfunktionen zum Deaktivieren / Aktivieren 
  * von pointer-events bei iframes
  ***********************************************/
 function setIframesPointerEvents(windowEl, enabled) {
@@ -44,7 +43,7 @@ function setIframesPointerEvents(windowEl, enabled) {
 }
 
 /***********************************************
- * TEMPLATES
+ * TEMPLATES (Fenster-HTML)
  ***********************************************/
 
 const template2 = `
@@ -176,8 +175,6 @@ const template15 = `
 </div>
 `;
 
-
-
 const template16 = `
 <div class="window modal-window" data-win="win16" style="width:auto; max-width:850px; margin:auto; background-color:#fff;">
   <div class="title-bar" style="display:flex; justify-content:space-between; align-items:center; padding:10px;">
@@ -231,7 +228,7 @@ const template13 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-<iframe src="/video_feature" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="/video_feature" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 `;
 
@@ -260,13 +257,12 @@ const template20 = `
 `;
 
 /***********************************************
- * createWindow() 
- * --> Angepasst, um Fenster bei erneutem Klick
- *     nur in den Vordergrund zu holen statt 
- *     gar nicht zu reagieren
+ * createWindow()
+ * --> Fenster in den Vordergrund holen,
+ *     neu öffnen mit Z-Index + Schrittversatz
  ***********************************************/
 function createWindow(template, windowKey) {
-  // Falls bereits offen -> nach vorne holen und beenden
+  // Falls bereits offen -> nach vorne holen
   if (openedWindows[windowKey]) {
     const existingWin = document.querySelector(`.modal-window[data-win="${windowKey}"]`);
     if (existingWin) {
@@ -280,17 +276,18 @@ function createWindow(template, windowKey) {
   // Markierung als offen
   openedWindows[windowKey] = true;
 
-  // Wrapper zum Einfügen
+  // Inhalt in DOM-Element umwandeln
   const wrapper = document.createElement('div');
   wrapper.innerHTML = template.trim();
   const modalEl = wrapper.firstElementChild;
 
-  // Z-Index anheben
+  // Z-Index hoch
   zIndexCounter++;
   modalEl.style.zIndex = zIndexCounter;
 
-  // Falls Position im State vorhanden -> übernehmen
+  // Position setzen
   if (windowState[windowKey]) {
+    // Gespeicherte Position übernehmen
     const { left, top, zIndex } = windowState[windowKey];
     if (typeof left === 'number') modalEl.style.left = left + 'px';
     if (typeof top === 'number') modalEl.style.top = top + 'px';
@@ -299,8 +296,14 @@ function createWindow(template, windowKey) {
       zIndexCounter = Math.max(zIndexCounter, zIndex);
     }
   } else {
-    modalEl.style.left = "60px";
-    modalEl.style.top = "160px";
+    // Neue Fenster => Basiskoordinaten + Versatz
+    const baseLeft = 60 + openCount * 20;
+    const baseTop = 160 + openCount * 20;
+    modalEl.style.left = baseLeft + "px";
+    modalEl.style.top = baseTop + "px";
+
+    // Fenster-Zähler erhöhen => Nächstes verschiebt sich weiter
+    openCount++;
   }
 
   // Klick auf Fenster -> in Vordergrund
@@ -310,12 +313,11 @@ function createWindow(template, windowKey) {
     saveWindowPosition(modalEl, windowKey);
   });
 
-  // Close-Button-Logik (inkl. Touchend für mobile)
+  // Close-Button
   const closeBtn = modalEl.querySelector('.close');
   if (closeBtn) {
     const handleClose = (evt) => {
       evt.preventDefault();
-      // Entfernen aus DOM
       modalContainer.removeChild(modalEl);
       openedWindows[windowKey] = false;
       delete windowState[windowKey];
@@ -325,10 +327,10 @@ function createWindow(template, windowKey) {
     closeBtn.addEventListener('touchend', handleClose, { passive: false });
   }
 
-  // Fenster per Drag verschiebbar
+  // Drag-Logik
   makeDraggable(modalEl, windowKey);
 
-  // Spezielle Logik bei Fenster #1: Klicken auf Einträge
+  // Fenster #1: Klick auf Verzeichnis-Einträge
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -340,7 +342,7 @@ function createWindow(template, windowKey) {
     });
   }
 
-  // Beim Öffnen von Fenster #2 => Daten nachladen
+  // Fenster #2 => “Benutzerinfo”/“Sessionname” laden
   if (windowKey === 'window2') {
     // User-Agent
     fetch('/benutzer_info')
@@ -355,7 +357,7 @@ function createWindow(template, windowKey) {
         console.error("Fehler beim Laden von /benutzer_info:", err);
       });
 
-    // Random-Name
+    // Zufallsname
     fetch('/session_name')
       .then(response => response.text())
       .then(zufallsName => {
@@ -369,13 +371,14 @@ function createWindow(template, windowKey) {
       });
   }
 
+  // Ins DOM einfügen
   modalContainer.appendChild(modalEl);
 }
 
 /***********************************************
  * makeDraggable() 
- * --> Anpassen, um iframes beim Drag auszublenden 
- *     (pointer-events: none), um Ruckeln zu verringern
+ * --> Draggable-Funktion mit pointer-events 
+ *     auf iframes beim Drag aus
  ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
@@ -391,7 +394,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-    setIframesPointerEvents(windowEl, false); // iframes ausblenden
+    setIframesPointerEvents(windowEl, false);
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
@@ -415,7 +418,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
-    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
+    setIframesPointerEvents(windowEl, true);
     saveWindowPosition(windowEl, windowKey);
   }
 
@@ -424,7 +427,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = true;
     zIndexCounter++;
     windowEl.style.zIndex = zIndexCounter;
-    setIframesPointerEvents(windowEl, false); // iframes ausblenden
+    setIframesPointerEvents(windowEl, false);
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
@@ -451,7 +454,7 @@ function makeDraggable(windowEl, windowKey) {
     isDragging = false;
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
-    setIframesPointerEvents(windowEl, true); // iframes wieder aktivieren
+    setIframesPointerEvents(windowEl, true);
     saveWindowPosition(windowEl, windowKey);
   }
 }
@@ -504,7 +507,8 @@ function getTemplate(key) {
 }
 
 /***********************************************
- * Init
+ * Init: Fenster aus localStorage laden 
+ * (falls vorhanden)
  ***********************************************/
 const modalContainer = document.getElementById('modalContainer');
 
