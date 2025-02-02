@@ -14,7 +14,7 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.secret_key = "irgengsg4663463463463DFDFDsdgsgs%426gDhdfdsfSFSDGAssel"
+app.secret_key = "irge223442s243426gDhfhadgaewz363u234Assel"
 
 @app.route("/benutzer_info")
 def benutzer_info():

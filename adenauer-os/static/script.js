@@ -170,7 +170,7 @@ const template15 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <iframe src="/" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="/metadatenfilter" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
