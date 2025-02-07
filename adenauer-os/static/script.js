@@ -239,7 +239,7 @@ const template19 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <iframe src="https://neuters.de/" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="https://neuters.de/search?query=tiktok" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
