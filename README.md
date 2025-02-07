@@ -37,7 +37,19 @@ Sämtliche im Rahmen des Vorhabens entstandene Software wird in deutscher Sprach
 Die gesamte Softwareentwicklung erfolgt unter aktiver Verwendung fortgeschrittener Sprachmodelle (LLM´s). 
 
 
+#### Softwarestack
 
+ **Python** – Crawling und Extraktion von Daten  
+ 
+ **Flask** – Webapplikation und API  
+ 
+ **R** – Wortwolken-Generator und Tricktok-Suche  
+ 
+ **PeerTube** – Hosting der Medieninhalte  
+ 
+ **OpenAI API (Whisper-1)** – Audio-Transkription aus Videos  
+ 
+ **OCR (Tesseract)** – Texterkennung in Bildern und Videos
 
 
 #### Quellen:
