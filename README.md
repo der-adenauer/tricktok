@@ -37,7 +37,9 @@ Sämtliche im Rahmen des Vorhabens entstandene Software wird in deutscher Sprach
 Die gesamte Softwareentwicklung erfolgt unter aktiver Verwendung fortgeschrittener Sprachmodelle (LLM´s). 
 
 
-#### Softwarestack
+### Softwarestack
+
+
 
  **Python** – Crawling und Extraktion von Daten  
  
@@ -52,7 +54,9 @@ Die gesamte Softwareentwicklung erfolgt unter aktiver Verwendung fortgeschritten
  **OCR (Tesseract)** – Texterkennung in Bildern und Videos
 
 
-#### Quellen:
+_________
+
+### Quellen:
 
 - **[Neuters](https://neuters.de/about)**: Alternative leichtgewichtige Benutzeroberfläche für Reuters.
 - **[System.css](https://sakofchit.github.io/system.css/)**: CSS-Bibliothek für retro-inspirierte UI, umgebaut zur Desktop-Simulation.
