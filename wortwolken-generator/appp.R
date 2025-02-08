@@ -107,7 +107,7 @@ ui <- fluidPage(
         label   = "Hashtag Modus",
         onText  = "Hashtags",
         offText = "Normal",
-        value   = FALSE
+        value   = TRUE    # <-- Hashtag Modus jetzt standardmäßig aktiviert
       )
     ),
     column(
