@@ -1,6 +1,14 @@
 /* system.css */
 /*! system.css v0.1.11 - https://github.com/sakofchit/system.css */
-/* Anpassungen, speziell vergrößerte Close-Schaltfläche weiter unten */
+
+
+html, body {
+  
+  margin: 0; 
+  padding: 0;
+}
+
+
 
 @font-face {
   font-family: Chicago;

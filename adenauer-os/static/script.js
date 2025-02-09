@@ -22,7 +22,8 @@ const openedWindows = {
   window17: false,
   window18: false,
   window19: false,
-  window20: false
+  window20: false,
+  window21: false
 };
 
 // Objekt zum Speichern von Position und Z-Index
@@ -80,8 +81,20 @@ const template1 = `
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window15">Anweisungen zu Datenfilterung</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
+	  <li><a href="#" class="entry-link" data-target="window21">Kleiner Max</a></li>
     </ul>
   </div>
+</div>
+`;
+
+const template21 = `
+<div class="window modal-window" data-win="win3" style="width:600px; height:350px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Kleiner Max</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+<iframe title="Max Krah #AfD über die Probleme und Werte junger #Männer" width="560" height="315" src="https://archive.afd-verbot.de/videos/embed/b666e9c0-d5ae-4817-b120-3ae0fe949576?start=16s" frameborder="0" allowfullscreen="" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>  </div>
 </div>
 `;
 
@@ -533,6 +546,7 @@ function getTemplate(key) {
     case 'window13': return template13;
     case 'window19': return template19;
     case 'window20': return template20;
+	case 'window21': return template21;
     default:
       return template4; // Fallback
   }
