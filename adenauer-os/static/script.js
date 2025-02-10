@@ -42,10 +42,6 @@ function setIframesPointerEvents(windowEl, enabled) {
   });
 }
 
-/***********************************************
- * TEMPLATES (Fenster-HTML)
- ***********************************************/
-
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -310,29 +306,29 @@ const template20 = `
 
 /* Neue Fenster (Beispielinhalte) */
 const template22 = `
-<div class="window modal-window" data-win="win22" style="width:800px; height:800px;">
+<div class="window modal-window" data-win="win22" style="width:800px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Bilder-Archiv</h1>
     <span class="close"></span>
   </div>
-  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <iframe src="https://py.afd-verbot.de/tiktok/" style="width:100%; height:100%; border:none;"></iframe>
+  <div class="window-pane" style="display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 2rem); padding:1rem;">
+    <iframe src="https://py.afd-verbot.de/tiktok/" style="width:100%; height:100%; border:none; display:block; object-fit: contain;"></iframe>
   </div>
 </div>
 `;
 
+
 const template23 = `
-<div class="window modal-window" data-win="win23" style="width:400px; height:300px;">
+<div class="window modal-window" data-win="win23" style="width:800px; height:800px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Neues Fenster 2</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <p>Weiterer Inhalt für zusätzliches Fenster.</p>
+    <iframe src="/gallery_feature" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
-
 /***********************************************
  * createWindow()
  ***********************************************/
@@ -571,32 +567,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Zoom-Funktionen
 function setZoom(level) {
-  // Einfachste Variante: browser-natives CSS-Zoom (nicht überall standardisiert)
-  // Alternative: transform: scale(...) auf body oder html-Element
-  // Hier z.B.:
   document.body.style.zoom = level;
-  // In Chrome/Edge funktioniert das, Safari hat eigenes Verhalten, 
-  // Firefox ignoriert .style.zoom, man könnte stattdessen scale(...) verwenden.
-  // Für Demo hier trotzdem so.
-
   currentZoomLevel = level;
 }
 
-// Falls Firefox-Kompatibilität gewünscht, 
-// kann man eine transform-Skalierung anwenden, z.B.:
-// document.body.style.transformOrigin = "0 0";
-// document.body.style.transform = "scale(" + level + ")";
-
-// Buttons ermitteln
 const zoomInBtn = document.getElementById('zoomIn');
 const zoomOutBtn = document.getElementById('zoomOut');
 const zoomResetBtn = document.getElementById('zoomReset');
 
-// Klick-Events
 if (zoomInBtn) {
   zoomInBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    // Zoom-In
     const newZoom = currentZoomLevel + 0.1;
     setZoom(newZoom);
   });
@@ -604,7 +585,6 @@ if (zoomInBtn) {
 if (zoomOutBtn) {
   zoomOutBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    // Zoom-Out
     const newZoom = currentZoomLevel - 0.1;
     if (newZoom > 0) {
       setZoom(newZoom);
@@ -614,7 +594,6 @@ if (zoomOutBtn) {
 if (zoomResetBtn) {
   zoomResetBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    // Reset auf 1.0
     setZoom(1.0);
   });
 }
@@ -722,5 +701,31 @@ if (exportLink) {
       exportLink.style.pointerEvents = 'auto';
       exportLink.style.opacity = '1';
     }, 30000);
+  });
+}
+
+// Irgendwo in script.js:
+// Optionales Template für "windowGallery"
+const templateGallery = 
+`<div class="window modal-window" data-win="winGallery" style="width:1000px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Gallery Feature</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <iframe src="/gallery_feature" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>`;
+
+// Falls du das in getTemplate() einbinden möchtest, z.B.:
+function getTemplateWindowGallery() {
+  return templateGallery;
+}
+
+// Beispiel Icon:
+const iconXYZ = document.getElementById('iconXYZ');
+if (iconXYZ) {
+  iconXYZ.addEventListener('click', () => {
+    createWindow(templateGallery, 'windowGallery');
   });
 }

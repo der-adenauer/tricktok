@@ -1,5 +1,3 @@
-# app.py
-
 import re
 import time
 import sqlite3
@@ -7,7 +5,10 @@ import logging
 import random
 import os
 from datetime import datetime
-from flask import Flask, request, g, render_template, redirect, url_for, Response, session, jsonify
+from flask import (
+    Flask, request, g, render_template, redirect,
+    url_for, Response, session, jsonify, send_from_directory
+)
 
 logging.basicConfig(
     filename="app.log",
@@ -17,6 +18,10 @@ logging.basicConfig(
 
 app = Flask(__name__)
 app.secret_key = "irge223442s243426gDhfhadgaewz363u234Assel"
+
+# -----------------------------------------------------------------------------
+# Hilfsfunktionen
+# -----------------------------------------------------------------------------
 
 def is_mobile_user_agent(user_agent_string):
     pattern = r"Mobi|Android|iPhone|iPad|Phone"
@@ -45,6 +50,10 @@ def session_name():
         else:
             session["random_name"] = "UnbekannterName"
     return session["random_name"]
+
+# -----------------------------------------------------------------------------
+# Zentrale DB (datenbank.db)
+# -----------------------------------------------------------------------------
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -118,10 +127,16 @@ def extract_channel(link):
         return match.group(1)
     return None
 
+# -----------------------------------------------------------------------------
+# Route: Index
+# -----------------------------------------------------------------------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
 
+# -----------------------------------------------------------------------------
+# CSV-Export
+# -----------------------------------------------------------------------------
 @app.route("/export_csv_db")
 def export_csv_db():
     db = get_db()
@@ -202,6 +217,9 @@ def export_csv_mobile():
     return Response(csv_data, mimetype="text/csv",
                     headers={"Content-disposition": "attachment; filename=links_export.csv"})
 
+# -----------------------------------------------------------------------------
+# Sonstige Routen / Info
+# -----------------------------------------------------------------------------
 @app.route("/info")
 def info():
     return render_template("info.html")
@@ -222,6 +240,9 @@ def archiv():
 def observierung():
     return render_template("observierung.html")
 
+# -----------------------------------------------------------------------------
+# Fahndungsliste DB (Desktop-Ansicht)
+# -----------------------------------------------------------------------------
 @app.route("/fahndungsliste_db", methods=["GET", "POST"])
 def fahndungsliste_db():
     db = get_db()
@@ -311,6 +332,9 @@ def fahndungsliste_db():
         per_page=per_page
     )
 
+# -----------------------------------------------------------------------------
+# Fahndungsliste Mobil
+# -----------------------------------------------------------------------------
 @app.route("/fahndungsliste", methods=["GET", "POST"])
 def fahndungsliste_mobile():
     db = get_db()
@@ -400,6 +424,9 @@ def fahndungsliste_mobile():
         per_page=per_page
     )
 
+# -----------------------------------------------------------------------------
+# Sonstige Routen
+# -----------------------------------------------------------------------------
 @app.route("/expressmodus")
 def expressmodus():
     return render_template("expressmodus.html")
@@ -416,6 +443,9 @@ def statistiktok():
 def metadatenfilter():
     return render_template("tt-metadaten-filter.html")
 
+# -----------------------------------------------------------------------------
+# Flag-Feature / Video-Feature
+# -----------------------------------------------------------------------------
 @app.route("/flag_video", methods=["POST"])
 def flag_video():
     db = get_db()
@@ -573,5 +603,178 @@ def video_feature_load_more():
 def hilfe_extended():
     return render_template("hilfe_extended.html")
 
+# -----------------------------------------------------------------------------
+# Gallery-Funktionen: Separater DB-Zugriff + /media-Route (falls nötig)
+# -----------------------------------------------------------------------------
+
+# Pfad zum Ordner, in dem physische Dateien liegen.
+BASE_PHYSICAL_PATH = "/mnt/HC_Volume_101955489"
+
+from flask import send_from_directory
+
+@app.route("/media/<path:filename>")
+def serve_media(filename):
+    """
+    Liefert Dateien aus dem physischen Verzeichnis BASE_PHYSICAL_PATH aus.
+    Beispiel: /media/gallery-dl/tiktok/afd_zukunftsblick/test.jpg
+    => mapped auf /mnt/HC_Volume_101955489/gallery-dl/tiktok/afd_zukunftsblick/test.jpg
+    """
+    safe_path = os.path.join(BASE_PHYSICAL_PATH, filename)
+    directory = os.path.dirname(safe_path)
+    file_name = os.path.basename(safe_path)
+    return send_from_directory(directory, file_name)
+
+
+def get_db_gallery():
+    """
+    Separater DB-Handle für unsere 'gallery_dl_extras-Copy3.db'.
+    """
+    db = getattr(g, "_gallery_database", None)
+    if db is None:
+        db = g._gallery_database = sqlite3.connect("filtered_gallery_dl_extras.db")
+        db.row_factory = sqlite3.Row
+    return db
+
+@app.teardown_appcontext
+def close_gallery_db(exception):
+    """
+    Schließt die Verbindung zu filtered_gallery_dl_extras.db.
+    """
+    db = getattr(g, "_gallery_database", None)
+    if db is not None:
+        db.close()
+
+@app.route("/gallery_feature", methods=["GET"])
+def gallery_feature():
+    """
+    Listet Einträge aus media_metadata_extras (filtered_gallery_dl_extras.db)
+    mit Suchfunktion, Pagination etc.
+    """
+    query = request.args.get("q", "").strip()
+    page = int(request.args.get("page", 1))
+    msg = request.args.get("msg", "")
+
+    per_page = 10
+    offset = (page - 1) * per_page
+
+    conn_gallery = get_db_gallery()
+    cursor = conn_gallery.cursor()
+
+    where_clause = ""
+    params = []
+    if query:
+        where_clause = """
+            WHERE title LIKE ? 
+               OR description LIKE ?
+               OR url LIKE ?
+               OR uploader LIKE ?
+        """
+        wildcard = f"%{query}%"
+        params = [wildcard, wildcard, wildcard, wildcard]
+
+    total_sql = f"SELECT COUNT(*) as cnt FROM media_metadata_extras {where_clause}"
+    total_count = cursor.execute(total_sql, params).fetchone()["cnt"]
+
+    data_sql = f"""
+        SELECT
+            id,
+            url,
+            title,
+            description,
+            timestamp,
+            mediapath
+        FROM media_metadata_extras
+        {where_clause}
+        ORDER BY timestamp DESC
+        LIMIT ? OFFSET ?
+    """
+    rows = cursor.execute(data_sql, params + [per_page, offset]).fetchall()
+
+    result_list = []
+    for row in rows:
+        row_dict = dict(row)
+        raw_paths = row_dict.get("mediapath") or ""
+        lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
+        # OPTIONAL: Mapping zu /media/ + subpath
+        mapped = []
+        for ln in lines:
+            if ln.startswith("./"):
+                # z.B. ./gallery-dl/tiktok/... => subpath
+                subpath = ln[2:]  # "./" abschneiden
+                mapped.append(f"/media/{subpath}")
+            else:
+                mapped.append(ln)
+        row_dict["media_files"] = mapped
+        result_list.append(row_dict)
+
+    return render_template(
+        "gallery_feature.html",
+        query=query,
+        msg=msg,
+        total_count=total_count,
+        items=result_list,
+        page=page,
+        per_page=per_page
+    )
+
+@app.route("/gallery_feature_load_more", methods=["GET"])
+def gallery_feature_load_more():
+    """
+    AJAX-Route: "Mehr laden" => nächste 10 Einträge
+    """
+    query = request.args.get("q", "").strip()
+    start_index = int(request.args.get("start", 0))
+
+    conn_gallery = get_db_gallery()
+    cursor = conn_gallery.cursor()
+
+    where_clause = ""
+    params = []
+    if query:
+        where_clause = """
+            WHERE title LIKE ? 
+               OR description LIKE ?
+               OR url LIKE ?
+               OR uploader LIKE ?
+        """
+        wildcard = f"%{query}%"
+        params = [wildcard, wildcard, wildcard, wildcard]
+
+    data_sql = f"""
+        SELECT
+            id,
+            url,
+            title,
+            description,
+            timestamp,
+            mediapath
+        FROM media_metadata_extras
+        {where_clause}
+        ORDER BY timestamp DESC
+        LIMIT 10 OFFSET ?
+    """
+    rows = cursor.execute(data_sql, params + [start_index]).fetchall()
+
+    results = []
+    for row in rows:
+        row_dict = dict(row)
+        raw_paths = row_dict.get("mediapath") or ""
+        lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
+        mapped = []
+        for ln in lines:
+            if ln.startswith("./"):
+                subpath = ln[2:]
+                mapped.append(f"/media/{subpath}")
+            else:
+                mapped.append(ln)
+        row_dict["media_files"] = mapped
+
+        results.append(row_dict)
+
+    return jsonify(results)
+
+# -----------------------------------------------------------------------------
+# Hauptstart
+# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

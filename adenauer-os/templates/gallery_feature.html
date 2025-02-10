@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Gallery-Suche</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='system.css') }}">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+      background-color: #ccc;
+      font-family: "Chicago", sans-serif;
+    }
+
+    .container {
+      width: 800px;
+      height: 600px;
+      margin: 20px auto;
+      border: 2px solid #000;
+      background: #fff;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow: auto; /* scollender Bereich */
+      position: relative;
+    }
+
+    h2 {
+      margin: 0 0 1rem 0;
+      font-size: 1.3rem;
+    }
+
+    .search-form {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .search-form input[type="text"] {
+      flex-grow: 1;
+      border: 1px solid #000;
+      padding: 0.3rem;
+      font-size: 14px;
+    }
+
+    .btn {
+      border: 2px solid #000;
+      background: #fff;
+      cursor: pointer;
+      padding: 0.3rem 0.8rem;
+      font-size: 14px;
+    }
+    .btn:hover {
+      background: #000;
+      color: #fff;
+    }
+
+    .info-text {
+      margin-bottom: 0.8rem;
+      font-size: 14px;
+    }
+    .msg {
+      font-weight: bold;
+      color: red;
+      margin-bottom: 1rem;
+    }
+
+    #itemList {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem; 
+    }
+
+    .item {
+      border: 1px solid #000;
+      padding: 0.5rem;
+      background-color: #fff;
+    }
+
+    .media-thumb {
+      max-width: 200px;
+      display: block;
+      border: 1px solid #000;
+      margin-bottom: 0.5rem;
+    }
+
+    .media-audio {
+      margin: 0.5rem 0;
+    }
+
+    .item-info {
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .controls {
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .next-item-container {
+      position: sticky;
+      bottom: 0;
+      text-align: right; 
+      background: transparent; 
+      padding: 0;
+      margin: 0;
+      border: none;
+      z-index: 999; 
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="galleryContainer">
+  <h2>Gallery-Suche</h2>
+
+  {% if msg %}
+    <p class="msg">{{ msg }}</p>
+  {% endif %}
+
+  <!-- Suchformular -->
+  <form class="search-form" method="get" action="{{ url_for('gallery_feature') }}">
+    <input type="text" name="q" placeholder="Suchbegriff..." value="{{ query|default('') }}">
+    <button type="submit" class="btn">Suchen</button>
+  </form>
+
+  <p class="info-text">Gefundene Einträge insgesamt: {{ total_count }}</p>
+
+  <div id="itemList">
+    {% if items %}
+      {% for row in items %}
+        <div class="item">
+          <div class="item-info">
+            <strong>ID:</strong> {{ row.id }}<br>
+            <strong>URL:</strong> {{ row.url }}<br>
+            <strong>Titel:</strong> {{ row.title }}<br>
+            <strong>Datum:</strong> {{ row.timestamp }}<br>
+            <strong>Beschreibung:</strong> {{ row.description }}
+          </div>
+          <hr>
+          <!-- media_files aus row.media_files -->
+          {% for media_path in row.media_files %}
+            {% if media_path.lower().endswith('.jpg') or
+                  media_path.lower().endswith('.jpeg') or
+                  media_path.lower().endswith('.png') or
+                  media_path.lower().endswith('.gif') %}
+              <!-- Bild anzeigen -->
+              <img src="{{ media_path }}" alt="Bild" class="media-thumb">
+            {% elif media_path.lower().endswith('.mp3') or
+                    media_path.lower().endswith('.wav') %}
+              <!-- Audio abspielen -->
+              <audio controls class="media-audio">
+                <source src="{{ media_path }}" type="audio/mpeg">
+                Dein Browser unterstützt das Audio-Element nicht.
+              </audio>
+            {% else %}
+              <!-- unbekannter Dateityp, nur Link anzeigen -->
+              <p><a href="{{ media_path }}" target="_blank">{{ media_path }}</a></p>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>Keine Einträge vorhanden.</p>
+    {% endif %}
+  </div>
+
+  <!-- “Mehr laden”  -->
+  <div class="controls">
+    {% if items|length == per_page and items|length < total_count %}
+      <button class="btn" id="loadMoreBtn">Mehr laden</button>
+    {% endif %}
+  </div>
+
+  <!-- Sticky-Bereich: “Nächstes Item”-Button (optional, analog zu nextVideoBtn) -->
+  <div class="next-item-container">
+    <button class="btn" id="nextItemBtn">Nächstes &raquo;</button>
+  </div>
+</div>
+
+<script>
+/*****************************************************************
+ * Globale Variablen
+ *****************************************************************/
+const container = document.getElementById('galleryContainer');
+const itemList = document.getElementById('itemList');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
+const nextItemBtn = document.getElementById('nextItemBtn');
+
+const queryParam = "{{ query|default('')|e }}";
+let loadedCount = {{ items|length }};          
+let totalItems = {{ total_count }};           
+let currentIndex = 0;
+
+/*****************************************************************
+ * loadMore()
+ *****************************************************************/
+async function loadMore() {
+  const url = new URL('/gallery_feature_load_more', window.location.origin);
+  url.searchParams.set('start', loadedCount);
+  if (queryParam) {
+    url.searchParams.set('q', queryParam);
+  }
+
+  const resp = await fetch(url);
+  if (!resp.ok) {
+    console.error("Fehler beim Laden weiterer Gallery-Einträge:", resp.status);
+    return 0;
+  }
+  const data = await resp.json();
+  if (data.length > 0) {
+    data.forEach(row => {
+      const div = document.createElement('div');
+      div.classList.add('item');
+      let html = `
+        <div class="item-info">
+          <strong>ID:</strong> ${row.id}<br>
+          <strong>URL:</strong> ${row.url}<br>
+          <strong>Titel:</strong> ${row.title}<br>
+          <strong>Datum:</strong> ${row.timestamp}<br>
+          <strong>Beschreibung:</strong> ${row.description}
+        </div>
+        <hr>
+      `;
+
+      // Jetzt row.media_files durchgehen
+      if (row.media_files && row.media_files.length > 0) {
+        row.media_files.forEach(m => {
+          const mLower = m.toLowerCase();
+          if (mLower.endsWith('.jpg') || mLower.endsWith('.jpeg') ||
+              mLower.endsWith('.png') || mLower.endsWith('.gif')) {
+            html += `
+              <img src="${m}" alt="Bild" class="media-thumb">
+            `;
+          } else if (mLower.endsWith('.mp3') || mLower.endsWith('.wav')) {
+            html += `
+              <audio controls class="media-audio">
+                <source src="${m}" type="audio/mpeg">
+                Dein Browser unterstützt das Audio-Element nicht.
+              </audio>
+            `;
+          } else {
+            html += `<p><a href="${m}" target="_blank">${m}</a></p>`;
+          }
+        });
+      }
+
+      div.innerHTML = html;
+      itemList.appendChild(div);
+    });
+    loadedCount += data.length;
+  }
+
+  // Button ggf. ausblenden
+  if (data.length < 10 || loadedCount >= totalItems) {
+    if (loadMoreBtn) {
+      loadMoreBtn.style.display = 'none';
+    }
+  }
+  return data.length;
+}
+
+/*****************************************************************
+ * loadMoreBtn-Klick
+ *****************************************************************/
+if (loadMoreBtn) {
+  loadMoreBtn.addEventListener('click', async () => {
+    await loadMore();
+  });
+}
+
+/*****************************************************************
+ * Scroll-Logic: “Nächstes Item”
+ * Optional, falls man wie bei video_feature direkt weiterspringen möchte
+ *****************************************************************/
+function scrollToIndex(idx) {
+  const items = document.querySelectorAll('.item');
+  if (idx < 0 || idx >= items.length) return;
+  currentIndex = idx;
+  items[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateCurrentIndex() {
+  const items = document.querySelectorAll('.item');
+  let minDist = Infinity;
+  let closest = 0;
+  const containerTop = container.getBoundingClientRect().top;
+  items.forEach((it, i) => {
+    const rect = it.getBoundingClientRect();
+    const dist = Math.abs(rect.top - containerTop);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = i;
+    }
+  });
+  currentIndex = closest;
+}
+
+async function nextItem() {
+  updateCurrentIndex();
+  const items = document.querySelectorAll('.item');
+  const nextIndex = currentIndex + 1;
+
+  if (nextIndex < items.length) {
+    scrollToIndex(nextIndex);
+  } else {
+    // sind am Ende => weitere laden?
+    if (loadedCount < totalItems) {
+      const newlyLoaded = await loadMore();
+      if (newlyLoaded > 0) {
+        const newItems = document.querySelectorAll('.item');
+        const firstNewIndex = newItems.length - newlyLoaded;
+        scrollToIndex(firstNewIndex);
+      }
+    } else {
+      console.log("Keine weiteren Einträge mehr verfügbar.");
+    }
+  }
+}
+
+/*****************************************************************
+ * nextItemBtn-Klick
+ *****************************************************************/
+if (nextItemBtn) {
+  nextItemBtn.addEventListener('click', () => {
+    nextItem();
+  });
+}
+
+/*****************************************************************
+ * Scroll-Event => currentIndex aktualisieren
+ *****************************************************************/
+container.addEventListener('scroll', () => {
+  updateCurrentIndex();
+});
+</script>
+
+</body>
+</html>
