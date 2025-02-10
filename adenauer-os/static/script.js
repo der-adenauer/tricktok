@@ -143,7 +143,7 @@ const template8 = `
 const template9 = `
 <div class="window modal-window" data-win="win9" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Tricktok-Suche</h1>
+    <h1 class="title">Hashtag-Suche</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
@@ -240,7 +240,7 @@ const template12 = `
 const template13 = `
 <div class="window modal-window" data-win="win13" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Player</h1>
+    <h1 class="title">Tricktok-Video</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
@@ -306,13 +306,13 @@ const template20 = `
 
 /* Neue Fenster (Beispielinhalte) */
 const template22 = `
-<div class="window modal-window" data-win="win22" style="width:800px; height:700px;">
+<div class="window modal-window" data-win="win22" style="width:800px; height:75s0px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Bilder-Archiv</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <iframe src="https://py.afd-verbot.de/tiktok/" style="width:100%; height:100%; border:none; display:block; object-fit: contain;"></iframe>
+    <iframe src="https://py.afd-verbot.de/tiktok/" style="width:100%; height:80%; border:none; display:block; object-fit: contain;"></iframe>
   </div>
 </div>
 `;
@@ -321,7 +321,7 @@ const template22 = `
 const template23 = `
 <div class="window modal-window" data-win="win23" style="width:850px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Gallerie</h1>
+    <h1 class="title">Tricktok-Photo</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">

@@ -21,6 +21,16 @@ app.secret_key = "irge223442s243426gDhfhadgaewz363u234Assel"
 
 
 # ----------------------------------------------------------------------------
+# Hilfsfunktion zur Umwandlung von Unix-Timestamps in lesbares Datum
+# ----------------------------------------------------------------------------
+def format_unix_timestamp(ts):
+    try:
+        return datetime.utcfromtimestamp(float(ts)).strftime("%Y-%m-%d %H:%M:%S")
+    except:
+        return str(ts)
+
+
+# ----------------------------------------------------------------------------
 # Hilfsfunktionen
 # ----------------------------------------------------------------------------
 
@@ -198,6 +208,14 @@ def export_csv_db():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
+        # Zeitstempel umwandeln
+        converted_rows = []
+        for row in rows:
+            row_d = dict(row)
+            row_d["zeitstempel"] = format_unix_timestamp(row_d["zeitstempel"])
+            converted_rows.append(row_d)
+        rows = converted_rows
+
         return render_template(
             "fahndungsliste-modal.html",
             fehlermeldung=fehlermeldung,
@@ -208,9 +226,10 @@ def export_csv_db():
         )
 
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
+    # Zeitstempel umwandeln
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
-        csv_data += f"{row['id']},{row['kanal']},{row['zeitstempel']}\n"
+        csv_data += f"{row['id']},{row['kanal']},{format_unix_timestamp(row['zeitstempel'])}\n"
 
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
@@ -242,6 +261,14 @@ def export_csv_mobile():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
+        # Zeitstempel umwandeln
+        converted_rows = []
+        for row in rows:
+            row_d = dict(row)
+            row_d["zeitstempel"] = format_unix_timestamp(row_d["zeitstempel"])
+            converted_rows.append(row_d)
+        rows = converted_rows
+
         return render_template(
             "fahndungsliste-mobile.html",
             fehlermeldung=fehlermeldung,
@@ -252,9 +279,10 @@ def export_csv_mobile():
         )
 
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
+    # Zeitstempel umwandeln
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
-        csv_data += f"{row['id']},{row['kanal']},{row['zeitstempel']}\n"
+        csv_data += f"{row['id']},{row['kanal']},{format_unix_timestamp(row['zeitstempel'])}\n"
 
     cursor.execute("""
         INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
@@ -291,6 +319,14 @@ def fahndungsliste_db():
         ORDER BY id DESC
         LIMIT ? OFFSET ?
     """, (per_page, offset)).fetchall()
+
+    # Zeitstempel umwandeln, bevor an Template übergeben
+    converted_rows = []
+    for r in rows:
+        r_dict = dict(r)
+        r_dict["zeitstempel"] = format_unix_timestamp(r_dict["zeitstempel"])
+        converted_rows.append(r_dict)
+    rows = converted_rows
 
     fehlermeldung = None
 
@@ -332,7 +368,7 @@ def fahndungsliste_db():
         ).fetchone()
 
         if duplikat:
-            vorhandenes_datum = duplikat["zeitstempel"]
+            vorhandenes_datum = format_unix_timestamp(duplikat["zeitstempel"])
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
@@ -349,7 +385,8 @@ def fahndungsliste_db():
                 per_page=per_page
             )
         else:
-            zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Hier wird nun ein Unix-Timestamp gespeichert
+            zeit = time.time()
             user_agent = request.headers.get("User-Agent", "Unbekannt")
 
             cursor.execute("""
@@ -389,6 +426,14 @@ def fahndungsliste_mobile():
         ORDER BY id DESC
         LIMIT ? OFFSET ?
     """, (per_page, offset)).fetchall()
+
+    # Zeitstempel umwandeln, bevor an Template übergeben
+    converted_rows = []
+    for r in rows:
+        r_dict = dict(r)
+        r_dict["zeitstempel"] = format_unix_timestamp(r_dict["zeitstempel"])
+        converted_rows.append(r_dict)
+    rows = converted_rows
 
     fehlermeldung = None
 
@@ -430,7 +475,7 @@ def fahndungsliste_mobile():
         ).fetchone()
 
         if duplikat:
-            vorhandenes_datum = duplikat["zeitstempel"]
+            vorhandenes_datum = format_unix_timestamp(duplikat["zeitstempel"])
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
             cursor.execute("""
                 INSERT OR REPLACE INTO ip_cooldowns (ip, last_submit, last_export)
@@ -447,7 +492,8 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
         else:
-            zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            # Hier wird nun ein Unix-Timestamp gespeichert
+            zeit = time.time()
             user_agent = request.headers.get("User-Agent", "Unbekannt")
 
             cursor.execute("""
@@ -727,14 +773,8 @@ def gallery_feature():
                 # subpath = e.g. "gruenengegner3.0/TikTok photo #7468...."
                 subpath = ln[len("./gallery-dl/tiktok/"):]
                 # => "https://py.afd-verbot.de/tiktok/" + escaped(subpath)
-                # Hier URL-encoden wir subpath so, dass #, [ ] etc. escaped sind:
                 from urllib.parse import quote
-
-                # quote() escapet auch Leerzeichen (als %20), # -> %23, etc.
-                # Pfadkomponenten ggf. splitted?
-                # Wir belassen es in einem Rutsch, z.B. "gruenengegner3.0/TikTok photo #7468..."
-                subpath_escaped = quote(subpath, safe="/")  
-                # => safe="/" lässt Schrägstriche ungeändert.
+                subpath_escaped = quote(subpath, safe="/")
                 final_url = "https://py.afd-verbot.de/tiktok/" + subpath_escaped
                 mapped_paths.append(final_url)
             else:
@@ -818,7 +858,6 @@ def gallery_feature_load_more():
         for ln in lines:
             if ln.startswith("./gallery-dl/tiktok/"):
                 subpath = ln[len("./gallery-dl/tiktok/"):]
-                # URL-encoding
                 subpath_escaped = quote(subpath, safe="/")
                 final_url = "https://py.afd-verbot.de/tiktok/" + subpath_escaped
                 mapped_paths.append(final_url)

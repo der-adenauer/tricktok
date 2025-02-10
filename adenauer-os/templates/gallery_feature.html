@@ -152,7 +152,7 @@
             <strong>ID:</strong> {{ row.id }}<br>
             <strong>URL:</strong> {{ row.url }}<br>
             <strong>Titel:</strong> {{ row.title }}<br>
-            <strong>Datum:</strong> {{ row.timestamp }}<br>
+           <strong>Datum:</strong> {{ row.human_date }}<br>
             <strong>Beschreibung:</strong> {{ row.description }}
           </div>
           <hr>
@@ -283,8 +283,8 @@ async function loadMore() {
           <strong>ID:</strong> ${row.id}<br>
           <strong>URL:</strong> ${row.url}<br>
           <strong>Titel:</strong> ${row.title}<br>
-          <strong>Datum:</strong> ${row.timestamp}<br>
-          <strong>Beschreibung:</strong> ${row.description}
+		  <strong>Datum:</strong> ${row.human_date}<br>          
+		  <strong>Beschreibung:</strong> ${row.description}
         </div>
         <hr>
         <div class="media-grid">
