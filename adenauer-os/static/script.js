@@ -235,7 +235,7 @@ const template12 = `
     <h1 class="title">Statistiktok</h1>
     <span class="close"></span>
   </div>
-  <div class="window-pane" style="width:90%; height:calc(100% - 2rem); padding:0;">
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
     <iframe src="https://py.afd-verbot.de/statistiktok" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
@@ -283,16 +283,15 @@ const template20 = `
 </div>
 `;
 
-/* Bilder Archiv*/
+/* Neue Fenster (Beispielinhalte) */
 const template22 = `
-<div class="window modal-window" data-win="win22" style="width:800px; height:800px;">
+<div class="window modal-window" data-win="win22" style="width:400px; height:300px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Neues Fenster 1</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-      <iframe src="https://py.afd-verbot.de/tiktok/" style="width:100%; height:100%; border:none;"></iframe>
-
+    <p>Beispielinhalt für zusätzliches Fenster.</p>
   </div>
 </div>
 `;
