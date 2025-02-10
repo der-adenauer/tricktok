@@ -1,3 +1,5 @@
+<!-- base.html -->
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -103,6 +105,10 @@
     #icon12 { top: 20px; left: 550px; }
     #icon13 { top: 20px; left: 650px; }
     #icon14 { top:120px; left:50px; position:absolute; }
+
+    /* Neue Icons */
+    #icon15 { top:120px; left:150px; position:absolute; }
+    #icon16 { top:120px; left:250px; position:absolute; }
   </style>
 </head>
 <body {% if IS_MOBILE %}class="mobile-mode"{% endif %}>
@@ -117,22 +123,46 @@
           <li role="menu-item"><a href="#" id="openWindow20">Kontakt</a></li>
         </ul>
       </li>
+
+      <!-- Neuen Menüpunkt hinzufügen -->
+      <li role="menu-item" tabindex="0" aria-haspopup="true">
+        Anzeige
+        <ul role="menu">
+          <li role="menu-item"><a href="#" id="zoomIn">Auflösung +</a></li>
+          <li role="menu-item"><a href="#" id="zoomOut">Auflösung -</a></li>
+          <li role="menu-item"><a href="#" id="zoomReset">Reset</a></li>
+        </ul>
+      </li>
     </ul>
   </div>
   <div id="systemTime"></div>
 </header>
+
 <div id="modalContainer"></div>
+
 <main>
   {% block content %}{% endblock %}
 </main>
 
 {% if IS_MOBILE %}
-<!-- Mobile-Skript -->
 <script src="{{ url_for('static', filename='script_mobile.js') }}"></script>
 {% else %}
-<!-- Desktop-Skript -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endif %}
+
+<script>
+  function updateSystemTime() {
+    const el = document.getElementById("systemTime");
+    if (!el) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const ss = String(now.getSeconds()).padStart(2,"0");
+    el.textContent = hh + ":" + mm + ":" + ss;
+  }
+  setInterval(updateSystemTime, 1000);
+  updateSystemTime();
+</script>
 
 </body>
 </html>
