@@ -23,7 +23,7 @@ DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
 def get_connection():
-    """Stellt eine Verbindung zu PostgreSQL her."""
+    """Verbindung zu PostgreSQL herstellen."""
     return psycopg2.connect(
         host=DB_HOST,
         port=DB_PORT,
@@ -34,7 +34,7 @@ def get_connection():
 
 def init_db():
     """
-    Erstellt (sofern nicht vorhanden) die Tabellen links, media_metadata und media_time_series.
+    Tabellen links, media_metadata und media_time_series erstellen (sofern nicht vorhanden).
     """
     conn = get_connection()
     cur = conn.cursor()
@@ -87,16 +87,15 @@ def init_db():
         );
         """)
 
-        conn.commit()
+        conn.commit()  # Einmaliges Commit für Tabellenerstellung
     finally:
         cur.close()
         conn.close()
 
 def extract_metadata(url):
     """
-    Ruft Metadaten via yt-dlp ab.
-    Falls es sich um ein einzelnes Video oder einen Kanal handelt,
-    liefert die '--flat-playlist' Option ggf. eine 'entries'-Liste.
+    Metadaten via yt-dlp abrufen.
+    '--flat-playlist' liefert ggf. eine 'entries'-Liste (z.B. bei Kanälen).
     """
     try:
         result = subprocess.run(
@@ -115,8 +114,8 @@ def extract_metadata(url):
 
 def save_time_series(conn, video):
     """
-    Fügt einen Eintrag in die Zeitreihen-Tabelle 'media_time_series' ein.
-    Speichert die aktuellen Stats (view_count,like_count,repost_count,comment_count).
+    Eintrag in 'media_time_series' vorbereiten (aktueller Stats-Snapshot).
+    Kein Commit, damit mehrere Inserts gesammelt werden können.
     """
     cur = conn.cursor()
     try:
@@ -132,17 +131,13 @@ def save_time_series(conn, video):
             video.get("comment_count"),
             datetime.now()
         ))
-        conn.commit()
     finally:
         cur.close()
 
 def update_existing_video(conn, existing_data, new_data):
     """
-    Aktualisiert einen vorhandenen Datensatz in 'media_metadata'
-    und legt einen Zeitreihen-Eintrag in 'media_time_series' an.
-    
-    existing_data = (old_view, old_like, old_repost, old_comment)
-    new_data enthält die aktuellen Stats (new_view, new_like, new_repost, new_comment)
+    Vorhandenen Datensatz in 'media_metadata' aktualisieren
+    und Eintrag in 'media_time_series' anlegen.
     """
     cur = conn.cursor()
     try:
@@ -153,7 +148,6 @@ def update_existing_video(conn, existing_data, new_data):
         new_repost = new_data.get("repost_count")
         new_comment = new_data.get("comment_count")
 
-        # Mehr Logging aller Stats
         diff_msg = (
             f"URL {new_data.get('url')} Stats-Update:\n"
             f"  Views:   alt={old_view}   neu={new_view}\n"
@@ -204,9 +198,8 @@ def update_existing_video(conn, existing_data, new_data):
             new_data.get("extractor"),
             new_data.get("url")
         ))
-        conn.commit()
 
-        # Neue Zeitreihe
+        # Neue Zeitreihe hinzufügen
         save_time_series(conn, new_data)
 
     finally:
@@ -214,13 +207,12 @@ def update_existing_video(conn, existing_data, new_data):
 
 def save_video_metadata(conn, video):
     """
-    Prüft, ob das Video bereits in 'media_metadata' existiert.
-    Legt sonst einen neuen Datensatz an.
-    Immer wird ein Eintrag in 'media_time_series' angelegt.
+    Prüft, ob das Video in 'media_metadata' existiert. 
+    Falls nein: neuer Datensatz. Falls ja: Update.
+    In beiden Fällen Zeitreihen-Eintrag anlegen.
     """
     cur = conn.cursor()
     try:
-        # Bestehenden Datensatz suchen
         cur.execute("""
             SELECT view_count, like_count, repost_count, comment_count
               FROM media_metadata
@@ -229,7 +221,6 @@ def save_video_metadata(conn, video):
         existing = cur.fetchone()
 
         if existing:
-            # schon vorhanden => aktualisieren + Zeitreihe
             update_existing_video(conn, existing, video)
         else:
             # Neuer Eintrag
@@ -266,22 +257,19 @@ def save_video_metadata(conn, video):
                     video.get("timestamp"),
                     video.get("extractor")
                 ))
-                conn.commit()
                 logging.info(f"Neuer Datensatz: {video.get('url')}")
-                # Zeitreihe-Eintrag
+                # Zeitreihe
                 save_time_series(conn, video)
             except psycopg2.Error as e:
                 logging.error(f"DB-Fehler bei Insert: {e}")
-
     finally:
         cur.close()
 
 def process_playlist_metadata(conn, playlist_metadata):
     """
-    Falls 'playlist_metadata' mehrere Einträge enthält (z.B. bei Kanälen),
-    bearbeiten wir jedes 'entries'-Element mit save_video_metadata.
-    So entstehen neue Videos in 'media_metadata' oder
-    alte werden aktualisiert. Zeitreihen werden immer angelegt.
+    Alle 'entries' in playlist_metadata durchgehen und 
+    die Videos mit save_video_metadata ablegen/aktualisieren.
+    Kein Commit innerhalb der Schleife, damit alles gesammelt wird.
     """
     if not playlist_metadata or "entries" not in playlist_metadata:
         logging.debug("Keine 'entries' in diesem JSON gefunden.")
@@ -291,57 +279,43 @@ def process_playlist_metadata(conn, playlist_metadata):
 
 def process_links_with_locking():
     """
-    Holt *alle* Links (oder nur unprocessed, je nach Bedarf),
-    aber wendet ein Row Locking an, damit parallele Skripte
-    dieselbe Zeile nicht bearbeiten.
-
-    Hier: for update skip locked.
+    Holt alle Links per row-level locking:
+    FOR UPDATE SKIP LOCKED verhindert doppelte Bearbeitung bei Parallelität.
+    Danach für jeden Link Metadaten ermitteln und erst nach vollständigem Durchlauf committen.
     """
     conn = get_connection()
     cur = conn.cursor()
 
-    # Begin einer (impliziten) Transaktion
-    # row locking:  Alle Zeilen, die wir SELECTen, werden für diesen Client gelockt,
-    # SKIP LOCKED => Andere Clients überspringen diese Zeilen, um Doppelverarbeitung zu vermeiden
     cur.execute("""
         SELECT id, url
           FROM links
          ORDER BY id
          FOR UPDATE SKIP LOCKED
     """)
-
     rows = cur.fetchall()
-    logging.info(f"{len(rows)} Zeilen gelockt. Verarbeite ...")
+    logging.info(f"{len(rows)} Zeilen gelockt. Verarbeitung starten ...")
 
     for (link_id, link_url) in rows:
         logging.info(f"Bearbeite Link ID={link_id}, URL={link_url}")
-
         metadata_json = extract_metadata(link_url)
+
         if metadata_json:
             process_playlist_metadata(conn, metadata_json)
-            # processed => optional
-            # cur.execute("UPDATE links SET processed = true WHERE id = %s", (link_id,))
-            # conn.commit()
+            # Beispiel: processed-Flag setzen, wenn alles geklappt hat
+            cur.execute("UPDATE links SET processed = true WHERE id = %s", (link_id,))
+            # Jetzt gesamtes Paket committen
+            conn.commit()
+            logging.info(f"Link {link_id} erfolgreich verarbeitet und gespeichert.")
         else:
             logging.warning(f"Keine Metadaten / Fehler für {link_url}")
 
-    # Transaktion beenden => Entsperrt Reihen
     cur.close()
-    conn.commit()
     conn.close()
     logging.info("Fertig mit dem locked-Durchlauf.")
 
 def main():
     init_db()
-    # ---------------------------
-    # Fall A) ALLE Zeilen verarbeiten
-    # (parallel Locking, so dass keine doppelte Bearbeitung)
-    # ---------------------------
     process_links_with_locking()
-
-    # Falls du stattdessen NUR unprocessed brauchst, 
-    # dann im SELECT-Kommando => WHERE processed = false
-    #   AND an passender Stelle processed=true setzen.
 
 if __name__ == "__main__":
     main()
