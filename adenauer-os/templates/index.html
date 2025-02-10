@@ -4,6 +4,8 @@
 {% block title %}Adenauer OS{% endblock %}
 {% block content %}
 <div class="icon-bar" style="margin-top:30px;">
+
+  <!-- Zeile 1 -->
   <div class="icon-item" id="icon6">
     <img src="{{ url_for('static', filename='icon6.png') }}" alt="icon6" width="64" height="64">
     <div class="icon-label">Index</div>
@@ -20,31 +22,36 @@
     <img src="{{ url_for('static', filename='icon9.png') }}" alt="icon9" width="64" height="64">
     <div class="icon-label">Suche</div>
   </div>
-  <div class="icon-item" id="icon10">
-    <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon10" width="64" height="64">
-    <div class="icon-label">Video-Archiv</div>
-  </div>
   <div class="icon-item" id="icon12">
     <img src="{{ url_for('static', filename='icon12.svg') }}" alt="icon12" width="64" height="64">
     <div class="icon-label">Statistiktok</div>
+  </div>
+
+  <!-- Zeile 2 -->
+  <div class="icon-item" id="icon10">
+    <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon10" width="64" height="64">
+    <div class="icon-label">Video-Archiv</div>
   </div>
   <div class="icon-item" id="icon13">
     <img src="{{ url_for('static', filename='icon13.svg') }}" alt="icon13" width="64" height="64">
     <div class="icon-label">Player</div>
   </div>
-  <div class="icon-item" id="icon14" style="top:120px; left:50px; position:absolute;">
+
+  <!-- Zeile 3 -->
+  <div class="icon-item" id="icon15">
+    <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon15" width="64" height="64">
+    <div class="icon-label">Bilder-Archiv</div>
+  </div>
+  <div class="icon-item" id="icon16">
+    <img src="{{ url_for('static', filename='icon13.svg') }}" alt="icon16" width="64" height="64">
+    <div class="icon-label">Gallerie</div>
+  </div>
+
+  <!-- Zeile 4 -->
+  <div class="icon-item" id="icon14">
     <img src="{{ url_for('static', filename='icon14.svg') }}" alt="icon14" width="64" height="64">
     <div class="icon-label">Nachrichten</div>
   </div>
 
-  <!-- Neue Icons auf dem Desktop -->
-  <div class="icon-item" id="icon15" style="top:120px; left:150px; position:absolute;">
-    <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon15" width="64" height="64">
-    <div class="icon-label">Bilder-Archiv</div>
-  </div>
-  <div class="icon-item" id="icon16" style="top:120px; left:250px; position:absolute;">
-    <img src="{{ url_for('static', filename='icon13.svg') }}" alt="icon16" width="64" height="64">
-    <div class="icon-label">Gallerie</div>
-  </div>
 </div>
 {% endblock %}

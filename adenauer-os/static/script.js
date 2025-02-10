@@ -319,9 +319,9 @@ const template22 = `
 
 
 const template23 = `
-<div class="window modal-window" data-win="win23" style="width:800px; height:800px;">
+<div class="window modal-window" data-win="win23" style="width:850px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Neues Fenster 2</h1>
+    <h1 class="title">Gallerie</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">

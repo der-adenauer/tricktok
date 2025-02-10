@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from flask import (
     Flask, request, g, render_template, redirect,
-    url_for, Response, session, jsonify, send_from_directory
+    url_for, Response, session, jsonify
 )
 
 logging.basicConfig(
@@ -19,9 +19,10 @@ logging.basicConfig(
 app = Flask(__name__)
 app.secret_key = "irge223442s243426gDhfhadgaewz363u234Assel"
 
-# -----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 # Hilfsfunktionen
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 def is_mobile_user_agent(user_agent_string):
     pattern = r"Mobi|Android|iPhone|iPad|Phone"
@@ -51,9 +52,10 @@ def session_name():
             session["random_name"] = "UnbekannterName"
     return session["random_name"]
 
-# -----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 # Zentrale DB (datenbank.db)
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -61,6 +63,7 @@ def get_db():
         db = g._database = sqlite3.connect("datenbank.db")
         db.row_factory = sqlite3.Row
 
+        # Tabellen anlegen / anpassen
         db.execute("""
             CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,7 +111,6 @@ def get_db():
                 count INTEGER DEFAULT 0
             )
         """)
-
     return db
 
 @app.teardown_appcontext
@@ -116,6 +118,7 @@ def close_connection(exception):
     db = getattr(g, "_database", None)
     if db is not None:
         db.close()
+
 
 def extract_channel(link):
     link = link.strip()
@@ -127,16 +130,60 @@ def extract_channel(link):
         return match.group(1)
     return None
 
-# -----------------------------------------------------------------------------
-# Route: Index
-# -----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Standard-Routen / Index etc.
+# ----------------------------------------------------------------------------
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     return render_template("index.html")
 
-# -----------------------------------------------------------------------------
-# CSV-Export
-# -----------------------------------------------------------------------------
+@app.route("/info")
+def info():
+    return render_template("info.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.route("/channel_extractor")
+def channel_extractor():
+    return render_template("channel-link-extractor.html")
+
+@app.route("/archiv")
+def archiv():
+    return render_template("archiv.html")
+
+@app.route("/observierung")
+def observierung():
+    return render_template("observierung.html")
+
+@app.route("/expressmodus")
+def expressmodus():
+    return render_template("expressmodus.html")
+
+@app.route("/Metadaten")
+def metadaten():
+    return render_template("database_content.html")
+
+@app.route("/statistiktok")
+def statistiktok():
+    return render_template("statistiktok.html")
+
+@app.route("/metadatenfilter")
+def metadatenfilter():
+    return render_template("tt-metadaten-filter.html")
+
+@app.route("/hilfe_extended")
+def hilfe_extended():
+    return render_template("hilfe_extended.html")
+
+
+# ----------------------------------------------------------------------------
+# Export-Funktionen
+# ----------------------------------------------------------------------------
+
 @app.route("/export_csv_db")
 def export_csv_db():
     db = get_db()
@@ -146,6 +193,7 @@ def export_csv_db():
 
     row_cooldown = cursor.execute("SELECT last_export FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
     last_export = row_cooldown["last_export"] if row_cooldown else 0
+
     if (aktuelle_zeit - (last_export or 0)) < 30:
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
@@ -174,8 +222,11 @@ def export_csv_db():
     """, (ip, ip, aktuelle_zeit))
     db.commit()
 
-    return Response(csv_data, mimetype="text/csv",
-                    headers={"Content-disposition": "attachment; filename=links_export.csv"})
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=links_export.csv"}
+    )
 
 @app.route("/export_csv_mobile")
 def export_csv_mobile():
@@ -186,6 +237,7 @@ def export_csv_mobile():
 
     row_cooldown = cursor.execute("SELECT last_export FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
     last_export = row_cooldown["last_export"] if row_cooldown else 0
+
     if (aktuelle_zeit - (last_export or 0)) < 30:
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
@@ -214,35 +266,17 @@ def export_csv_mobile():
     """, (ip, ip, aktuelle_zeit))
     db.commit()
 
-    return Response(csv_data, mimetype="text/csv",
-                    headers={"Content-disposition": "attachment; filename=links_export.csv"})
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=links_export.csv"}
+    )
 
-# -----------------------------------------------------------------------------
-# Sonstige Routen / Info
-# -----------------------------------------------------------------------------
-@app.route("/info")
-def info():
-    return render_template("info.html")
 
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
+# ----------------------------------------------------------------------------
+# Fahndungsliste
+# ----------------------------------------------------------------------------
 
-@app.route("/channel_extractor")
-def channel_extractor():
-    return render_template("channel-link-extractor.html")
-
-@app.route("/archiv")
-def archiv():
-    return render_template("archiv.html")
-
-@app.route("/observierung")
-def observierung():
-    return render_template("observierung.html")
-
-# -----------------------------------------------------------------------------
-# Fahndungsliste DB (Desktop-Ansicht)
-# -----------------------------------------------------------------------------
 @app.route("/fahndungsliste_db", methods=["GET", "POST"])
 def fahndungsliste_db():
     db = get_db()
@@ -259,12 +293,15 @@ def fahndungsliste_db():
     """, (per_page, offset)).fetchall()
 
     fehlermeldung = None
+
     if request.method == "POST":
         ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
         aktuelle_zeit = time.time()
         cursor = db.cursor()
+
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown["last_submit"] if row_cooldown else 0
+
         if (aktuelle_zeit - (last_submit or 0)) < 10:
             fehlermeldung = "Nur alle 10 Sekunden möglich (Fahndungsliste)."
             return render_template(
@@ -289,7 +326,11 @@ def fahndungsliste_db():
                 per_page=per_page
             )
 
-        duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
+        duplikat = cursor.execute(
+            "SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1",
+            (kanal_name,)
+        ).fetchone()
+
         if duplikat:
             vorhandenes_datum = duplikat["zeitstempel"]
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
@@ -298,6 +339,7 @@ def fahndungsliste_db():
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
             """, (ip, aktuelle_zeit, ip))
             db.commit()
+
             return render_template(
                 "fahndungsliste-modal.html",
                 fehlermeldung=fehlermeldung,
@@ -309,6 +351,7 @@ def fahndungsliste_db():
         else:
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
+
             cursor.execute("""
                 INSERT INTO links (kanal, zeitstempel, user_agent, ip_address)
                 VALUES (?, ?, ?, ?)
@@ -332,9 +375,6 @@ def fahndungsliste_db():
         per_page=per_page
     )
 
-# -----------------------------------------------------------------------------
-# Fahndungsliste Mobil
-# -----------------------------------------------------------------------------
 @app.route("/fahndungsliste", methods=["GET", "POST"])
 def fahndungsliste_mobile():
     db = get_db()
@@ -351,12 +391,15 @@ def fahndungsliste_mobile():
     """, (per_page, offset)).fetchall()
 
     fehlermeldung = None
+
     if request.method == "POST":
         ip = (request.headers.get("X-Forwarded-For", request.remote_addr) or "Unbekannt").split(",")[0].strip()
         aktuelle_zeit = time.time()
         cursor = db.cursor()
+
         row_cooldown = cursor.execute("SELECT last_submit FROM ip_cooldowns WHERE ip=?", (ip,)).fetchone()
         last_submit = row_cooldown["last_submit"] if row_cooldown else 0
+
         if (aktuelle_zeit - (last_submit or 0)) < 10:
             fehlermeldung = "Nur alle 10 Sekunden möglich."
             return render_template(
@@ -381,7 +424,11 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
 
-        duplikat = cursor.execute("SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1", (kanal_name,)).fetchone()
+        duplikat = cursor.execute(
+            "SELECT zeitstempel FROM links WHERE kanal=? LIMIT 1",
+            (kanal_name,)
+        ).fetchone()
+
         if duplikat:
             vorhandenes_datum = duplikat["zeitstempel"]
             fehlermeldung = f"Kanal bereits vorhanden (zuletzt am {vorhandenes_datum})."
@@ -390,6 +437,7 @@ def fahndungsliste_mobile():
                 VALUES (?, ?, COALESCE((SELECT last_export FROM ip_cooldowns WHERE ip=?), NULL))
             """, (ip, aktuelle_zeit, ip))
             db.commit()
+
             return render_template(
                 "fahndungsliste-mobile.html",
                 fehlermeldung=fehlermeldung,
@@ -401,6 +449,7 @@ def fahndungsliste_mobile():
         else:
             zeit = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_agent = request.headers.get("User-Agent", "Unbekannt")
+
             cursor.execute("""
                 INSERT INTO links (kanal, zeitstempel, user_agent, ip_address)
                 VALUES (?, ?, ?, ?)
@@ -424,28 +473,11 @@ def fahndungsliste_mobile():
         per_page=per_page
     )
 
-# -----------------------------------------------------------------------------
-# Sonstige Routen
-# -----------------------------------------------------------------------------
-@app.route("/expressmodus")
-def expressmodus():
-    return render_template("expressmodus.html")
 
-@app.route("/Metadaten")
-def metadaten():
-    return render_template("database_content.html")
+# ----------------------------------------------------------------------------
+# Flag / Video Feature
+# ----------------------------------------------------------------------------
 
-@app.route("/statistiktok")
-def statistiktok():
-    return render_template("statistiktok.html")
-
-@app.route("/metadatenfilter")
-def metadatenfilter():
-    return render_template("tt-metadaten-filter.html")
-
-# -----------------------------------------------------------------------------
-# Flag-Feature / Video-Feature
-# -----------------------------------------------------------------------------
 @app.route("/flag_video", methods=["POST"])
 def flag_video():
     db = get_db()
@@ -599,36 +631,12 @@ def video_feature_load_more():
 
     return jsonify(results)
 
-@app.route("/hilfe_extended")
-def hilfe_extended():
-    return render_template("hilfe_extended.html")
 
-# -----------------------------------------------------------------------------
-# Gallery-Funktionen: Separater DB-Zugriff + /media-Route (falls nötig)
-# -----------------------------------------------------------------------------
-
-# Pfad zum Ordner, in dem physische Dateien liegen.
-BASE_PHYSICAL_PATH = "/mnt/HC_Volume_101955489"
-
-from flask import send_from_directory
-
-@app.route("/media/<path:filename>")
-def serve_media(filename):
-    """
-    Liefert Dateien aus dem physischen Verzeichnis BASE_PHYSICAL_PATH aus.
-    Beispiel: /media/gallery-dl/tiktok/afd_zukunftsblick/test.jpg
-    => mapped auf /mnt/HC_Volume_101955489/gallery-dl/tiktok/afd_zukunftsblick/test.jpg
-    """
-    safe_path = os.path.join(BASE_PHYSICAL_PATH, filename)
-    directory = os.path.dirname(safe_path)
-    file_name = os.path.basename(safe_path)
-    return send_from_directory(directory, file_name)
-
+# ----------------------------------------------------------------------------
+# Separates DB-Handle für "gallery_dl_extras-Copy3.db"
+# ----------------------------------------------------------------------------
 
 def get_db_gallery():
-    """
-    Separater DB-Handle für unsere 'gallery_dl_extras-Copy3.db'.
-    """
     db = getattr(g, "_gallery_database", None)
     if db is None:
         db = g._gallery_database = sqlite3.connect("filtered_gallery_dl_extras.db")
@@ -637,18 +645,21 @@ def get_db_gallery():
 
 @app.teardown_appcontext
 def close_gallery_db(exception):
-    """
-    Schließt die Verbindung zu filtered_gallery_dl_extras.db.
-    """
     db = getattr(g, "_gallery_database", None)
     if db is not None:
         db.close()
 
+
+# ----------------------------------------------------------------------------
+# Gallery Feature
+# ----------------------------------------------------------------------------
+
 @app.route("/gallery_feature", methods=["GET"])
 def gallery_feature():
     """
-    Listet Einträge aus media_metadata_extras (filtered_gallery_dl_extras.db)
-    mit Suchfunktion, Pagination etc.
+    Zeigt Datensätze aus media_metadata_extras, passt Pfade an
+    und konvertiert den Unix-Timestamp in ein lesbares Format.
+    Berücksichtigt dabei das Escaping von '#' und '[' / ']' etc.
     """
     query = request.args.get("q", "").strip()
     page = int(request.args.get("page", 1))
@@ -664,7 +675,7 @@ def gallery_feature():
     params = []
     if query:
         where_clause = """
-            WHERE title LIKE ? 
+            WHERE title LIKE ?
                OR description LIKE ?
                OR url LIKE ?
                OR uploader LIKE ?
@@ -693,19 +704,46 @@ def gallery_feature():
     result_list = []
     for row in rows:
         row_dict = dict(row)
+
+        # Unix-Timestamp => lesbares Format
+        raw_ts = row_dict.get("timestamp", None)
+        if raw_ts:
+            try:
+                ts_int = int(raw_ts)
+                dt = datetime.utcfromtimestamp(ts_int)
+                row_dict["human_date"] = dt.strftime("%Y-%m-%d %H:%M:%S")
+            except:
+                row_dict["human_date"] = str(raw_ts)
+        else:
+            row_dict["human_date"] = ""
+
+        # mediapath => Pfade; multiline
         raw_paths = row_dict.get("mediapath") or ""
         lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
-        # OPTIONAL: Mapping zu /media/ + subpath
-        mapped = []
+
+        mapped_paths = []
         for ln in lines:
-            if ln.startswith("./"):
-                # z.B. ./gallery-dl/tiktok/... => subpath
-                subpath = ln[2:]  # "./" abschneiden
-                mapped.append(f"/media/{subpath}")
+            if ln.startswith("./gallery-dl/tiktok/"):
+                # subpath = e.g. "gruenengegner3.0/TikTok photo #7468...."
+                subpath = ln[len("./gallery-dl/tiktok/"):]
+                # => "https://py.afd-verbot.de/tiktok/" + escaped(subpath)
+                # Hier URL-encoden wir subpath so, dass #, [ ] etc. escaped sind:
+                from urllib.parse import quote
+
+                # quote() escapet auch Leerzeichen (als %20), # -> %23, etc.
+                # Pfadkomponenten ggf. splitted?
+                # Wir belassen es in einem Rutsch, z.B. "gruenengegner3.0/TikTok photo #7468..."
+                subpath_escaped = quote(subpath, safe="/")  
+                # => safe="/" lässt Schrägstriche ungeändert.
+                final_url = "https://py.afd-verbot.de/tiktok/" + subpath_escaped
+                mapped_paths.append(final_url)
             else:
-                mapped.append(ln)
-        row_dict["media_files"] = mapped
+                mapped_paths.append(ln)
+
+        row_dict["media_files"] = mapped_paths
         result_list.append(row_dict)
+
+    conn_gallery.close()
 
     return render_template(
         "gallery_feature.html",
@@ -721,18 +759,20 @@ def gallery_feature():
 def gallery_feature_load_more():
     """
     AJAX-Route: "Mehr laden" => nächste 10 Einträge
+    Pfade anpassen wie in gallery_feature.
     """
     query = request.args.get("q", "").strip()
     start_index = int(request.args.get("start", 0))
 
     conn_gallery = get_db_gallery()
+    conn_gallery.row_factory = sqlite3.Row
     cursor = conn_gallery.cursor()
 
     where_clause = ""
     params = []
     if query:
         where_clause = """
-            WHERE title LIKE ? 
+            WHERE title LIKE ?
                OR description LIKE ?
                OR url LIKE ?
                OR uploader LIKE ?
@@ -756,25 +796,45 @@ def gallery_feature_load_more():
     rows = cursor.execute(data_sql, params + [start_index]).fetchall()
 
     results = []
+    from urllib.parse import quote
+
     for row in rows:
         row_dict = dict(row)
+        raw_ts = row_dict.get("timestamp", None)
+        if raw_ts:
+            try:
+                ts_int = int(raw_ts)
+                dt = datetime.utcfromtimestamp(ts_int)
+                row_dict["human_date"] = dt.strftime("%Y-%m-%d %H:%M:%S")
+            except:
+                row_dict["human_date"] = str(raw_ts)
+        else:
+            row_dict["human_date"] = ""
+
         raw_paths = row_dict.get("mediapath") or ""
         lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
-        mapped = []
-        for ln in lines:
-            if ln.startswith("./"):
-                subpath = ln[2:]
-                mapped.append(f"/media/{subpath}")
-            else:
-                mapped.append(ln)
-        row_dict["media_files"] = mapped
 
+        mapped_paths = []
+        for ln in lines:
+            if ln.startswith("./gallery-dl/tiktok/"):
+                subpath = ln[len("./gallery-dl/tiktok/"):]
+                # URL-encoding
+                subpath_escaped = quote(subpath, safe="/")
+                final_url = "https://py.afd-verbot.de/tiktok/" + subpath_escaped
+                mapped_paths.append(final_url)
+            else:
+                mapped_paths.append(ln)
+
+        row_dict["media_files"] = mapped_paths
         results.append(row_dict)
 
+    conn_gallery.close()
     return jsonify(results)
 
-# -----------------------------------------------------------------------------
-# Hauptstart
-# -----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# App Start
+# ----------------------------------------------------------------------------
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
