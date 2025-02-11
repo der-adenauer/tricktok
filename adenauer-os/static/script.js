@@ -42,6 +42,37 @@ function setIframesPointerEvents(windowEl, enabled) {
   });
 }
 
+/**
+ * Hebt das angeklickte Fenster in den Vordergrund (höchster zIndex)
+ * und setzt bei allen anderen Fenstern pointer-events: none, damit
+ * sie beim Drag nicht stören.
+ */
+function bringWindowToFront(activeWindow) {
+  // Gesamten Zähler hochsetzen
+  zIndexCounter++;
+  activeWindow.style.zIndex = zIndexCounter;
+
+  // Alle anderen Fenster in pointer-events: none
+  const allWindows = document.querySelectorAll(".modal-window");
+  allWindows.forEach(win => {
+    if (win === activeWindow) {
+      win.style.pointerEvents = "auto";
+    } else {
+      win.style.pointerEvents = "none";
+    }
+  });
+}
+
+/**
+ * Stellt pointer-events bei allen Fenstern wieder auf "auto".
+ */
+function restoreAllWindowsPointerEvents() {
+  const allWindows = document.querySelectorAll(".modal-window");
+  allWindows.forEach(win => {
+    win.style.pointerEvents = "auto";
+  });
+}
+
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -269,30 +300,7 @@ const template20 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <center>
-	<pre id="tiresult" style="font-size: 9px; background-color: #ffffff; font-weight: bold; padding: 4px 5px; --fs: 9px;"><b style="color:#FFFFFF">#</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">##########</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">###############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">####</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#</b><b style="color:#000000">################</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">###############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#</b><b style="color:#000000">################</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">####</b><b style="color:#000000">###</b><b style="color:#FFFFFF">####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">####</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">###########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">####</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">############</b><b style="color:#FFFFFF">###</b><b style="color:#000000">######</b><b style="color:#FFFFFF">############</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">####</b><b style="color:#000000">############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">############</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">###########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">############</b><b style="color:#000000">##################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#############</b><b style="color:#000000">###############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">################</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b>
-<b style="color:#FFFFFF">#########################################################</b><b style="color:#000000">##</b><b style="color:#FFFFFF">######</b><b style="color:#000000">##</b><b style="color:#FFFFFF">###################################################################################</b>
-<b style="color:#FFFFFF">########################################################</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##################################################################################</b>
-<b style="color:#FFFFFF">#########################################################</b><b style="color:#000000">###</b><b style="color:#FFFFFF">####</b><b style="color:#000000">###</b><b style="color:#FFFFFF">###################################################################################</b>
-<b style="color:#FFFFFF">###</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#</b><b style="color:#000000">################</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">#########</b><b style="color:#FFFFFF">####</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">################</b>
-<b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">###</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#########</b><b style="color:#FFFFFF">#</b><b style="color:#000000">####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">##################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">################</b>
-<b style="color:#000000">#######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">###########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#FFFFFF">#</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">###</b><b style="color:#000000">######</b><b style="color:#FFFFFF">############</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#FFFFFF">###</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">############</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">###########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#FFFFFF">########</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">###########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">###############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">##################</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">####</b><b style="color:#000000">########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#000000">##############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">####</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b><b style="color:#000000">#######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">##</b><b style="color:#000000">##############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#####</b>
-<b style="color:#FFFFFF">##</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#########</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">##########</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">####</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">######</b><b style="color:#FFFFFF">##</b><b style="color:#000000">######</b><b style="color:#FFFFFF">######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">###</b><b style="color:#000000">#############</b><b style="color:#FFFFFF">#</b><b style="color:#000000">######</b><b style="color:#FFFFFF">#######</b><b style="color:#000000">#####</b><b style="color:#FFFFFF">#####</b>
-</pre>
+
 
       <br><br>
       <p>
@@ -329,9 +337,7 @@ const template23 = `
   </div>
 </div>
 `;
-/***********************************************
- * createWindow()
- ***********************************************/
+
 function createWindow(template, windowKey) {
   if (openedWindows[windowKey]) {
     const existingWin = document.querySelector(`.modal-window[data-win="${windowKey}"]`);
@@ -368,6 +374,7 @@ function createWindow(template, windowKey) {
   }
 
   modalEl.addEventListener('mousedown', () => {
+    // Nur zur Sicherheit zIndex hochsetzen
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
@@ -388,6 +395,7 @@ function createWindow(template, windowKey) {
 
   makeDraggable(modalEl, windowKey);
 
+  // Beispiel: Nur relevant für window1 und window2 ...
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -430,10 +438,11 @@ function createWindow(template, windowKey) {
 
 /***********************************************
  * makeDraggable()
+ * -> Hier erfolgen die Hauptänderungen
  ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
-  const gridSize = 10;
+  const gridSize = 10; // Gittergröße - wir verwenden es nur noch in onMouseUp
   let offsetX = 0, offsetY = 0;
   let isDragging = false;
 
@@ -443,46 +452,78 @@ function makeDraggable(windowEl, windowKey) {
   function onMouseDown(e) {
     e.preventDefault();
     isDragging = true;
-    zIndexCounter++;
-    windowEl.style.zIndex = zIndexCounter;
+
+    // body darf nichts auswählen (Textmarkierung ausschalten)
+    document.body.style.userSelect = 'none';
+
+    // Fenster in den Vordergrund holen & andere Fenster blockieren
+    bringWindowToFront(windowEl);
+
+    // Iframes-Pointer-Events ausschalten
     setIframesPointerEvents(windowEl, false);
+
     const rect = windowEl.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
+
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
 
   function onMouseMove(e) {
     if (!isDragging) return;
+    // Weiches Verschieben OHNE Raster
     let newLeft = e.clientX - offsetX;
-    let newTop = e.clientY - offsetY;
-    newLeft = Math.round(newLeft / gridSize) * gridSize;
-    newTop = Math.round(newTop / gridSize) * gridSize;
+    let newTop  = e.clientY - offsetY;
+
+    // Begrenzen (nicht aus dem sichtbaren Bereich schieben)
     if (newLeft < 0) newLeft = 0;
-    if (newTop < 0) newTop = 0;
+    if (newTop < 0)  newTop  = 0;
+
     windowEl.style.left = newLeft + 'px';
-    windowEl.style.top = newTop + 'px';
+    windowEl.style.top  = newTop + 'px';
   }
 
   function onMouseUp() {
     isDragging = false;
+
+    // Alle anderen Fenster wieder "frei schaltbar" machen
+    restoreAllWindowsPointerEvents();
+
+    // Pointer-Events auf Iframe wieder aktivieren
+    setIframesPointerEvents(windowEl, true);
+
+    // userSelect wieder erlauben
+    document.body.style.userSelect = '';
+
+    // Raster-Snapping hier auf Endposition anwenden
+    const leftRaw = parseFloat(windowEl.style.left) || 0;
+    const topRaw  = parseFloat(windowEl.style.top)  || 0;
+    const snappedLeft = Math.round(leftRaw / gridSize) * gridSize;
+    const snappedTop  = Math.round(topRaw  / gridSize) * gridSize;
+    windowEl.style.left = snappedLeft + 'px';
+    windowEl.style.top  = snappedTop + 'px';
+
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
-    setIframesPointerEvents(windowEl, true);
+
     saveWindowPosition(windowEl, windowKey);
   }
 
+  // Touch-Events analog
   function onTouchStart(e) {
     e.preventDefault();
     isDragging = true;
-    zIndexCounter++;
-    windowEl.style.zIndex = zIndexCounter;
+
+    document.body.style.userSelect = 'none';
+    bringWindowToFront(windowEl);
     setIframesPointerEvents(windowEl, false);
+
     const rect = windowEl.getBoundingClientRect();
     const touch = e.touches[0];
     offsetX = touch.clientX - rect.left;
     offsetY = touch.clientY - rect.top;
+
     document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', onTouchEnd);
   }
@@ -491,21 +532,33 @@ function makeDraggable(windowEl, windowKey) {
     if (!isDragging) return;
     e.preventDefault();
     const touch = e.touches[0];
+
     let newLeft = touch.clientX - offsetX;
-    let newTop = touch.clientY - offsetY;
-    newLeft = Math.round(newLeft / gridSize) * gridSize;
-    newTop = Math.round(newTop / gridSize) * gridSize;
+    let newTop  = touch.clientY - offsetY;
+
     if (newLeft < 0) newLeft = 0;
-    if (newTop < 0) newTop = 0;
+    if (newTop < 0)  newTop  = 0;
+
     windowEl.style.left = newLeft + 'px';
-    windowEl.style.top = newTop + 'px';
+    windowEl.style.top  = newTop + 'px';
   }
 
   function onTouchEnd() {
     isDragging = false;
+    restoreAllWindowsPointerEvents();
+    setIframesPointerEvents(windowEl, true);
+    document.body.style.userSelect = '';
+
+    // Jetzt snappen
+    const leftRaw = parseFloat(windowEl.style.left) || 0;
+    const topRaw  = parseFloat(windowEl.style.top)  || 0;
+    const snappedLeft = Math.round(leftRaw / gridSize) * gridSize;
+    const snappedTop  = Math.round(topRaw  / gridSize) * gridSize;
+    windowEl.style.left = snappedLeft + 'px';
+    windowEl.style.top  = snappedTop + 'px';
+
     document.removeEventListener('touchmove', onTouchMove);
     document.removeEventListener('touchend', onTouchEnd);
-    setIframesPointerEvents(windowEl, true);
     saveWindowPosition(windowEl, windowKey);
   }
 }
@@ -704,7 +757,6 @@ if (exportLink) {
   });
 }
 
-// Irgendwo in script.js:
 // Optionales Template für "windowGallery"
 const templateGallery = 
 `<div class="window modal-window" data-win="winGallery" style="width:1000px; height:700px;">
@@ -717,12 +769,7 @@ const templateGallery =
   </div>
 </div>`;
 
-// Falls du das in getTemplate() einbinden möchtest, z.B.:
-function getTemplateWindowGallery() {
-  return templateGallery;
-}
-
-// Beispiel Icon:
+// Beispiel Icon
 const iconXYZ = document.getElementById('iconXYZ');
 if (iconXYZ) {
   iconXYZ.addEventListener('click', () => {
