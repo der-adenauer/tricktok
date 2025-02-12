@@ -20,7 +20,8 @@ Durch diese Methode entsteht eine fortwährende Erfassung von ausgewählten Tikt
 Dieses Skript ermöglicht die Extraktion von Metadaten und die Erstellung einer Zeitreihe für Tiktok-Videos. Die Reichweitenentwicklung wird mit Zeitstempel erfasst. Unter **Termux auf Android** kann das Skript direkt ausgeführt werden.
 
 📺 **Demovideo:**  
-<iframe title="termux_crawl" width="560" height="315" src="https://archive.afd-verbot.de/videos/embed/1ec7ccc9-2651-42c8-82f1-d27835b8182e" frameborder="0" allowfullscreen="" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+## 📺 Demo-Video
+[DEMO HIER KLICKEN](https://archive.afd-verbot.de/w/4NseT1EUJP64oNDhQfyEkG)
 
 ---
 
