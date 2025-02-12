@@ -2,7 +2,7 @@
 
 Das Skript namens **db_link_processor.py** ermöglicht eine dezentrale Verarbeitung von Tiktok-Metadaten.
 Eine zentrale Datenbank verwaltet alle zur Fahndung gestellten Kanäle und liefert Link von Medieninhalten zurück
-Mehrere Geräte können dieses Programm  verwenden, um Metadaten zu gewinnen und anschließend gebündelt in die Datenbank zurückzuführen.
+Mehrere Endgeräte (PC,Laptop,Android) können dieses Programm verwenden, um Metadaten zu gewinnen und anschließend gebündelt in die Datenbank zurückzuführen.
 Dieser Ansatz verteilt die Anfragen auf unterschiedliche Endgeräte und reduziert damit IP-basierte Netzsperren. Die verteilte Beschaffung der Metadaten, ermöglichen eine strukturierte Erfassung aller Medien eines Tiktok Kanal.
 
 
@@ -18,14 +18,13 @@ Durch diese Methode entsteht eine fortwährende Erfassung von ausgewählten Tikt
 
 #### 📌 Einführung
 Dieses Skript ermöglicht die Extraktion von Metadaten und die Erstellung einer Zeitreihe für Tiktok-Videos. Die Reichweitenentwicklung wird mit Zeitstempel erfasst. Unter **Termux auf Android** kann das Skript direkt ausgeführt werden.
-
-📺 **Demovideo:**  
+ 
 ## 📺 Demo-Video
 [DEMO HIER KLICKEN](https://archive.afd-verbot.de/w/4NseT1EUJP64oNDhQfyEkG)
 
 ---
 
-### ⚙️ Einrichtung unter Termux
+### ⚙️ Beispiel-Einrichtung unter Android mit Termux
 
 #### 1️⃣ **Termux installieren**
 Falls nicht vorhanden, installiere **Termux** aus einer vertrauenswürdigen Quelle.
