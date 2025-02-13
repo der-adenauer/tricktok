@@ -79,7 +79,6 @@ ui <- fluidPage(
   style = "margin:0; padding:0;",
 
   tags$head(
-    # Meta-Viewport für mobiles Skalieren
     tags$meta(name = "viewport", content = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"),
 
     # JavaScript-Methoden für Button-Navigation (pagePiling)
@@ -92,7 +91,6 @@ ui <- fluidPage(
           $.fn.pagepiling.moveSectionDown();
         });
 
-        // Öffnen/Schließen des Hamburger-Menüs
         function openNav() {
           document.getElementById('mySidenav').style.width = '250px';
         }
@@ -100,7 +98,6 @@ ui <- fluidPage(
           document.getElementById('mySidenav').style.width = '0';
         }
 
-        // Klick außerhalb der Sidenav schließt Menü
         document.addEventListener('click', function(e) {
           var sidenav = document.getElementById('mySidenav');
           var hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -176,6 +173,7 @@ ui <- fluidPage(
       /* Bereich am unteren Rand freilassen (60px) */
       .pp-section {
         padding-bottom: 60px !important;
+        position: relative; /* Ermöglicht absolute Positionierung von Elementen in Sektion */
       }
 
       /* Buttons unten rechts (< und >) */
@@ -205,8 +203,8 @@ ui <- fluidPage(
       /* iFrames nutzen 80% Höhe, 10% Rand oben und unten */
       .iframe-wrapper {
         width: 100%;
-        margin: 10vh auto; /* 10% oben/unten */
-        height: 80vh;      /* verbleibend: 80% für iFrame */
+        margin: 10vh auto; 
+        height: 80vh; 
         display: flex;
         justify-content: center;
         align-items: center;
@@ -219,7 +217,20 @@ ui <- fluidPage(
         display: block;
       }
 
-      /* Seite 1: Logo, Titel, Text zentriert */
+      /* Kleines Logo oben rechts pro Sektion (kein invert) */
+      .smallLogoContainer {
+        position: absolute;
+        top: 2%;
+        right: 2%;
+        z-index: 10002;
+      }
+      .smallLogoContainer img {
+        width: 70px;
+        height: auto;
+        filter: none;
+      }
+
+      /* Seite 1: Großes Logo (invertiert) mittig */
       #logo_projekt img {
         max-width: 40%;
         height: auto;
@@ -239,7 +250,7 @@ ui <- fluidPage(
         padding: 20px;
       }
 
-      /* Gestaltete Info-Texte auf Metadaten-Seite */
+      /* Info-Blöcke auf Metadaten-Seite */
       .meta-info-block {
         display: flex;
         align-items: center;
@@ -255,7 +266,7 @@ ui <- fluidPage(
         flex-grow: 1;
       }
 
-      /* Buttons  (3 Exporte) zentriert */
+      /* Buttons (3 Exporte) zentriert */
       .exportButtons {
         text-align: center;
         margin: 20px 0;
@@ -263,17 +274,44 @@ ui <- fluidPage(
       .exportButtons button {
         margin: 0 10px;
       }
+
+      /* Mobile Ansicht Meta-Info (untereinander) */
+      @media (max-width: 768px) {
+        .meta-info-block {
+          flex-direction: column;
+          align-items: flex-start;
+          width: 90%;
+        }
+      }
+
+      /* Skalierung für Archiv-Ansicht auf sehr kleinen Screens */
+      @media (max-width: 768px) {
+        .iframe-wrapper {
+          height: auto;
+          margin: 5vh auto;
+        }
+        .iframe-wrapper iframe {
+          height: 60vh;
+        }
+      }
+
+      /* Zoom-Anpassung für kleinere Laptops */
+      @media (max-width: 1366px) {
+        body {
+          zoom: 0.9;
+        }
+      }
     "))
   ),
 
   # Hamburger-Menü-Button
   tags$button(
     id = "hamburgerBtn",
-    HTML("&#9776;"),  # Unicode für Hamburger-Icon
+    HTML("&#9776;"),
     onclick = "openNav()"
   ),
 
-  # Sidebar mit Links
+  # Sidebar/Hamburger-Menü
   div(
     id = "mySidenav",
     class = "sidenav",
@@ -296,17 +334,17 @@ ui <- fluidPage(
     scrollOverflow = TRUE,
     navigation = FALSE,
     sections.color = c(
-      "#333333", # (1) Start
-      "#ffffff", # (2) Einführung
-      "#cccccc", # (3) Adenauer OS
-      "#cccccc", # (4) Fahndungsliste
-      "#ffffff", # (5) Metadaten
-      "#ffffff", # (6) Statistiktok
-      "#ffffff", # (7) Hashtag-Suche
-      "#cccccc", # (8) Contentschleuder
-      "#ffffff", # (9) Photo-Archiv
-      "#ffffff", # (10) Video-Archiv
-      "#ffffff"  # (11) Reiter2
+      "#333333", 
+      "#ffffff", 
+      "#cccccc", 
+      "#cccccc", 
+      "#ffffff", 
+      "#ffffff", 
+      "#ffffff", 
+      "#cccccc", 
+      "#ffffff", 
+      "#ffffff", 
+      "#ffffff"  
     ),
     anchors = c(
       "section_start",
@@ -335,6 +373,10 @@ ui <- fluidPage(
           style = "color:white; font-size:16px; max-width:600px; text-align:center; margin:auto;",
           "Methode zur systematischen Erfassung, Erhaltung und Bewertung von Medien auf Tiktok."
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -348,6 +390,10 @@ ui <- fluidPage(
           class = "markdown-container",
           includeMarkdown("intro.md")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -361,6 +407,10 @@ ui <- fluidPage(
           class = "iframe-wrapper",
           tags$iframe(src = "https://tricktok.afd-verbot.de/")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -374,6 +424,10 @@ ui <- fluidPage(
           class = "iframe-wrapper",
           tags$iframe(src = "https://tricktok.afd-verbot.de/fahndungsliste")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -383,8 +437,6 @@ ui <- fluidPage(
       menu   = "section_meta",
       fluidPage(
         style = "margin:0; padding:0;",
-
-        # Bild und Beschreibung
         div(
           class = "meta-info-block",
           img(
@@ -394,20 +446,21 @@ ui <- fluidPage(
           div(
             class = "meta-info-text",
             p("
-Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf für hohe Anzahl an Clients bereit. Clients nutzen eigene Internetverbindungen, um massenhaft Anfragen an Tiktok-Server zu stellen. Erhaltene Metadaten und Reichweitenstatistiken werden anschließend zurück in zentrale Datenbank gespeist. Ein Pythonprogramm muss dafür auf Endgeräten ausgeführt werden. Programm ruft Links aus Datenbank ab, extrahiert Metadaten mit python-Modul yt-dlp und speichert Ergebnisse in Datenbank. Verteilter Abruf auf mehreren Geräten verhindert IP-Sperren. Wenn viele Geräte in periodischen Intervallen Metadaten sammeln, entsteht Live-Monitoring beliebiger Kanäle bezüglich Reichweiten täglicher Veröffentlichungen.
-
-Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an adenauer@tutamail.com angefordert werden.
+Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Pythonmodul yt-dlp übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten mindert IP-Sperrungen. 
+Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln. Schreibtzugriff auf Tricktok-Datenbank nicht öffentlich. 
             ")
           )
         ),
-
-        # Export-Buttons
         div(
           class = "exportButtons",
           downloadButton("download_links",         "Export Fahndungsliste"),
           downloadButton("download_metadata",      "Export Medien-Metadaten"),
           downloadButton("download_timeseries",    "Export Zeitreihen")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -421,6 +474,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
           class = "iframe-wrapper",
           tags$iframe(src = "https://py.afd-verbot.de/statistiktok/")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -434,6 +491,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
           class = "iframe-wrapper",
           tags$iframe(src = "https://tricktok.afd-verbot.de/suche/")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -448,6 +509,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
           style = "align-items:flex-end;",
           tags$iframe(src = "https://py.afd-verbot.de/bilderwerfer/")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -462,6 +527,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
           class = "iframe-wrapper",
           tags$iframe(src = "https://tricktok.afd-verbot.de/gallery_feature")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -476,6 +545,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
           class = "iframe-wrapper",
           tags$iframe(src = "https://tricktok.afd-verbot.de/video_feature")
         )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
 
@@ -487,6 +560,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
         style = "margin:0; padding:0;",
         h3("Reiter2", style="text-align:center; margin-top:10px;"),
         fluidRow("Inhalt Reiter 2")
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     )
   ),
@@ -511,7 +588,7 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
 # Server
 # -------------------------------------------------------
 server <- function(input, output, session) {
-  cat("[Server] Starte App. Verbinde zur DB...\n")
+  cat("[Server] Appstart. Verbindung zur DB...\n")
 
   dotenv::load_dot_env(".env")
   con <- dbConnect(
@@ -523,11 +600,10 @@ server <- function(input, output, session) {
     password = Sys.getenv("DB_PASS")
   )
   onSessionEnded(function() {
-    cat("[Server] Session beendet -> DB trennen\n")
+    cat("[Server] Session beendet -> DB-Verbindung trennen\n")
     dbDisconnect(con)
   })
 
-  # Download Handler für "links"
   output$download_links <- downloadHandler(
     filename = function() {
       paste0("links_", Sys.Date(), ".csv")
@@ -538,7 +614,6 @@ server <- function(input, output, session) {
     }
   )
 
-  # Download Handler für "media_metadata"
   output$download_metadata <- downloadHandler(
     filename = function() {
       paste0("media_metadata_", Sys.Date(), ".csv")
@@ -549,7 +624,6 @@ server <- function(input, output, session) {
     }
   )
 
-  # Download Handler für "media_time_series"
   output$download_timeseries <- downloadHandler(
     filename = function() {
       paste0("media_time_series_", Sys.Date(), ".csv")
@@ -560,7 +634,6 @@ server <- function(input, output, session) {
     }
   )
 
-  # Buttons für Seitenwechsel (pagePiling)
   observeEvent(input$prev_section, {
     session$sendCustomMessage("pp_moveUp", list())
   })
