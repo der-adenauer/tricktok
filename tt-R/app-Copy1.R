@@ -3,8 +3,8 @@
 
 # ==================================================================
 # Shiny-App mit pagePiling und 11 Sektionen
-# Optimiert für mobile Endgeräte: Vollflächige iFrames (mit 10% Rand oben/unten),
-# Hamburger-Menü, drei Tabellen-Exporte
+# Optimiert für mobile Endgeräte: Vollflächige iFrames, Hamburger-Menü,
+# reduzierter Rand, kein Scroll-Overflow
 # Keine Personalpronomen in Kommentaren und Texten
 # ==================================================================
 
@@ -26,49 +26,24 @@ library(dotenv)
 cat("==== START APP SCRIPT ====\n")
 
 # -------------------------------------------------------
-# Hilfsfunktionen: Lädt Datensätze aus PostgreSQL
+# Hilfsfunktion: Lädt Metadaten aus PostgreSQL
 # -------------------------------------------------------
-lade_links <- function(con) {
-  query <- "
-    SELECT 
-      id, url, inserted_at, processed
-    FROM links
-    ORDER BY id DESC
-  "
-  df <- dbGetQuery(con, query)
-  cat("[lade_links] Zeilenanzahl:", nrow(df), "\n")
-  df
-}
-
-lade_media_metadata <- function(con) {
-  query <- "
+lade_tricktok_daten <- function(con) {
+  abfrage <- "
     SELECT
-      id, url, title, description, duration, view_count,
-      like_count, repost_count, comment_count, uploader,
-      uploader_id, channel, channel_id, channel_url, track,
-      album, artists, timestamp, extractor
+      id, title, duration, view_count, like_count,
+      uploader, timestamp
     FROM media_metadata
     ORDER BY id DESC
   "
-  df <- dbGetQuery(con, query)
-  cat("[lade_media_metadata] Zeilenanzahl:", nrow(df), "\n")
+  df <- dbGetQuery(con, abfrage)
+  cat("[lade_tricktok_daten] Zeilenanzahl:", nrow(df), "\n")
 
   if ("timestamp" %in% names(df)) {
     df$timestamp <- as.numeric(df$timestamp)
+    df$datetime  <- as.POSIXct(df$timestamp, origin = "1970-01-01", tz = "UTC")
   }
-  df
-}
 
-lade_media_time_series <- function(con) {
-  query <- "
-    SELECT
-      series_id, url, view_count, like_count, repost_count,
-      comment_count, recorded_at
-    FROM media_time_series
-    ORDER BY series_id DESC
-  "
-  df <- dbGetQuery(con, query)
-  cat("[lade_media_time_series] Zeilenanzahl:", nrow(df), "\n")
   df
 }
 
@@ -94,20 +69,11 @@ ui <- fluidPage(
 
         // Öffnen/Schließen des Hamburger-Menüs
         function openNav() {
-          document.getElementById('mySidenav').style.width = '250px';
+          document.getElementById('mySidenav').style.width = '200px';
         }
         function closeNav() {
           document.getElementById('mySidenav').style.width = '0';
         }
-
-        // Klick außerhalb der Sidenav schließt Menü
-        document.addEventListener('click', function(e) {
-          var sidenav = document.getElementById('mySidenav');
-          var hamburgerBtn = document.getElementById('hamburgerBtn');
-          if (!sidenav.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-            closeNav();
-          }
-        });
       ")
     ),
 
@@ -116,11 +82,11 @@ ui <- fluidPage(
       html, body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        overflow: hidden; /* pagePiling steuert Scrollen */
         background-color: #ffffff;
       }
 
-      /* pagePiling entfernt Navigationskreise */
+      /* Verhindert Navigationskreise (Bullets) */
       .pp-slidesNav, .pp-nav {
         display: none !important;
       }
@@ -168,14 +134,15 @@ ui <- fluidPage(
       .sidenav .closebtn {
         position: absolute;
         top: 0;
-        right: 10px;
+        right: 0px;
         font-size: 40px;
+        margin-left: 50px;
         text-decoration: none;
       }
 
       /* Bereich am unteren Rand freilassen (60px) */
       .pp-section {
-        padding-bottom: 60px !important;
+        padding-bottom: 60px !important; /* freier Bereich unten */
       }
 
       /* Buttons unten rechts (< und >) */
@@ -202,11 +169,10 @@ ui <- fluidPage(
         background-color: rgba(128,128,128,0.7);
       }
 
-      /* iFrames nutzen 80% Höhe, 10% Rand oben und unten */
+      /* Vollflächige iFrames, an Gerät anpassen */
       .iframe-wrapper {
         width: 100%;
-        margin: 10vh auto; /* 10% oben/unten */
-        height: 80vh;      /* verbleibend: 80% für iFrame */
+        min-height: calc(100vh - 60px);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -214,7 +180,7 @@ ui <- fluidPage(
       }
       .iframe-wrapper iframe {
         width: 100%;
-        height: 100%;
+        height: auto;
         border: none;
         display: block;
       }
@@ -239,29 +205,18 @@ ui <- fluidPage(
         padding: 20px;
       }
 
-      /* Gestaltete Info-Texte auf Metadaten-Seite */
-      .meta-info-block {
-        display: flex;
-        align-items: center;
-        text-align: justify;
-        gap: 20px; 
-        width: 60%; 
+      /* Kleinere Tabelle zur Anzeige der letzten drei Datensätze */
+      .miniTable {
         margin: auto;
+        width: 90%;
+        border-collapse: collapse;
       }
-      .meta-info-block img {
-        flex-shrink: 0;
+      .miniTable th, .miniTable td {
+        border: 1px solid #ccc;
+        padding: 5px;
       }
-      .meta-info-text {
-        flex-grow: 1;
-      }
-
-      /* Buttons  (3 Exporte) zentriert */
-      .exportButtons {
-        text-align: center;
-        margin: 20px 0;
-      }
-      .exportButtons button {
-        margin: 0 10px;
+      .miniTable th {
+        background: #eee;
       }
     "))
   ),
@@ -383,31 +338,27 @@ ui <- fluidPage(
       menu   = "section_meta",
       fluidPage(
         style = "margin:0; padding:0;",
-
-        # Bild und Beschreibung
+        h3("Tricktok-Metadatenerfassung", style="text-align:center; margin-top:10px;"),
         div(
-          class = "meta-info-block",
-          img(
-            src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
-            height = "200px"
-          ),
-          div(
-            class = "meta-info-text",
-            p("
-Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf für hohe Anzahl an Clients bereit. Clients nutzen eigene Internetverbindungen, um massenhaft Anfragen an Tiktok-Server zu stellen. Erhaltene Metadaten und Reichweitenstatistiken werden anschließend zurück in zentrale Datenbank gespeist. Ein Pythonprogramm muss dafür auf Endgeräten ausgeführt werden. Programm ruft Links aus Datenbank ab, extrahiert Metadaten mit python-Modul yt-dlp und speichert Ergebnisse in Datenbank. Verteilter Abruf auf mehreren Geräten verhindert IP-Sperren. Wenn viele Geräte in periodischen Intervallen Metadaten sammeln, entsteht Live-Monitoring beliebiger Kanäle bezüglich Reichweiten täglicher Veröffentlichungen.
-
-Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an adenauer@tutamail.com angefordert werden.
-            ")
-          )
+          style = "width:80%; margin:auto; margin-bottom:20px;",
+          p("
+Zentrale Datenbank verwaltet Tiktok-Kanäle und stellt Links für automatisierten Abruf bereit. Ergebnisse
+werden zentral gespeichert. Ein Pythonprogramm extrahiert Metadaten mit yt-dlp. 
+Hohe Verteilungsdichte verhindert IP-Sperren. 
+Schreibzugriff kann per E-Mail beantragt werden.
+          ")
         ),
 
-        # Export-Buttons
+        # Letzte drei Einträge
+        h4("Letzte drei Einträge in der Datenbank", style = "text-align:center;"),
+        tableOutput("meta_last3"),
+        br(),
+        # Download-Button für gesamten Export
         div(
-          class = "exportButtons",
-          downloadButton("download_links",         "Export Fahndungsliste"),
-          downloadButton("download_metadata",      "Export Medien-Metadaten"),
-          downloadButton("download_timeseries",    "Export Zeitreihen")
-        )
+          style = "text-align:center;",
+          downloadButton("download_all", "Export Gesamte Metadaten")
+        ),
+        br()
       )
     ),
 
@@ -512,7 +463,6 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
 # -------------------------------------------------------
 server <- function(input, output, session) {
   cat("[Server] Starte App. Verbinde zur DB...\n")
-
   dotenv::load_dot_env(".env")
   con <- dbConnect(
     Postgres(),
@@ -527,35 +477,34 @@ server <- function(input, output, session) {
     dbDisconnect(con)
   })
 
-  # Download Handler für "links"
-  output$download_links <- downloadHandler(
-    filename = function() {
-      paste0("links_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      df <- lade_links(con)
-      write.csv(df, file, row.names = FALSE, fileEncoding = "UTF-8")
-    }
-  )
+  # Vollständige Metadaten laden
+  alle_daten <- reactive({
+    lade_tricktok_daten(con)
+  })
 
-  # Download Handler für "media_metadata"
-  output$download_metadata <- downloadHandler(
-    filename = function() {
-      paste0("media_metadata_", Sys.Date(), ".csv")
-    },
-    content = function(file) {
-      df <- lade_media_metadata(con)
-      write.csv(df, file, row.names = FALSE, fileEncoding = "UTF-8")
-    }
-  )
+  # Letzte 3 Einträge ermitteln
+  drei_daten <- reactive({
+    df <- alle_daten()
+    # nur die letzten 3 Einträge
+    head(df, 3)
+  })
 
-  # Download Handler für "media_time_series"
-  output$download_timeseries <- downloadHandler(
+  # Ausgabe minimaler Tabelle
+  output$meta_last3 <- renderTable({
+    df3 <- drei_daten()
+    if (nrow(df3) == 0) {
+      return(data.frame(Hinweis = "Keine Einträge vorhanden"))
+    }
+    df3[, c("id","title","view_count","like_count","uploader","timestamp")]
+  }, striped = TRUE, bordered = TRUE, spacing = "xs")
+
+  # Download kompletter Datensatz
+  output$download_all <- downloadHandler(
     filename = function() {
-      paste0("media_time_series_", Sys.Date(), ".csv")
+      paste0("tricktok_metadaten_", Sys.Date(), ".csv")
     },
     content = function(file) {
-      df <- lade_media_time_series(con)
+      df <- alle_daten()
       write.csv(df, file, row.names = FALSE, fileEncoding = "UTF-8")
     }
   )
@@ -570,7 +519,7 @@ server <- function(input, output, session) {
 }
 
 # -------------------------------------------------------
-# Start
+# App starten
 # -------------------------------------------------------
 cat("==== Starting shinyApp ====\n")
 shinyApp(

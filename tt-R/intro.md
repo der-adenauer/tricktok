@@ -5,8 +5,7 @@ Langfristig zielt Tricktok darauf ab, die Mechanismen von Falschinformation und 
 
 ### Teilhabe
 
-Eine öffentliche Fahndungsliste ermöglicht es interessierten Nutzerinnen und Nutzern von Tricktok, potenziell auffällige TikTok-Kanäle zu melden. Diese Meldungen fließen anschließend in den automatisierten Erfassungsprozess ein. Gleichwohl kann dadurch das Risiko entstehen, dass einige Personen in großem Umfang unkritische Kanäle eintragen und so den Fokus der Fahndungsliste verwässern.
-Im deutschsprachigen Raum lassen sich jedoch häufig wiederkehrende Hashtags und charakteristische Formulierungen beobachten, die auf ein rechtsextremes oder verfassungsfeindliches Gedankengut hindeuten. Indem alle Metadaten zu Videoveröffentlichungen analysiert werden, ist es in vielen Fällen möglich, anhand der Gesamtheit der Inhalte eines Kanals schnell zu erkennen, ob dieser dem rechten Spektrum zuzuordnen ist. Kanäle, die nicht in dieses Muster fallen, werden für die weitere Überwachung ausgeschlossen, indem sie in einer Blacklist vermerkt werden.
+Eine öffentliche Fahndungsliste ermöglicht es interessierten Nutzerinnen und Nutzern von Tricktok, potenziell auffällige TikTok-Kanäle zu melden. Diese Meldungen fließen anschließend in den automatisierten Erfassungsprozess ein. Indem alle Metadaten zu Videoveröffentlichungen analysiert werden, ist es in vielen Fällen möglich, anhand der Gesamtheit der Inhalte eines Kanals schnell zu erkennen, ob dieser dem rechten Spektrum zuzuordnen ist. Kanäle, die nicht in dieses Muster fallen, werden für die weitere Überwachung ausgeschlossen, indem sie in einer Blacklist vermerkt werden.
 
 #### Quellcode
 
