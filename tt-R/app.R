@@ -90,7 +90,7 @@ ui <- pagePiling(
     "Metadaten"      = "section_meta",
     "Statistiktok"   = "section_iframeExtra",
     "Hashtag"        = "section_hashtag",
-    "Medien holen"   = "section_medienholen",
+    "Contentschleuder"   = "section_medienholen",
     "Medienarchiv"   = "section_medienarchiv",
     "Reiter1"        = "section_reiter1",
     "Reiter2"        = "section_reiter2"
@@ -240,10 +240,10 @@ Schreibzugriff auf Tricktok-Datenbank ist nicht möglich und muss per Anfrage an
   pageSection(
     center = FALSE,
     menu   = "section_medienholen",
-    fluidPage(
-      fluidRow(
-        column(6, includeMarkdown("links.md")),
-        column(6, includeMarkdown("rechts.md"))
+      fluidPage(
+      tags$iframe(
+        src   = "https://py.afd-verbot.de/bilderwerfer/",
+        style = "width:100%; height:700px; border:none;"
       )
     )
   ),
