@@ -5,6 +5,7 @@
 # Shiny-App mit pagePiling und 11 Sektionen
 # Optimiert für mobile Endgeräte: Vollflächige iFrames (mit 10% Rand oben/unten),
 # Hamburger-Menü, drei Tabellen-Exporte
+# (Ohne Ladeindikator, Buttons Prev/Nächste nebeneinander)
 # Keine Personalpronomen in Kommentaren und Texten
 # ==================================================================
 
@@ -30,7 +31,7 @@ cat("==== START APP SCRIPT ====\n")
 # -------------------------------------------------------
 lade_links <- function(con) {
   query <- "
-    SELECT 
+    SELECT
       id, url, inserted_at, processed
     FROM links
     ORDER BY id DESC
@@ -79,9 +80,10 @@ ui <- fluidPage(
   style = "margin:0; padding:0;",
 
   tags$head(
+    # Meta-Viewport für mobile Endgeräte
     tags$meta(name = "viewport", content = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"),
 
-    # JavaScript-Methoden für Button-Navigation (pagePiling)
+    # JavaScript-Methoden für Button-Navigation (pagePiling) und Hamburger-Menü
     tags$script(
       HTML("
         Shiny.addCustomMessageHandler('pp_moveUp', function(message) {
@@ -173,16 +175,16 @@ ui <- fluidPage(
       /* Bereich am unteren Rand freilassen (60px) */
       .pp-section {
         padding-bottom: 60px !important;
-        position: relative; /* Ermöglicht absolute Positionierung von Elementen in Sektion */
+        position: relative; /* Ermöglicht absolute Positionierung von Elementen */
       }
 
-      /* Buttons unten rechts (< und >) */
+      /* Buttons unten rechts side-by-side */
       #bottomNav {
         position: fixed;
         bottom: 10px;
         right: 10px;
         display: flex;
-        flex-direction: column;
+        flex-direction: row; 
         gap: 10px;
         z-index: 9999;
       }
@@ -203,8 +205,8 @@ ui <- fluidPage(
       /* iFrames nutzen 80% Höhe, 10% Rand oben und unten */
       .iframe-wrapper {
         width: 100%;
-        margin: 10vh auto; 
-        height: 80vh; 
+        margin: 10vh auto;
+        height: 80vh;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -344,7 +346,7 @@ ui <- fluidPage(
       "#cccccc", 
       "#ffffff", 
       "#ffffff", 
-      "#ffffff"  
+      "#ffffff"
     ),
     anchors = c(
       "section_start",
@@ -367,10 +369,10 @@ ui <- fluidPage(
       div(
         style = "display:flex; flex-direction:column; align-items:center; justify-content:center; height:calc(100vh - 60px);",
         id = "logo_projekt",
-        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg"),
-        h2("Projekt Tricktok", class = "projektTitel"),
+     #   img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg"),
+        h3("Projekt Tricktok", class = "projektTitel"),
         div(
-          style = "color:white; font-size:16px; max-width:600px; text-align:center; margin:auto;",
+          style = "color:white; font-size:24px; max-width:600px; text-align:center; margin:auto;",
           "Methode zur systematischen Erfassung, Erhaltung und Bewertung von Medien auf Tiktok."
         )
       ),
@@ -447,7 +449,7 @@ ui <- fluidPage(
             class = "meta-info-text",
             p("
 Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Pythonmodul yt-dlp übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten mindert IP-Sperrungen. 
-Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln. Schreibtzugriff auf Tricktok-Datenbank nicht öffentlich. 
+Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln. Schreibtzugriff auf Tricktok-Datenbank nicht öffentlich.
             ")
           )
         ),
@@ -568,7 +570,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
     )
   ),
 
-  # Navigations-Buttons (unten rechts)
+  # Navigations-Buttons (unten rechts) - side by side
   div(
     id = "bottomNav",
     actionButton(
@@ -604,6 +606,7 @@ server <- function(input, output, session) {
     dbDisconnect(con)
   })
 
+  # Download-Handler für CSV-Exporte
   output$download_links <- downloadHandler(
     filename = function() {
       paste0("links_", Sys.Date(), ".csv")
@@ -634,6 +637,7 @@ server <- function(input, output, session) {
     }
   )
 
+  # Seitenwechsel (pagePiling)
   observeEvent(input$prev_section, {
     session$sendCustomMessage("pp_moveUp", list())
   })
