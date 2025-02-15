@@ -22,9 +22,11 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
-      overflow: auto; /* scollender Bereich */
+      /* Scrollbalken immer anzeigen, damit kein Layout-Sprung
+         bei dynamischer Balkeneinblendung entsteht: */
+      overflow-y: scroll; 
       position: relative;
+      padding: 1rem;
     }
 
     h2 {
@@ -103,8 +105,7 @@
     }
 
     /*
-      Sticky-Container für "Nächstes Video"-Button,
-      ohne Hintergrundfarbe
+      Sticky-Container für "Nächstes Video"-Button
     */
     .next-video-container {
       position: sticky;
@@ -190,12 +191,9 @@ let loadedCount = {{ videos|length }};          // bereits geladene Videos
 let totalVideos = {{ total_videos }};           // Gesamtanzahl
 let currentIndex = 0;                           // aktuell angezeigtes Video
 
-
 /*****************************************************************
- * Funktion: loadMore()
- * -> Lädt 10 weitere Videos via AJAX
- * -> Gibt Promise zurück, das die Zahl der neu geladenen Videos
- *    liefert. Nach dem Einfügen in #videoList
+ * loadMore()
+ * -> Lädt weitere Videos via AJAX
  *****************************************************************/
 async function loadMore() {
   const url = new URL('/video_feature_load_more', window.location.origin);
@@ -236,7 +234,7 @@ async function loadMore() {
     loadedCount += data.length;
   }
 
-  // Falls <10 zurückkamen oder loadedCount >= totalVideos => Button verbergen
+  // Falls < 10 zurückkamen oder loadedCount >= totalVideos => Button verbergen
   if (data.length < 10 || loadedCount >= totalVideos) {
     if (loadMoreBtn) {
       loadMoreBtn.style.display = 'none';
@@ -251,21 +249,28 @@ async function loadMore() {
  *****************************************************************/
 if (loadMoreBtn) {
   loadMoreBtn.addEventListener('click', async () => {
-    await loadMore(); // ignoriert Rückgabewert
+    await loadMore();
   });
 }
 
 /*****************************************************************
- * “Nächstes Video” Logik
- * 1) Falls currentIndex+1 < (Anzahl geladener Videos) => normal
- * 2) Falls wir am letzten Video sind & noch mehr da => loadMore()
- *    Dann zum ersten neu geladenen Video scrollen.
+ * "Nächstes Video"-Logik
+ * 1) Falls currentIndex+1 < geladener Videos => normal
+ * 2) Falls wir am letzten Video sind & noch mehr da => loadMore(), 
+ *    dann zum ersten neu geladenen Video scrollen
  *****************************************************************/
 function scrollToIndex(idx) {
   const items = document.querySelectorAll('.video-item');
   if (idx < 0 || idx >= items.length) return;
   currentIndex = idx;
-  items[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  /* Hier block='nearest' statt 'start', um
+     unnötiges Scrollen im Parent-Dokument zu vermeiden */
+  items[idx].scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'nearest'
+  });
 }
 
 function updateCurrentIndex() {
@@ -293,21 +298,15 @@ async function nextVideo() {
     // Haben noch ein Video in der bereits geladenen Liste
     scrollToIndex(nextIndex);
   } else {
-    // Sind am Ende => schauen, ob es noch mehr Videos (auf DB-Ebene) gibt
+    // Sind am Ende => prüfen, ob es noch mehr in der DB gibt
     if (loadedCount < totalVideos) {
-      // Noch nicht alle geladen => hole 10 weitere
       const newlyLoaded = await loadMore();
       if (newlyLoaded > 0) {
-        // Nach dem Laden => Index war das alte Ende, also
-        // items.length hat sich geändert
         const newItems = document.querySelectorAll('.video-item');
-        // neuItemsCount = newItems.length
-        // Der erste neu geladene Eintrag hat Index = altes items.length
         const firstNewIndex = newItems.length - newlyLoaded;
         scrollToIndex(firstNewIndex);
       }
     } else {
-      // Keine weiteren Videos vorhanden => optional Meldung
       console.log("Keine weiteren Videos mehr verfügbar.");
     }
   }
@@ -317,7 +316,10 @@ async function nextVideo() {
  * nextVideoBtn-Klick
  *****************************************************************/
 if (nextVideoBtn) {
-  nextVideoBtn.addEventListener('click', () => {
+  nextVideoBtn.addEventListener('click', (event) => {
+    // Optional: Fokus entfernen
+    event.preventDefault();
+    nextVideoBtn.blur();
     nextVideo();
   });
 }

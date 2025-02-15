@@ -22,9 +22,11 @@
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      padding: 1rem;
-      overflow: auto; /* scrollender Bereich */
+      /* Scrollbalken immer anzeigen, damit kein Layout-Sprung
+         bei dynamischer Balkeneinblendung entsteht: */
+      overflow-y: scroll; 
       position: relative;
+      padding: 1rem;
     }
 
     h2 {
@@ -113,6 +115,7 @@
       text-align: center;
     }
 
+    /* Bereich unten rechts fixieren */
     .next-item-container {
       position: sticky;
       bottom: 0;
@@ -152,7 +155,7 @@
             <strong>ID:</strong> {{ row.id }}<br>
             <strong>URL:</strong> {{ row.url }}<br>
             <strong>Titel:</strong> {{ row.title }}<br>
-           <strong>Datum:</strong> {{ row.human_date }}<br>
+            <strong>Datum:</strong> {{ row.human_date }}<br>
             <strong>Beschreibung:</strong> {{ row.description }}
           </div>
           <hr>
@@ -259,18 +262,11 @@ async function loadMore() {
       if (row.media_files && row.media_files.length > 0) {
         row.media_files.forEach(m => {
           const mLower = m.toLowerCase();
-          if (
-            mLower.endsWith('.jpg') ||
-            mLower.endsWith('.jpeg') ||
-            mLower.endsWith('.png') ||
-            mLower.endsWith('.gif')
-          ) {
+          if (mLower.endsWith('.jpg') || mLower.endsWith('.jpeg')
+              || mLower.endsWith('.png') || mLower.endsWith('.gif')) {
             images.push(m);
-          } else if (
-            mLower.endsWith('.mp3') ||
-            mLower.endsWith('.wav') ||
-            mLower.endsWith('.m4a')
-          ) {
+          } else if (mLower.endsWith('.mp3') || mLower.endsWith('.wav')
+                     || mLower.endsWith('.m4a')) {
             audios.push(m);
           } else {
             others.push(m);
@@ -283,8 +279,8 @@ async function loadMore() {
           <strong>ID:</strong> ${row.id}<br>
           <strong>URL:</strong> ${row.url}<br>
           <strong>Titel:</strong> ${row.title}<br>
-		  <strong>Datum:</strong> ${row.human_date}<br>          
-		  <strong>Beschreibung:</strong> ${row.description}
+          <strong>Datum:</strong> ${row.human_date}<br>
+          <strong>Beschreibung:</strong> ${row.description}
         </div>
         <hr>
         <div class="media-grid">
@@ -294,7 +290,6 @@ async function loadMore() {
       images.forEach(img => {
         html += `<img src="${img}" alt="Bild" class="media-thumb">`;
       });
-
       html += `</div>`; // Ende .media-grid
 
       // Audios
@@ -347,7 +342,14 @@ function scrollToIndex(idx) {
   const items = document.querySelectorAll('.item');
   if (idx < 0 || idx >= items.length) return;
   currentIndex = idx;
-  items[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  /* Hier block='nearest' statt 'start', um zu verhindern,
+     dass der gesamte Parent hochscrollt: */
+  items[idx].scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+    inline: 'nearest'
+  });
 }
 
 function updateCurrentIndex() {
@@ -374,6 +376,7 @@ async function nextItem() {
   if (nextIndex < items.length) {
     scrollToIndex(nextIndex);
   } else {
+    // Noch mehr laden?
     if (loadedCount < totalItems) {
       const newlyLoaded = await loadMore();
       if (newlyLoaded > 0) {
@@ -391,7 +394,10 @@ async function nextItem() {
  * nextItemBtn-Klick
  *****************************************************************/
 if (nextItemBtn) {
-  nextItemBtn.addEventListener('click', () => {
+  nextItemBtn.addEventListener('click', (event) => {
+    // Optional: Fokus entfernen, um kein Scrollen durch Button-Fokus zu triggern
+    event.preventDefault();
+    nextItemBtn.blur();
     nextItem();
   });
 }
