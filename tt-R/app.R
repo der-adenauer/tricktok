@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 # ==================================================================
-# Shiny-App mit pagePiling und 11 Sektionen
+# Shiny-App mit pagePiling und 12 Sektionen
 # Optimiert für mobile Endgeräte: Vollflächige iFrames (mit 10% Rand oben/unten),
 # Hamburger-Menü, drei Tabellen-Exporte
-# (Ohne Ladeindikator, Buttons Prev/Nächste nebeneinander)
-# Keine Personalpronomen in Kommentaren und Texten
+# Buttons Prev/Nächste nebeneinander (unten rechts)
+# Startseite mit größerer Überschrift, zusätzlichem Bild und mittiger Ausrichtung
+# Logo in invertierter Darstellung nur in der ersten Sektion
 # ==================================================================
 
 options(shiny.fullstacktrace = TRUE)
@@ -175,7 +176,7 @@ ui <- fluidPage(
       /* Bereich am unteren Rand freilassen (60px) */
       .pp-section {
         padding-bottom: 60px !important;
-        position: relative; /* Ermöglicht absolute Positionierung von Elementen */
+        position: relative;
       }
 
       /* Buttons unten rechts side-by-side */
@@ -219,7 +220,7 @@ ui <- fluidPage(
         display: block;
       }
 
-      /* Kleines Logo oben rechts pro Sektion (kein invert) */
+      /* Kleines Logo oben rechts (Standard ohne Filter) */
       .smallLogoContainer {
         position: absolute;
         top: 2%;
@@ -227,22 +228,23 @@ ui <- fluidPage(
         z-index: 10002;
       }
       .smallLogoContainer img {
-        width: 70px;
+        width: 100px;
         height: auto;
         filter: none;
       }
 
-      /* Seite 1: Großes Logo (invertiert) mittig */
-      #logo_projekt img {
-        max-width: 40%;
-        height: auto;
-        filter: invert(1);
+      /* Inversion nur auf erster Seite */
+      section[data-anchor='section_start'] .smallLogoContainer img {
+        filter: invert(100%);
       }
+
+      /* .projektTitel wird vergrößert */
       .projektTitel {
-        font-size: 24px;
+        font-size: 40px;
         font-weight: bold;
         color: white;
         margin: 10px 0 5px 0;
+        text-align: center;
       }
 
       /* Markdown-Container */
@@ -277,7 +279,7 @@ ui <- fluidPage(
         margin: 0 10px;
       }
 
-      /* Mobile Ansicht Meta-Info (untereinander) */
+      /* Mobile Ansicht Meta-Info */
       @media (max-width: 768px) {
         .meta-info-block {
           flex-direction: column;
@@ -323,6 +325,7 @@ ui <- fluidPage(
     a(href = "#section_adenaueros",  "Adenauer OS"),
     a(href = "#section_fahndung",    "Fahndung"),
     a(href = "#section_meta",        "Metadaten"),
+    a(href = "#section_zeitreihen",  "Zeitreihen"), 
     a(href = "#section_iframeExtra", "Statistiktok"),
     a(href = "#section_hashtag",     "Hashtag"),
     a(href = "#section_medienholen", "Contentschleuder"),
@@ -340,6 +343,7 @@ ui <- fluidPage(
       "#ffffff", 
       "#cccccc", 
       "#cccccc", 
+      "#ffffff",
       "#ffffff", 
       "#ffffff", 
       "#ffffff", 
@@ -354,6 +358,7 @@ ui <- fluidPage(
       "section_adenaueros",
       "section_fahndung",
       "section_meta",
+      "section_zeitreihen",
       "section_iframeExtra",
       "section_hashtag",
       "section_medienholen",
@@ -366,21 +371,64 @@ ui <- fluidPage(
     pageSection(
       center = TRUE,
       menu   = "section_start",
+
       div(
-        style = "display:flex; flex-direction:column; align-items:center; justify-content:center; height:calc(100vh - 60px);",
+        style = "
+          position: relative;
+          width: 100%;
+          height: calc(100vh - 60px);
+          overflow: hidden;
+        ",
         id = "logo_projekt",
-     #   img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg"),
-        h3("Projekt Tricktok", class = "projektTitel"),
+
+        h3(
+          "Projekt Tricktok",
+          class = "projektTitel",
+          style = "
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            margin: 0;
+            text-align: center;
+            font-size: 42px;
+          "
+        ),
+
         div(
-          style = "color:white; font-size:24px; max-width:600px; text-align:center; margin:auto;",
+          style = "
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            color: white;
+            text-align: center;
+            font-size: 24px;
+            max-width: 750px;
+          ",
           "Methode zur systematischen Erfassung, Erhaltung und Bewertung von Medien auf Tiktok."
+        ),
+
+        img(
+          src = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/adenauer-os/static/banderole.png",
+          style = "
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            display: block;
+          "
         )
       ),
+
       div(
         class = "smallLogoContainer",
         img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
-    ),
+    )
+    ,
 
     # --- 2) Einführung ---
     pageSection(
@@ -433,31 +481,54 @@ ui <- fluidPage(
       )
     ),
 
-    # --- 5) Metadaten ---
+# --- 5) Metadaten ---
+pageSection(
+  center = FALSE,
+  menu   = "section_meta",
+  fluidPage(
+    style = "margin:0; padding:0;",
+    
+    # Überschrift
+    h3("Tricktok Metadaten", style = "text-align:center; margin-top:20px;"),
+    
+    div(
+      class = "meta-info-block",
+      img(
+        src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
+        height = "200px"
+      ),
+      div(
+        class = "meta-info-text",
+        p("
+Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Ein Python-Programm übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten verhindert das Risko von IP-Sperrungen des Systemes. 
+Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln von Metadaten.
+        ")
+      )
+    ),
+    div(
+      class = "exportButtons",
+      downloadButton("download_links",         "Export Fahndungsliste"),
+      downloadButton("download_metadata",      "Export Medien-Metadaten"),
+      downloadButton("download_timeseries",    "Export Zeitreihen")
+    )
+  ),
+  div(
+    class = "smallLogoContainer",
+    img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
+  )
+)
+,
+
+    # --- 6) Zeitreihen ---
     pageSection(
       center = FALSE,
-      menu   = "section_meta",
+      menu   = "section_zeitreihen",
       fluidPage(
         style = "margin:0; padding:0;",
+        h3("Zeitreihen", style = "text-align:center; margin-top:10px;"),
         div(
-          class = "meta-info-block",
-          img(
-            src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
-            height = "200px"
-          ),
-          div(
-            class = "meta-info-text",
-            p("
-Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Pythonmodul yt-dlp übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten mindert IP-Sperrungen. 
-Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln. Schreibtzugriff auf Tricktok-Datenbank nicht öffentlich.
-            ")
-          )
-        ),
-        div(
-          class = "exportButtons",
-          downloadButton("download_links",         "Export Fahndungsliste"),
-          downloadButton("download_metadata",      "Export Medien-Metadaten"),
-          downloadButton("download_timeseries",    "Export Zeitreihen")
+          class = "iframe-wrapper",
+          tags$iframe(src = "https://py.afd-verbot.de/zeitreihen/")
         )
       ),
       div(
@@ -466,7 +537,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 6) Statistiktok ---
+    # --- 7) Statistiktok ---
     pageSection(
       center = FALSE,
       menu   = "section_iframeExtra",
@@ -483,7 +554,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 7) Hashtag-Suche ---
+    # --- 8) Hashtag-Suche ---
     pageSection(
       center = FALSE,
       menu   = "section_hashtag",
@@ -500,7 +571,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 8) Contentschleuder ---
+    # --- 9) Contentschleuder ---
     pageSection(
       center = FALSE,
       menu   = "section_medienholen",
@@ -518,7 +589,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 9) Photo-Archiv ---
+    # --- 10) Photo-Archiv ---
     pageSection(
       center = FALSE,
       menu   = "section_photoarchiv",
@@ -536,7 +607,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 10) Video-Archiv ---
+    # --- 11) Video-Archiv ---
     pageSection(
       center = FALSE,
       menu   = "section_videoarchiv",
@@ -554,7 +625,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 11) Reiter2 ---
+    # --- 12) Reiter2 ---
     pageSection(
       center = FALSE,
       menu   = "section_reiter2",
@@ -570,7 +641,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
     )
   ),
 
-  # Navigations-Buttons (unten rechts) - side by side
+  # Navigations-Buttons (unten rechts)
   div(
     id = "bottomNav",
     actionButton(
