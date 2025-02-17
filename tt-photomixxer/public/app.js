@@ -199,7 +199,7 @@ function runSpuelen() {
 /* === UI === */
 const btnNachlegen = document.getElementById("btnNachlegen");
 btnNachlegen.addEventListener("click", () => {
-  fetch("/random?count=5")
+  fetch("./random?count=5")
     .then(r => r.json())
     .then(data => addPhotoBodies(data))
     .catch(err => console.error("Fehler /random:", err));
@@ -227,7 +227,7 @@ scaleSlider.addEventListener("input", e => {
  * => 5 Bilder spawnen schon beim Seitenaufruf
  */
 window.addEventListener("load", () => {
-  fetch("/random?count=5")
+  fetch("./random?count=5")
     .then(r => r.json())
     .then(data => addPhotoBodies(data))
     .catch(err => console.error("Fehler /random (Startup):", err));
