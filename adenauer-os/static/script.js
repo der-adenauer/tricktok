@@ -1,5 +1,3 @@
-// script.js
-
 let zIndexCounter = 100;
 
 const openedWindows = {
@@ -25,7 +23,8 @@ const openedWindows = {
   window20: false,
   window21: false,
   window22: false,
-  window23: false
+  window23: false,
+  window24: false
 };
 
 let windowState = {};
@@ -48,11 +47,9 @@ function setIframesPointerEvents(windowEl, enabled) {
  * sie beim Drag nicht stören.
  */
 function bringWindowToFront(activeWindow) {
-  // Gesamten Zähler hochsetzen
   zIndexCounter++;
   activeWindow.style.zIndex = zIndexCounter;
 
-  // Alle anderen Fenster in pointer-events: none
   const allWindows = document.querySelectorAll(".modal-window");
   allWindows.forEach(win => {
     if (win === activeWindow) {
@@ -300,8 +297,6 @@ const template20 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <center>
-
-
       <br><br>
       <p>
         adenauer@tutamail.com<br>
@@ -312,9 +307,8 @@ const template20 = `
 </div>
 `;
 
-/* Neue Fenster (Beispielinhalte) */
 const template22 = `
-<div class="window modal-window" data-win="win22" style="width:800px; height:75s0px;">
+<div class="window modal-window" data-win="win22" style="width:800px; height:650px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Bilder-Archiv</h1>
     <span class="close"></span>
@@ -325,15 +319,28 @@ const template22 = `
 </div>
 `;
 
-
 const template23 = `
-<div class="window modal-window" data-win="win23" style="width:850px; height:700px;">
+<div class="window modal-window" data-win="win23" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Photo</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <iframe src="/gallery_feature" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="https://py.afd-verbot.de/photoarchiv/" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+/* Neues Template für „Zeitreihen“ (ähnlich wie template23) */
+const template24 = `
+<div class="window modal-window" data-win="win24" style="width:1000px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Zeitreihen</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
+    <!-- Beispiel-URL anpassen, falls benötigt -->
+    <iframe src="https://py.afd-verbot.de/zeitreihen/" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
@@ -374,7 +381,6 @@ function createWindow(template, windowKey) {
   }
 
   modalEl.addEventListener('mousedown', () => {
-    // Nur zur Sicherheit zIndex hochsetzen
     zIndexCounter++;
     modalEl.style.zIndex = zIndexCounter;
     saveWindowPosition(modalEl, windowKey);
@@ -395,7 +401,7 @@ function createWindow(template, windowKey) {
 
   makeDraggable(modalEl, windowKey);
 
-  // Beispiel: Nur relevant für window1 und window2 ...
+  // Zusätzliche Logik für einzelne Fenster
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -436,13 +442,9 @@ function createWindow(template, windowKey) {
   modalContainer.appendChild(modalEl);
 }
 
-/***********************************************
- * makeDraggable()
- * -> Hier erfolgen die Hauptänderungen
- ***********************************************/
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
-  const gridSize = 10; // Gittergröße - wir verwenden es nur noch in onMouseUp
+  const gridSize = 10;
   let offsetX = 0, offsetY = 0;
   let isDragging = false;
 
@@ -452,14 +454,8 @@ function makeDraggable(windowEl, windowKey) {
   function onMouseDown(e) {
     e.preventDefault();
     isDragging = true;
-
-    // body darf nichts auswählen (Textmarkierung ausschalten)
     document.body.style.userSelect = 'none';
-
-    // Fenster in den Vordergrund holen & andere Fenster blockieren
     bringWindowToFront(windowEl);
-
-    // Iframes-Pointer-Events ausschalten
     setIframesPointerEvents(windowEl, false);
 
     const rect = windowEl.getBoundingClientRect();
@@ -472,13 +468,10 @@ function makeDraggable(windowEl, windowKey) {
 
   function onMouseMove(e) {
     if (!isDragging) return;
-    // Weiches Verschieben OHNE Raster
     let newLeft = e.clientX - offsetX;
     let newTop  = e.clientY - offsetY;
-
-    // Begrenzen (nicht aus dem sichtbaren Bereich schieben)
     if (newLeft < 0) newLeft = 0;
-    if (newTop < 0)  newTop  = 0;
+    if (newTop < 0) newTop = 0;
 
     windowEl.style.left = newLeft + 'px';
     windowEl.style.top  = newTop + 'px';
@@ -486,35 +479,25 @@ function makeDraggable(windowEl, windowKey) {
 
   function onMouseUp() {
     isDragging = false;
-
-    // Alle anderen Fenster wieder "frei schaltbar" machen
     restoreAllWindowsPointerEvents();
-
-    // Pointer-Events auf Iframe wieder aktivieren
     setIframesPointerEvents(windowEl, true);
-
-    // userSelect wieder erlauben
     document.body.style.userSelect = '';
 
-    // Raster-Snapping hier auf Endposition anwenden
     const leftRaw = parseFloat(windowEl.style.left) || 0;
     const topRaw  = parseFloat(windowEl.style.top)  || 0;
     const snappedLeft = Math.round(leftRaw / gridSize) * gridSize;
-    const snappedTop  = Math.round(topRaw  / gridSize) * gridSize;
+    const snappedTop  = Math.round(topRaw / gridSize) * gridSize;
     windowEl.style.left = snappedLeft + 'px';
     windowEl.style.top  = snappedTop + 'px';
 
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
-
     saveWindowPosition(windowEl, windowKey);
   }
 
-  // Touch-Events analog
   function onTouchStart(e) {
     e.preventDefault();
     isDragging = true;
-
     document.body.style.userSelect = 'none';
     bringWindowToFront(windowEl);
     setIframesPointerEvents(windowEl, false);
@@ -532,12 +515,10 @@ function makeDraggable(windowEl, windowKey) {
     if (!isDragging) return;
     e.preventDefault();
     const touch = e.touches[0];
-
     let newLeft = touch.clientX - offsetX;
     let newTop  = touch.clientY - offsetY;
-
     if (newLeft < 0) newLeft = 0;
-    if (newTop < 0)  newTop  = 0;
+    if (newTop < 0) newTop = 0;
 
     windowEl.style.left = newLeft + 'px';
     windowEl.style.top  = newTop + 'px';
@@ -549,11 +530,10 @@ function makeDraggable(windowEl, windowKey) {
     setIframesPointerEvents(windowEl, true);
     document.body.style.userSelect = '';
 
-    // Jetzt snappen
     const leftRaw = parseFloat(windowEl.style.left) || 0;
     const topRaw  = parseFloat(windowEl.style.top)  || 0;
     const snappedLeft = Math.round(leftRaw / gridSize) * gridSize;
-    const snappedTop  = Math.round(topRaw  / gridSize) * gridSize;
+    const snappedTop  = Math.round(topRaw / gridSize) * gridSize;
     windowEl.style.left = snappedLeft + 'px';
     windowEl.style.top  = snappedTop + 'px';
 
@@ -602,6 +582,7 @@ function getTemplate(key) {
     case 'window21': return template21;
     case 'window22': return template22;
     case 'window23': return template23;
+    case 'window24': return template24;  // Neues Template
     default:
       return template4; 
   }
@@ -729,18 +710,25 @@ if (btn20) {
   });
 }
 
-// Neue Icons #15, #16
+// Icons #15, #16
 const icon15 = document.getElementById('icon15');
 if (icon15) {
   icon15.addEventListener('click', () => {
     createWindow(getTemplate('window22'), 'window22');
   });
 }
-
 const icon16 = document.getElementById('icon16');
 if (icon16) {
   icon16.addEventListener('click', () => {
     createWindow(getTemplate('window23'), 'window23');
+  });
+}
+
+// Neues Icon #17 => Fenster #24
+const icon17 = document.getElementById('icon17');
+if (icon17) {
+  icon17.addEventListener('click', () => {
+    createWindow(getTemplate('window24'), 'window24');
   });
 }
 
@@ -757,7 +745,7 @@ if (exportLink) {
   });
 }
 
-// Optionales Template für "windowGallery"
+// Optionales Template für "windowGallery" (falls benötigt)
 const templateGallery = 
 `<div class="window modal-window" data-win="winGallery" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -769,7 +757,6 @@ const templateGallery =
   </div>
 </div>`;
 
-// Beispiel Icon
 const iconXYZ = document.getElementById('iconXYZ');
 if (iconXYZ) {
   iconXYZ.addEventListener('click', () => {

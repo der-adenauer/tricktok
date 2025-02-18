@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn3) {
     btn3.addEventListener('click', (e) => {
       e.preventDefault();
+      // Öffnet die "Hilfe" - Seite im iFrame
       openFullScreenModal("/hilfe_extended", "Hilfe");
     });
   }
@@ -32,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn4) {
     btn4.addEventListener('click', (e) => {
       e.preventDefault();
-      // Statisches HTML-Inhalt (keine extra Route)
+      // Programmquelle: Statisches HTML statt eigener Route
       openFullScreenModal(null, "Programmquelle", `
         <div style="padding:1rem;">
           <h2>Adenauer OS <br> Projekt Tricktok</h2>
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn20) {
     btn20.addEventListener('click', (e) => {
       e.preventDefault();
-      // Zeige Kontakt-Seite
+      // Kontakt-Seite per Route /contact
       openFullScreenModal("/contact", "Kontakt");
     });
   }
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Desktop-Icons -> Mobile-Fullscreen
   // --------------------------------------------------------
 
-  // Beispiel: Icon6 (Index)
+  // Icon6 (Index)
   const icon6 = document.getElementById('icon6');
   if (icon6) {
     icon6.addEventListener('click', () => {
@@ -151,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon14 (Nachrichten) -> neutr. S. 
+  // Icon14 (Nachrichten)
   const icon14 = document.getElementById('icon14');
   if (icon14) {
     icon14.addEventListener('click', () => {
@@ -159,16 +160,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon15 -> window22 => Bilder-Archiv
+  // Icon15 (Bilder-Archiv)
   const icon15 = document.getElementById('icon15');
   if (icon15) {
     icon15.addEventListener('click', () => {
-      // In Desktop: createWindow('window22') => iFrame "https://py.afd-verbot.de/tiktok/"
       openFullScreenModal("https://py.afd-verbot.de/tiktok/", "Bilder-Archiv", null, true);
     });
   }
 
-  // Icon16 -> window23 => /gallery_feature
+  // Icon16 (Gallery Feature -> /gallery_feature)
   const icon16 = document.getElementById('icon16');
   if (icon16) {
     icon16.addEventListener('click', () => {
@@ -176,14 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon19 / Icon21 / etc. 
-  // Falls wir noch "Kleiner Max" (window21) o.Ä. möchten:
+  // Optionaler Icon21 (Kleiner Max) - falls vorhanden
   const icon21 = document.getElementById('icon21');
   if (icon21) {
     icon21.addEventListener('click', () => {
-      // In Desktop: window21 => Kleiner Max
-      // Dort wird ein iframe mit archive.afd-verbot.de gezeigt
-      // Machen wir hier analog:
       openFullScreenModal(null, "Kleiner Max", `
         <iframe src="https://archive.afd-verbot.de/videos/embed/b666e9c0-d5ae-4817-b120-3ae0fe949576?start=16s"
                 style="width:100%; height:calc(100% - 2rem); border:none;"
@@ -193,9 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `, false);
     });
   }
-
-  // Falls es icon19 gibt (Nachrichten?), wir haben das ob. 
-  // Nur anpassen, if needed.
 
   // Delegation für dynamische mobile-Entry-Links (z.B. Index-Einträge)
   document.body.addEventListener('click', (e) => {
@@ -224,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
  * @param {string|null} srcUrl - Falls vorhanden, in iframe laden (oder img, wenn forceIframe=true).
  * @param {string} headline - Titelzeile im Modal.
  * @param {string|null} contentHtml - Falls wir statisches HTML anzeigen wollen.
- * @param {boolean} forceIframe - ob immer ein iframe genommen wird, selbst wenn srcUrl != http.
+ * @param {boolean} forceIframe - ob immer ein iframe genommen wird, selbst wenn srcUrl kein http/https ist.
  */
 function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=false) {
   // vorhandenes Modal entfernen, nur 1 Fenster
@@ -280,6 +273,7 @@ function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=fal
   contentArea.style.overflow = "auto";
 
   if (contentHtml) {
+    // statisches HTML
     contentArea.innerHTML = contentHtml;
   } else if (srcUrl && (forceIframe || srcUrl.startsWith("http") || srcUrl.startsWith("/"))) {
     const iframe = document.createElement("iframe");
