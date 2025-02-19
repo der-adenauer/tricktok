@@ -31,17 +31,39 @@ def format_unix_timestamp(ts):
 
 
 # ----------------------------------------------------------------------------
-# Hilfsfunktionen
+# Hilfsfunktionen / Mobile-Erkennung
 # ----------------------------------------------------------------------------
-
 def is_mobile_user_agent(user_agent_string):
     pattern = r"Mobi|Android|iPhone|iPad|Phone"
     return bool(re.search(pattern, user_agent_string, re.IGNORECASE))
 
 @app.context_processor
 def inject_is_mobile():
-    user_agent = request.headers.get("User-Agent", "")
-    return dict(IS_MOBILE=is_mobile_user_agent(user_agent))
+    """
+    In allen Templates ist IS_MOBILE verfügbar.
+    Zusätzlich kann man per /mobile-Route die 
+    mobile Ansicht erzwingen (siehe unten).
+    """
+    forced_mobile = session.get("force_mobile", False)
+    if forced_mobile:
+        return dict(IS_MOBILE=True)
+    else:
+        user_agent = request.headers.get("User-Agent", "")
+        return dict(IS_MOBILE=is_mobile_user_agent(user_agent))
+
+@app.route("/mobile")
+def mobile_index():
+    """
+    Diese Route erzwingt immer die mobile Ansicht.
+    Wir setzen force_mobile=True in session, 
+    damit das Template in base.html => script_mobile.js nutzt.
+    """
+    session["force_mobile"] = True
+    return render_template("index.html")  
+    # Wir verwenden hier dieselbe index.html wie /,
+    # aber dank force_mobile=True wird in base.html script_mobile.js 
+    # statt script.js geladen. (Siehe if-Abfrage mit IS_MOBILE.)
+
 
 @app.route("/benutzer_info")
 def benutzer_info():
@@ -147,6 +169,12 @@ def extract_channel(link):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    """
+    Desktop vs. Mobile wird hier per User-Agent erkannt.
+    Wenn man explizit /mobile aufruft, 
+    setzt man force_mobile=True => immer mobil.
+    """
+    session["force_mobile"] = False  # Bei Aufruf "/" wollen wir default Desktop
     return render_template("index.html")
 
 @app.route("/info")
@@ -763,17 +791,15 @@ def gallery_feature():
         else:
             row_dict["human_date"] = ""
 
-        # mediapath => Pfade; multiline
+        # mediapath => Pfade
         raw_paths = row_dict.get("mediapath") or ""
         lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
 
+        from urllib.parse import quote
         mapped_paths = []
         for ln in lines:
             if ln.startswith("./gallery-dl/tiktok/"):
-                # subpath = e.g. "gruenengegner3.0/TikTok photo #7468...."
                 subpath = ln[len("./gallery-dl/tiktok/"):]
-                # => "https://py.afd-verbot.de/tiktok/" + escaped(subpath)
-                from urllib.parse import quote
                 subpath_escaped = quote(subpath, safe="/")
                 final_url = "https://py.afd-verbot.de/tiktok/" + subpath_escaped
                 mapped_paths.append(final_url)

@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const icon16 = document.getElementById('icon16');
   if (icon16) {
     icon16.addEventListener('click', () => {
-      openFullScreenModal("/gallery_feature", "Gallery Feature", null, true);
+      openFullScreenModal("https://py.afd-verbot.de/photoarchiv", "Tricktok Photo", null, true);
     });
   }
 
