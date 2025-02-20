@@ -30,7 +30,7 @@ const openedWindows = {
 let windowState = {};
 let openCount = 0;
 
-// Zoom-Faktor verwalten
+// Zoom-Faktor
 let currentZoomLevel = 1.0;
 
 // Hilfsfunktionen zum Deaktivieren / Aktivieren von pointer-events bei iframes
@@ -41,15 +41,9 @@ function setIframesPointerEvents(windowEl, enabled) {
   });
 }
 
-/**
- * Hebt das angeklickte Fenster in den Vordergrund (höchster zIndex)
- * und setzt bei allen anderen Fenstern pointer-events: none, damit
- * sie beim Drag nicht stören.
- */
 function bringWindowToFront(activeWindow) {
   zIndexCounter++;
   activeWindow.style.zIndex = zIndexCounter;
-
   const allWindows = document.querySelectorAll(".modal-window");
   allWindows.forEach(win => {
     if (win === activeWindow) {
@@ -60,9 +54,6 @@ function bringWindowToFront(activeWindow) {
   });
 }
 
-/**
- * Stellt pointer-events bei allen Fenstern wieder auf "auto".
- */
 function restoreAllWindowsPointerEvents() {
   const allWindows = document.querySelectorAll(".modal-window");
   allWindows.forEach(win => {
@@ -331,7 +322,6 @@ const template23 = `
 </div>
 `;
 
-/* Neues Template für „Zeitreihen“ (ähnlich wie template23) */
 const template24 = `
 <div class="window modal-window" data-win="win24" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -339,8 +329,20 @@ const template24 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <!-- Beispiel-URL anpassen, falls benötigt -->
     <iframe src="https://py.afd-verbot.de/zeitreihen/" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+/* Neues Template für die Beweisführung (window18) */
+const template18 = `
+<div class="window modal-window" data-win="win18" style="width:1000px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Beweisführung</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
+    <iframe src="https://py.afd-verbot.de/beweise" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
@@ -401,7 +403,6 @@ function createWindow(template, windowKey) {
 
   makeDraggable(modalEl, windowKey);
 
-  // Zusätzliche Logik für einzelne Fenster
   if (windowKey === 'window1') {
     const entryLinks = modalEl.querySelectorAll('.entry-link');
     entryLinks.forEach(link => {
@@ -582,7 +583,8 @@ function getTemplate(key) {
     case 'window21': return template21;
     case 'window22': return template22;
     case 'window23': return template23;
-    case 'window24': return template24;  // Neues Template
+    case 'window24': return template24;
+    case 'window18': return template18; // Neu für Beweisführung
     default:
       return template4; 
   }
@@ -647,7 +649,6 @@ if (btn4) {
   });
 }
 
-// Desktop-Icons #6..#10
 const icon6 = document.getElementById('icon6');
 if (icon6) {
   icon6.addEventListener('click', () => {
@@ -678,8 +679,6 @@ if (icon10) {
     createWindow(getTemplate('window10'), 'window10');
   });
 }
-
-// Icons #12, #13
 const icon12 = document.getElementById('icon12');
 if (icon12) {
   icon12.addEventListener('click', () => {
@@ -692,16 +691,12 @@ if (icon13) {
     createWindow(getTemplate('window13'), 'window13');
   });
 }
-
-// Icon #14 => Fenster #19
 const icon14 = document.getElementById('icon14');
 if (icon14) {
   icon14.addEventListener('click', () => {
     createWindow(getTemplate('window19'), 'window19');
   });
 }
-
-// Button #20
 const btn20 = document.getElementById('openWindow20');
 if (btn20) {
   btn20.addEventListener('click', (e) => {
@@ -709,8 +704,6 @@ if (btn20) {
     createWindow(getTemplate('window20'), 'window20');
   });
 }
-
-// Icons #15, #16
 const icon15 = document.getElementById('icon15');
 if (icon15) {
   icon15.addEventListener('click', () => {
@@ -723,8 +716,6 @@ if (icon16) {
     createWindow(getTemplate('window23'), 'window23');
   });
 }
-
-// Neues Icon #17 => Fenster #24
 const icon17 = document.getElementById('icon17');
 if (icon17) {
   icon17.addEventListener('click', () => {
@@ -732,7 +723,14 @@ if (icon17) {
   });
 }
 
-// Beispiel-Handling für Export-Button
+/* Neues Icon #18 => Fenster window18 */
+const icon18 = document.getElementById('icon18');
+if (icon18) {
+  icon18.addEventListener('click', () => {
+    createWindow(getTemplate('window18'), 'window18');
+  });
+}
+
 const exportLink = document.getElementById('exportLink');
 if (exportLink) {
   exportLink.addEventListener('click', () => {
@@ -742,24 +740,5 @@ if (exportLink) {
       exportLink.style.pointerEvents = 'auto';
       exportLink.style.opacity = '1';
     }, 30000);
-  });
-}
-
-// Optionales Template für "windowGallery" (falls benötigt)
-const templateGallery = 
-`<div class="window modal-window" data-win="winGallery" style="width:1000px; height:700px;">
-  <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Gallery Feature</h1>
-    <span class="close"></span>
-  </div>
-  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <iframe src="/gallery_feature" style="width:100%; height:100%; border:none;"></iframe>
-  </div>
-</div>`;
-
-const iconXYZ = document.getElementById('iconXYZ');
-if (iconXYZ) {
-  iconXYZ.addEventListener('click', () => {
-    createWindow(templateGallery, 'windowGallery');
   });
 }

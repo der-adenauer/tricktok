@@ -39,11 +39,6 @@ def is_mobile_user_agent(user_agent_string):
 
 @app.context_processor
 def inject_is_mobile():
-    """
-    In allen Templates ist IS_MOBILE verfügbar.
-    Zusätzlich kann man per /mobile-Route die 
-    mobile Ansicht erzwingen (siehe unten).
-    """
     forced_mobile = session.get("force_mobile", False)
     if forced_mobile:
         return dict(IS_MOBILE=True)
@@ -53,17 +48,8 @@ def inject_is_mobile():
 
 @app.route("/mobile")
 def mobile_index():
-    """
-    Diese Route erzwingt immer die mobile Ansicht.
-    Wir setzen force_mobile=True in session, 
-    damit das Template in base.html => script_mobile.js nutzt.
-    """
     session["force_mobile"] = True
-    return render_template("index.html")  
-    # Wir verwenden hier dieselbe index.html wie /,
-    # aber dank force_mobile=True wird in base.html script_mobile.js 
-    # statt script.js geladen. (Siehe if-Abfrage mit IS_MOBILE.)
-
+    return render_template("index.html")
 
 @app.route("/benutzer_info")
 def benutzer_info():
@@ -95,7 +81,6 @@ def get_db():
         db = g._database = sqlite3.connect("datenbank.db")
         db.row_factory = sqlite3.Row
 
-        # Tabellen anlegen / anpassen
         db.execute("""
             CREATE TABLE IF NOT EXISTS links (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -169,12 +154,7 @@ def extract_channel(link):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """
-    Desktop vs. Mobile wird hier per User-Agent erkannt.
-    Wenn man explizit /mobile aufruft, 
-    setzt man force_mobile=True => immer mobil.
-    """
-    session["force_mobile"] = False  # Bei Aufruf "/" wollen wir default Desktop
+    session["force_mobile"] = False
     return render_template("index.html")
 
 @app.route("/info")
@@ -236,7 +216,6 @@ def export_csv_db():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
-        # Zeitstempel umwandeln
         converted_rows = []
         for row in rows:
             row_d = dict(row)
@@ -254,7 +233,6 @@ def export_csv_db():
         )
 
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
-    # Zeitstempel umwandeln
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
         csv_data += f"{row['id']},{row['kanal']},{format_unix_timestamp(row['zeitstempel'])}\n"
@@ -289,7 +267,6 @@ def export_csv_mobile():
         fehlermeldung = "Export nur alle 30 Sekunden möglich."
         total_links = db.execute("SELECT COUNT(*) AS cnt FROM links").fetchone()["cnt"]
         rows = db.execute("SELECT kanal, zeitstempel FROM links ORDER BY id DESC LIMIT 5").fetchall()
-        # Zeitstempel umwandeln
         converted_rows = []
         for row in rows:
             row_d = dict(row)
@@ -307,7 +284,6 @@ def export_csv_mobile():
         )
 
     rows = cursor.execute("SELECT id, kanal, zeitstempel FROM links ORDER BY id").fetchall()
-    # Zeitstempel umwandeln
     csv_data = "id,kanal,zeitstempel\n"
     for row in rows:
         csv_data += f"{row['id']},{row['kanal']},{format_unix_timestamp(row['zeitstempel'])}\n"
@@ -348,7 +324,6 @@ def fahndungsliste_db():
         LIMIT ? OFFSET ?
     """, (per_page, offset)).fetchall()
 
-    # Zeitstempel umwandeln, bevor an Template übergeben
     converted_rows = []
     for r in rows:
         r_dict = dict(r)
@@ -413,7 +388,6 @@ def fahndungsliste_db():
                 per_page=per_page
             )
         else:
-            # Hier wird nun ein Unix-Timestamp gespeichert
             zeit = time.time()
             user_agent = request.headers.get("User-Agent", "Unbekannt")
 
@@ -455,7 +429,6 @@ def fahndungsliste_mobile():
         LIMIT ? OFFSET ?
     """, (per_page, offset)).fetchall()
 
-    # Zeitstempel umwandeln, bevor an Template übergeben
     converted_rows = []
     for r in rows:
         r_dict = dict(r)
@@ -520,7 +493,6 @@ def fahndungsliste_mobile():
                 per_page=per_page
             )
         else:
-            # Hier wird nun ein Unix-Timestamp gespeichert
             zeit = time.time()
             user_agent = request.headers.get("User-Agent", "Unbekannt")
 
@@ -730,11 +702,6 @@ def close_gallery_db(exception):
 
 @app.route("/gallery_feature", methods=["GET"])
 def gallery_feature():
-    """
-    Zeigt Datensätze aus media_metadata_extras, passt Pfade an
-    und konvertiert den Unix-Timestamp in ein lesbares Format.
-    Berücksichtigt dabei das Escaping von '#' und '[' / ']' etc.
-    """
     query = request.args.get("q", "").strip()
     page = int(request.args.get("page", 1))
     msg = request.args.get("msg", "")
@@ -779,7 +746,6 @@ def gallery_feature():
     for row in rows:
         row_dict = dict(row)
 
-        # Unix-Timestamp => lesbares Format
         raw_ts = row_dict.get("timestamp", None)
         if raw_ts:
             try:
@@ -791,11 +757,10 @@ def gallery_feature():
         else:
             row_dict["human_date"] = ""
 
-        # mediapath => Pfade
+        from urllib.parse import quote
         raw_paths = row_dict.get("mediapath") or ""
         lines = [ln.strip() for ln in raw_paths.split("\n") if ln.strip()]
 
-        from urllib.parse import quote
         mapped_paths = []
         for ln in lines:
             if ln.startswith("./gallery-dl/tiktok/"):
@@ -823,10 +788,6 @@ def gallery_feature():
 
 @app.route("/gallery_feature_load_more", methods=["GET"])
 def gallery_feature_load_more():
-    """
-    AJAX-Route: "Mehr laden" => nächste 10 Einträge
-    Pfade anpassen wie in gallery_feature.
-    """
     query = request.args.get("q", "").strip()
     start_index = int(request.args.get("start", 0))
 
