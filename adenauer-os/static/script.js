@@ -329,7 +329,7 @@ const template24 = `
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
-    <iframe src="https://py.afd-verbot.de/zeitreihen/" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="https://py.afd-verbot.de/zeitreihen/?uploader=23.02.25afd&video=7471398852642278678" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
