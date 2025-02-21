@@ -94,7 +94,7 @@ render.mouse = mouse;
  * Fotos
  */
 const photoBodies = [];
-const maxCount = 50;
+const maxCount = 150;
 
 // Globale Skala (Start = 0.15 laut slider)
 let currentGlobalScale = 0.15;
@@ -227,7 +227,7 @@ scaleSlider.addEventListener("input", e => {
  * => 5 Bilder spawnen schon beim Seitenaufruf
  */
 window.addEventListener("load", () => {
-  fetch("./random?count=5")
+  fetch("./random?count=15")
     .then(r => r.json())
     .then(data => addPhotoBodies(data))
     .catch(err => console.error("Fehler /random (Startup):", err));
