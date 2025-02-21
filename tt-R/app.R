@@ -2,12 +2,15 @@
 # -*- coding: utf-8 -*-
 
 # ==================================================================
-# Shiny-App mit pagePiling und 12 Sektionen
-# Optimiert für mobile Endgeräte: Vollflächige iFrames (mit 10% Rand oben/unten),
-# Hamburger-Menü, drei Tabellen-Exporte
-# Buttons Prev/Nächste nebeneinander (unten rechts)
-# Startseite mit größerer Überschrift, zusätzlichem Bild und mittiger Ausrichtung
-# Logo in invertierter Darstellung nur in der ersten Sektion
+# Shiny-App mit pagePiling und 14 Sektionen
+# Optimiert für mobile Endgeräte:
+# - iFrames schließen bündig mit dem unteren Bildschirmrand ab
+# - Abstandsreserve nach oben für ein wenig "Luft"
+# - Hamburger-Menü, drei Tabellen-Exporte
+# - Buttons Prev/Nächste nebeneinander (unten rechts)
+# - Startseite mit größerer Überschrift, zusätzlichem Bild und mittiger Ausrichtung
+# - Logo in invertierter Darstellung nur in der ersten Sektion
+# - Im Abschnitt „Adenauer OS“ wird der Inhalt im iFrame gezoomt
 # ==================================================================
 
 options(shiny.fullstacktrace = TRUE)
@@ -111,7 +114,9 @@ ui <- fluidPage(
       ")
     ),
 
-    # CSS-Anpassungen
+    # ------------------------------
+    # Zentrales CSS
+    # ------------------------------
     tags$style(HTML("
       html, body {
         margin: 0;
@@ -120,9 +125,18 @@ ui <- fluidPage(
         background-color: #ffffff;
       }
 
-      /* pagePiling entfernt Navigationskreise */
+      /* pagePiling entfernt standardmäßig die Navigationskreise */
       .pp-slidesNav, .pp-nav {
         display: none !important;
+      }
+
+      /* Jede Sektion bekommt die volle Bildschirmhöhe */
+      .pp-section {
+        position: relative;
+        width: 100%;
+        height: 100vh !important;
+        margin: 0;
+        padding: 0;
       }
 
       /* Hamburger-Button oben links */
@@ -173,19 +187,13 @@ ui <- fluidPage(
         text-decoration: none;
       }
 
-      /* Bereich am unteren Rand freilassen (60px) */
-      .pp-section {
-        padding-bottom: 60px !important;
-        position: relative;
-      }
-
-      /* Buttons unten rechts side-by-side */
+      /* Buttons unten rechts side-by-side (z.B. Prev/Nächste) */
       #bottomNav {
         position: fixed;
         bottom: 10px;
         right: 10px;
         display: flex;
-        flex-direction: row; 
+        flex-direction: row;
         gap: 10px;
         z-index: 9999;
       }
@@ -203,11 +211,14 @@ ui <- fluidPage(
         background-color: rgba(128,128,128,0.7);
       }
 
-      /* iFrames nutzen 80% Höhe, 10% Rand oben und unten */
+      /* iFrame-Wrapper:
+         Abstand zum oberen Rand und bündig zum unteren Rand */
       .iframe-wrapper {
-        width: 100%;
-        margin: 10vh auto;
-        height: 80vh;
+        position: absolute;
+        top: 6vh;
+        bottom: 0;
+        left: 0;
+        right: 0;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -220,10 +231,18 @@ ui <- fluidPage(
         display: block;
       }
 
+      /* Spezieller Zoom NUR für adenaueros-Abschnitt */
+      section[data-anchor='section_adenaueros'] .iframe-wrapper iframe {
+        transform: scale(0.8);
+        transform-origin: top center;
+        width: 125%;
+        height: 125%;
+      }
+
       /* Kleines Logo oben rechts (Standard ohne Filter) */
       .smallLogoContainer {
         position: absolute;
-        top: 2%;
+        top: 1%;
         right: 2%;
         z-index: 10002;
       }
@@ -233,12 +252,12 @@ ui <- fluidPage(
         filter: none;
       }
 
-      /* Inversion nur auf erster Seite */
+      /* Inversion nur auf erster Seite (Start) */
       section[data-anchor='section_start'] .smallLogoContainer img {
         filter: invert(100%);
       }
 
-      /* .projektTitel wird vergrößert */
+      /* Überschrift auf Startseite (größer) */
       .projektTitel {
         font-size: 40px;
         font-weight: bold;
@@ -259,8 +278,8 @@ ui <- fluidPage(
         display: flex;
         align-items: center;
         text-align: justify;
-        gap: 20px; 
-        width: 60%; 
+        gap: 20px;
+        width: 60%;
         margin: auto;
       }
       .meta-info-block img {
@@ -279,23 +298,21 @@ ui <- fluidPage(
         margin: 0 10px;
       }
 
-      /* Mobile Ansicht Meta-Info */
+      /* Mobile Ansicht */
       @media (max-width: 768px) {
+        .iframe-wrapper {
+          top: 6vh;
+        }
+        section[data-anchor='section_adenaueros'] .iframe-wrapper iframe {
+          transform: scale(0.7);
+          transform-origin: top center;
+          width: 143%;
+          height: 143%;
+        }
         .meta-info-block {
           flex-direction: column;
           align-items: flex-start;
           width: 90%;
-        }
-      }
-
-      /* Skalierung für Archiv-Ansicht auf sehr kleinen Screens */
-      @media (max-width: 768px) {
-        .iframe-wrapper {
-          height: auto;
-          margin: 5vh auto;
-        }
-        .iframe-wrapper iframe {
-          height: 60vh;
         }
       }
 
@@ -325,13 +342,15 @@ ui <- fluidPage(
     a(href = "#section_adenaueros",  "Adenauer OS"),
     a(href = "#section_fahndung",    "Fahndung"),
     a(href = "#section_meta",        "Metadaten"),
-    a(href = "#section_zeitreihen",  "Zeitreihen"), 
+    a(href = "#section_zeitreihen",  "Zeitreihen"),
     a(href = "#section_iframeExtra", "Statistiktok"),
     a(href = "#section_hashtag",     "Hashtag"),
     a(href = "#section_medienholen", "Contentschleuder"),
     a(href = "#section_photoarchiv", "Photo-Archiv"),
     a(href = "#section_videoarchiv", "Video-Archiv"),
-    a(href = "#section_reiter2",     "Reiter2")
+    a(href = "#section_reiter2",     "Beweisführung"),
+    a(href = "#section_anheuern",    "Anheuern"),
+    a(href = "#section_impressum",   "Impressum")
   ),
 
   # Haupt-Seiten mit pagePiling
@@ -339,18 +358,20 @@ ui <- fluidPage(
     scrollOverflow = TRUE,
     navigation = FALSE,
     sections.color = c(
-      "#333333", 
-      "#ffffff", 
-      "#cccccc", 
-      "#cccccc", 
-      "#ffffff",
-      "#ffffff", 
-      "#ffffff", 
-      "#ffffff", 
-      "#cccccc", 
-      "#ffffff", 
-      "#ffffff", 
-      "#ffffff"
+      "#f9ceb2",  # Start
+      "#ffffff",  # Einführung
+      "#cccccc",  # Adenauer OS
+      "#cccccc",  # Fahndung
+      "#ffffff",  # Metadaten
+      "#ffffff",  # Zeitreihen
+      "#ffffff",  # Statistiktok
+      "#ffffff",  # Hashtag
+      "#cccccc",  # Contentschleuder
+      "#ffffff",  # Photo-Archiv
+      "#ffffff",  # Video-Archiv
+      "#ffffff",  # Reiter2
+      "#ffffff",  # Anheuern
+      "#ffffff"   # Impressum
     ),
     anchors = c(
       "section_start",
@@ -364,7 +385,9 @@ ui <- fluidPage(
       "section_medienholen",
       "section_photoarchiv",
       "section_videoarchiv",
-      "section_reiter2"
+      "section_reiter2",
+      "section_anheuern",
+      "section_impressum"
     ),
 
     # --- 1) Start ---
@@ -376,7 +399,7 @@ ui <- fluidPage(
         style = "
           position: relative;
           width: 100%;
-          height: calc(100vh - 60px);
+          height: 100%;
           overflow: hidden;
         ",
         id = "logo_projekt",
@@ -389,7 +412,7 @@ ui <- fluidPage(
             top: 25%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: white;
+            color: black;
             margin: 0;
             text-align: center;
             font-size: 42px;
@@ -402,12 +425,12 @@ ui <- fluidPage(
             top: 30%;
             left: 50%;
             transform: translate(-50%, 0);
-            color: white;
+            color: black;
             text-align: center;
             font-size: 24px;
             max-width: 750px;
           ",
-          "Methode zur systematischen Erfassung, Erhaltung und Bewertung von Medien auf Tiktok."
+          "Methode zur systematischen Erfassung, Dokumentation und Analyse von Medien auf Tiktok."
         ),
 
         img(
@@ -427,8 +450,7 @@ ui <- fluidPage(
         class = "smallLogoContainer",
         img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
-    )
-    ,
+    ),
 
     # --- 2) Einführung ---
     pageSection(
@@ -447,7 +469,7 @@ ui <- fluidPage(
       )
     ),
 
-    # --- 3) Adenauer OS ---
+    # --- 3) Adenauer OS (Zoom im iFrame) ---
     pageSection(
       center = FALSE,
       menu   = "section_adenaueros",
@@ -481,43 +503,39 @@ ui <- fluidPage(
       )
     ),
 
-# --- 5) Metadaten ---
-pageSection(
-  center = FALSE,
-  menu   = "section_meta",
-  fluidPage(
-    style = "margin:0; padding:0;",
-    
-    # Überschrift
-    h3("Tricktok Metadaten", style = "text-align:center; margin-top:20px;"),
-    
-    div(
-      class = "meta-info-block",
-      img(
-        src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
-        height = "200px"
+    # --- 5) Metadaten ---
+    pageSection(
+      center = FALSE,
+      menu   = "section_meta",
+      fluidPage(
+        style = "margin:0; padding:0;",
+        h3("Tricktok Metadaten", style = "text-align:center; margin-top:20px;"),
+        div(
+          class = "meta-info-block",
+          img(
+            src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
+            height = "200px"
+          ),
+          div(
+            class = "meta-info-text",
+            p("
+Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Ein Python-Programm übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten verhindert das Risko von IP-Sperrungen des Systemes.
+Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln von Metadaten.
+            ")
+          )
+        ),
+        div(
+          class = "exportButtons",
+          downloadButton("download_links",         "Export Fahndungsliste"),
+          downloadButton("download_metadata",      "Export Medien-Metadaten"),
+          downloadButton("download_timeseries",    "Export Zeitreihen")
+        )
       ),
       div(
-        class = "meta-info-text",
-        p("
-Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen eigene Verbindungen, um massenhaft Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Ein Python-Programm übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten verhindert das Risko von IP-Sperrungen des Systemes. 
-Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln von Metadaten.
-        ")
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
       )
     ),
-    div(
-      class = "exportButtons",
-      downloadButton("download_links",         "Export Fahndungsliste"),
-      downloadButton("download_metadata",      "Export Medien-Metadaten"),
-      downloadButton("download_timeseries",    "Export Zeitreihen")
-    )
-  ),
-  div(
-    class = "smallLogoContainer",
-    img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
-  )
-)
-,
 
     # --- 6) Zeitreihen ---
     pageSection(
@@ -528,7 +546,7 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
         h3("Zeitreihen", style = "text-align:center; margin-top:10px;"),
         div(
           class = "iframe-wrapper",
-          tags$iframe(src = "https://py.afd-verbot.de/zeitreihen/")
+          tags$iframe(src = "https://py.afd-verbot.de/zeitreihen/?uploader=23.02.25afd&video=7471398852642278678")
         )
       ),
       div(
@@ -595,10 +613,9 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       menu   = "section_photoarchiv",
       fluidPage(
         style = "margin:0; padding:0;",
-        h3("Photo-Archiv", style="text-align:center; margin-top:10px;"),
         div(
           class = "iframe-wrapper",
-          tags$iframe(src = "https://tricktok.afd-verbot.de/gallery_feature")
+          tags$iframe(src = "https://py.afd-verbot.de/photoarchiv/")
         )
       ),
       div(
@@ -625,14 +642,50 @@ Live-Monitoring für Reichweiten beliebiger Kanäle durch regelmäßiges Sammeln
       )
     ),
 
-    # --- 12) Reiter2 ---
+    # --- 12) Reiter2 (jetzt mit iFrame) ---
     pageSection(
       center = FALSE,
       menu   = "section_reiter2",
       fluidPage(
         style = "margin:0; padding:0;",
-        h3("Reiter2", style="text-align:center; margin-top:10px;"),
-        fluidRow("Inhalt Reiter 2")
+        div(
+          class = "iframe-wrapper",
+          tags$iframe(src = "https://py.afd-verbot.de/beweise/")
+        )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
+      )
+    ),
+
+    # --- 13) Anheuern (Markdown) ---
+    pageSection(
+      center = FALSE,
+      menu   = "section_anheuern",
+      fluidPage(
+        style = "margin:0; padding:0;",
+        div(
+          class = "markdown-container",
+          includeMarkdown("anheuern.md")
+        )
+      ),
+      div(
+        class = "smallLogoContainer",
+        img(src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg")
+      )
+    ),
+
+    # --- 14) Impressum (Markdown) ---
+    pageSection(
+      center = FALSE,
+      menu   = "section_impressum",
+      fluidPage(
+        style = "margin:0; padding:0;",
+        div(
+          class = "markdown-container",
+          includeMarkdown("impressum.md")
+        )
       ),
       div(
         class = "smallLogoContainer",
@@ -708,7 +761,7 @@ server <- function(input, output, session) {
     }
   )
 
-  # Seitenwechsel (pagePiling)
+  # Button-Logik zum Absenden customMessages -> pagePiling
   observeEvent(input$prev_section, {
     session$sendCustomMessage("pp_moveUp", list())
   })
