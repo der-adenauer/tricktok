@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 wortwolken-generator/appp_baq.R
+tt-R/private_data.csv
 # C extensions
 *.so
 
