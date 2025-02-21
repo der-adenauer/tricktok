@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# Skript zum Einfügen von Metadaten basierend auf Links in einer PostgreSQL-Datenbank
 # Keine Personalpronomen in Kommentaren oder Texten.
-# Dient einer parallelen Verarbeitung mit vielen Clients.
-# Nur INSERT und SELECT nutzen (keine Updates, keine Tabellenanlage).
+# Skript: Metadaten-Crawler für TikTok-ähnliche Links.
+# Verwendet yt-dlp, um Metadaten abzurufen.
+# Neu: existierende Datensätze in media_metadata aktualisieren (inkl. Log-Ausgabe alter/neuer Stats).
+# Schreibt Zeitreihen-Snapshots in media_time_series.
 # Verbindungsdaten aus .env.
-# Logrotation verwenden, damit Logdatei nicht größer als 20 MB wird.
-# Keine weiteren Ausgaben in der Shell, außer einer Begrüßungszeile.
+# Logrotation: maximal ~20 MB pro Logdatei.
+# Parallele Verarbeitung via SELECT ... FOR UPDATE SKIP LOCKED.
 
 import os
 import json
@@ -19,13 +20,13 @@ from datetime import datetime
 from dotenv import load_dotenv
 
 # Begrüßung
-print("=== Start des TrickTok-Insert-Skripts ===")
+print("=== Start des TrickTok-Insert-Skripts (mit Update-Log) ===")
 
-# Log-Setup (RotatingFileHandler, um maximal ~20 MB pro Logdatei zu behalten)
+# Log-Setup (RotatingFileHandler)
 handler = RotatingFileHandler(
     'tiktok_metadata_extraction.log',
     maxBytes=20_000_000,  # 20 MB
-    backupCount=5         # mehrere alte Log-Dateien vorhalten
+    backupCount=5
 )
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
@@ -41,8 +42,7 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASS")
 
-# Verbindungspool einrichten (mindestens 1, maximal z.B. 20 gleichzeitige Verbindungen)
-# connect_timeout etwas höher, um Verbindungsabbrüche abzufangen
+# Verbindungspool einrichten
 try:
     connection_pool = SimpleConnectionPool(
         1, 20,
@@ -51,8 +51,8 @@ try:
         dbname=DB_NAME,
         user=DB_USER,
         password=DB_PASS,
-        connect_timeout=60,             # 60 Sekunden Timeout
-        options='-c statement_timeout=300000'  # 300.000 ms = 5 Minuten
+        connect_timeout=60,               # 60 Sek Timeout
+        options='-c statement_timeout=300000'  # 300k ms = 5 Min
     )
     logging.info("Pool erfolgreich erstellt.")
 except Exception as e:
@@ -80,15 +80,16 @@ def release_connection(conn):
 
 def extract_metadata(url_link):
     """
-    Aufruf von yt-dlp mit '--flat-playlist' und '--dump-single-json'.
-    Rückgabe der Metadaten als Python-Objekt (Dictionary oder None).
+    Aufruf von yt-dlp:
+    --flat-playlist, --dump-single-json
+    Rückgabe: Dict oder None.
     """
     try:
         result = subprocess.run(
             ["yt-dlp", "--flat-playlist", "--dump-single-json", url_link],
             capture_output=True,
             text=True,
-            timeout=120  # Separater Timeout für yt-dlp
+            timeout=120
         )
         if result.returncode == 0:
             data = json.loads(result.stdout)
@@ -104,63 +105,9 @@ def extract_metadata(url_link):
         logging.error("Allgemeiner Fehler bei yt-dlp für '%s': %s", url_link, e)
         return None
 
-def insert_into_media_metadata(cur, video):
+def save_time_series(cur, video):
     """
-    INSERT in media_metadata.
-    Keine Updates, nur Einfügen.
-    Doppelter Primärschlüssel wird ignoriert, wenn id schon existiert.
-    """
-    try:
-        artists_list = video.get("artists", [])
-        if not isinstance(artists_list, list):
-            artists_list = []
-        artists_str = ", ".join(artists_list)
-
-        cur.execute(sql.SQL("""
-            INSERT INTO media_metadata (
-                id, url, title, description, duration,
-                view_count, like_count, repost_count, comment_count,
-                uploader, uploader_id, channel, channel_id,
-                channel_url, track, album, artists,
-                timestamp, extractor
-            )
-            VALUES (
-                %s, %s, %s, %s, %s,
-                %s, %s, %s, %s,
-                %s, %s, %s, %s,
-                %s, %s, %s, %s,
-                %s, %s
-            )
-            ON CONFLICT (id) DO NOTHING
-        """), [
-            video.get("id"),
-            video.get("url"),
-            video.get("title"),
-            video.get("description"),
-            video.get("duration"),
-            video.get("view_count"),
-            video.get("like_count"),
-            video.get("repost_count"),
-            video.get("comment_count"),
-            video.get("uploader"),
-            video.get("uploader_id"),
-            video.get("channel"),
-            video.get("channel_id"),
-            video.get("channel_url"),
-            video.get("track"),
-            video.get("album"),
-            artists_str,
-            video.get("timestamp"),
-            video.get("extractor")
-        ])
-        logging.debug("INSERT in media_metadata für '%s' durchgeführt.", video.get("url"))
-    except Exception as e:
-        logging.error("Fehler beim INSERT in media_metadata für '%s': %s", video.get("url"), e)
-
-def insert_into_media_time_series(cur, video):
-    """
-    INSERT in media_time_series: Snapshots (view_count usw.) speichern.
-    Immer ein neuer Zeileneintrag.
+    Neuer Snapshot in media_time_series.
     """
     try:
         cur.execute(sql.SQL("""
@@ -175,74 +122,194 @@ def insert_into_media_time_series(cur, video):
             video.get("comment_count"),
             datetime.now()
         ])
-        logging.debug("INSERT in media_time_series für '%s' durchgeführt.", video.get("url"))
     except Exception as e:
         logging.error("Fehler beim INSERT in media_time_series für '%s': %s", video.get("url"), e)
+        raise
 
-def process_single_video(cur, video):
+def update_existing_video(cur, existing_data, new_data):
     """
-    Einzelnes Video in media_metadata und media_time_series einfügen.
-    Kein Update für bestehende Datensätze.
+    Existierenden Datensatz in media_metadata aktualisieren.
+    Zeitreihe in media_time_series protokollieren.
+    Log-Ausgabe: alter vs. neuer Wert (Views, Likes, Reposts, Comments).
     """
-    insert_into_media_metadata(cur, video)
-    insert_into_media_time_series(cur, video)
+    try:
+        old_view, old_like, old_repost, old_comment = existing_data
 
-def process_playlist_metadata(conn, playlist):
+        new_view = new_data.get("view_count")
+        new_like = new_data.get("like_count")
+        new_repost = new_data.get("repost_count")
+        new_comment = new_data.get("comment_count")
+
+        diff_msg = (
+            f"URL {new_data.get('url')} Stats-Update:\n"
+            f"  Views:   alt={old_view}   neu={new_view}\n"
+            f"  Likes:   alt={old_like}   neu={new_like}\n"
+            f"  Reposts: alt={old_repost} neu={new_repost}\n"
+            f"  Comments:alt={old_comment} neu={new_comment}"
+        )
+        logging.info(diff_msg)
+
+        cur.execute("""
+            UPDATE media_metadata
+               SET title = %s,
+                   description = %s,
+                   duration = %s,
+                   view_count = %s,
+                   like_count = %s,
+                   repost_count = %s,
+                   comment_count = %s,
+                   uploader = %s,
+                   uploader_id = %s,
+                   channel = %s,
+                   channel_id = %s,
+                   channel_url = %s,
+                   track = %s,
+                   album = %s,
+                   artists = %s,
+                   timestamp = %s,
+                   extractor = %s
+             WHERE url = %s
+        """, (
+            new_data.get("title"),
+            new_data.get("description"),
+            new_data.get("duration"),
+            new_view,
+            new_like,
+            new_repost,
+            new_comment,
+            new_data.get("uploader"),
+            new_data.get("uploader_id"),
+            new_data.get("channel"),
+            new_data.get("channel_id"),
+            new_data.get("channel_url"),
+            new_data.get("track"),
+            new_data.get("album"),
+            ", ".join(new_data.get("artists", []) or []),
+            new_data.get("timestamp"),
+            new_data.get("extractor"),
+            new_data.get("url")
+        ))
+
+        # Zeitreihen-Eintrag
+        save_time_series(cur, new_data)
+    except Exception as e:
+        logging.error("Fehler beim UPDATE in media_metadata für '%s': %s", new_data.get("url"), e)
+        raise
+
+def save_video_metadata(conn, video):
     """
-    playlist kann ein JSON-Objekt mit 'entries' sein.
-    Für jedes Entry INSERTs in media_metadata und media_time_series.
+    Besteht schon? => Update
+    Sonst => Insert
+    + Zeitreihe
     """
-    if not playlist or "entries" not in playlist:
-        logging.debug("Keine 'entries' im JSON gefunden.")
-        return
-    
     cur = conn.cursor()
     try:
-        for video in playlist["entries"]:
-            process_single_video(cur, video)
+        cur.execute("""
+            SELECT view_count, like_count, repost_count, comment_count
+              FROM media_metadata
+             WHERE url = %s
+        """, (video.get("url"),))
+        existing = cur.fetchone()
+
+        if existing:
+            update_existing_video(cur, existing, video)
+        else:
+            # Neuer Datensatz
+            try:
+                artists_list = video.get("artists", [])
+                if not isinstance(artists_list, list):
+                    artists_list = []
+                artists_str = ", ".join(artists_list)
+
+                cur.execute(sql.SQL("""
+                    INSERT INTO media_metadata (
+                        id, url, title, description, duration,
+                        view_count, like_count, repost_count, comment_count,
+                        uploader, uploader_id, channel, channel_id,
+                        channel_url, track, album, artists,
+                        timestamp, extractor
+                    )
+                    VALUES (%s, %s, %s, %s, %s,
+                            %s, %s, %s, %s,
+                            %s, %s, %s, %s,
+                            %s, %s, %s, %s,
+                            %s, %s)
+                """), [
+                    video.get("id"),
+                    video.get("url"),
+                    video.get("title"),
+                    video.get("description"),
+                    video.get("duration"),
+                    video.get("view_count"),
+                    video.get("like_count"),
+                    video.get("repost_count"),
+                    video.get("comment_count"),
+                    video.get("uploader"),
+                    video.get("uploader_id"),
+                    video.get("channel"),
+                    video.get("channel_id"),
+                    video.get("channel_url"),
+                    video.get("track"),
+                    video.get("album"),
+                    artists_str,
+                    video.get("timestamp"),
+                    video.get("extractor")
+                ])
+                logging.info("Neuer Datensatz erstellt für '%s'", video.get("url"))
+                save_time_series(cur, video)
+            except Exception as e:
+                logging.error("Fehler beim INSERT in media_metadata für '%s': %s", video.get("url"), e)
+                raise
     finally:
         cur.close()
 
+def process_playlist_metadata(conn, playlist):
+    """
+    JSON mit 'entries' => Schleife => save_video_metadata()
+    """
+    if not playlist or "entries" not in playlist:
+        logging.debug("Keine 'entries' im JSON.")
+        return
+    for vid in playlist["entries"]:
+        save_video_metadata(conn, vid)
+
 def process_links_with_locking():
     """
-    Links-Tabelle auslesen. ID und URL werden per row-level locking geholt:
-    SELECT ... FOR UPDATE SKIP LOCKED.
-    Nur SELECT und INSERT Rechte erforderlich.
-    Keine UPDATE-Befehle in diesem Skript.
+    Liest links (SELECT ... FOR UPDATE SKIP LOCKED).
+    Für jeden Link => Metadaten abrufen => save_video_metadata()
+    => Commit
     """
     conn = get_connection()
     try:
         cur = conn.cursor()
         cur.execute("""
             SELECT id, url
-            FROM links
-            ORDER BY id
-            FOR UPDATE SKIP LOCKED
+              FROM links
+             ORDER BY id
+             FOR UPDATE SKIP LOCKED
         """)
         rows = cur.fetchall()
-        logging.info("%d Zeilen gelockt. Verarbeitung starten ...", len(rows))
+        logging.info("%d Zeilen gelockt. Verarbeitung startet ...", len(rows))
 
         for (link_id, link_url) in rows:
             logging.info("Verarbeitung: Link ID=%s, URL=%s", link_id, link_url)
             metadata_json = extract_metadata(link_url)
             if metadata_json:
                 process_playlist_metadata(conn, metadata_json)
-                conn.commit()  # Abschließen der Inserts
+                conn.commit()
                 logging.info("Verarbeitung für Link %s abgeschlossen.", link_id)
             else:
                 logging.warning("Keine Metadaten / Fehler für %s", link_url)
-    except Exception as e:
-        logging.error("Fehler in process_links_with_locking: %s", e)
+                # Nach Bedarf: rollback oder weitermachen
     finally:
         cur.close()
         release_connection(conn)
         logging.info("Fertig mit dem locked-Durchlauf.")
 
 def main():
-    logging.info("Start von main() im TrickTok-Insert-Skript.")
-    # init_db() entfernt, da keine Tabellenerzeugung erwünscht.
+    logging.info("Start von main() im TrickTok-Insert-Skript (mit Updates).")
     process_links_with_locking()
-    logging.info("Beendigung von main().")
+    logging.info("Ende von main().")
 
 if __name__ == "__main__":
     main()
