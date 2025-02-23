@@ -61,6 +61,9 @@ function restoreAllWindowsPointerEvents() {
   });
 }
 
+// ------------------------------------------------------------
+// Vorhandene Templates
+// ------------------------------------------------------------
 const template2 = `
 <div class="window modal-window" data-win="win2" style="width:400px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -334,7 +337,7 @@ const template24 = `
 </div>
 `;
 
-/* Neues Template für die Beweisführung (window18) */
+/* Beweisführung (window18) */
 const template18 = `
 <div class="window modal-window" data-win="win18" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -347,6 +350,22 @@ const template18 = `
 </div>
 `;
 
+/* NEUES TEMPLATE für Contentschleuder (window25) */
+const template25 = `
+<div class="window modal-window" data-win="win25" style="width:1000px; height:700px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Contentschleuder</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
+    <iframe src="https://py.afd-verbot.de/bilderwerfer" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+// ------------------------------------------------------------
+// Funktion zum Erzeugen von Fenstern
+// ------------------------------------------------------------
 function createWindow(template, windowKey) {
   if (openedWindows[windowKey]) {
     const existingWin = document.querySelector(`.modal-window[data-win="${windowKey}"]`);
@@ -443,6 +462,9 @@ function createWindow(template, windowKey) {
   modalContainer.appendChild(modalEl);
 }
 
+// ------------------------------------------------------------
+// Drag & Drop
+// ------------------------------------------------------------
 function makeDraggable(windowEl, windowKey) {
   const titleBar = windowEl.querySelector('.title-bar');
   const gridSize = 10;
@@ -563,6 +585,9 @@ function loadWindowState() {
   }
 }
 
+// ------------------------------------------------------------
+// Zuordnung der Templates zu Window-Keys
+// ------------------------------------------------------------
 function getTemplate(key) {
   switch (key) {
     case 'window1':  return template1;
@@ -584,12 +609,16 @@ function getTemplate(key) {
     case 'window22': return template22;
     case 'window23': return template23;
     case 'window24': return template24;
-    case 'window18': return template18; // Neu für Beweisführung
+    case 'window18': return template18;
+    case 'window25': return template25; // NEUER EINTRAG
     default:
       return template4; 
   }
 }
 
+// ------------------------------------------------------------
+// Initialisierung
+// ------------------------------------------------------------
 const modalContainer = document.getElementById('modalContainer');
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -723,11 +752,19 @@ if (icon17) {
   });
 }
 
-/* Neues Icon #18 => Fenster window18 */
+/* Beweisführung (window18) */
 const icon18 = document.getElementById('icon18');
 if (icon18) {
   icon18.addEventListener('click', () => {
     createWindow(getTemplate('window18'), 'window18');
+  });
+}
+
+// NEUES ICON #19 -> Öffnet window25 (Bilderwerfer)
+const icon19 = document.getElementById('icon19');
+if (icon19) {
+  icon19.addEventListener('click', () => {
+    createWindow(getTemplate('window25'), 'window25');
   });
 }
 
