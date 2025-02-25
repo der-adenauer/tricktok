@@ -13,6 +13,7 @@ library(stringr)
 library(tidyr)
 library(lubridate)
 library(dotenv)
+library(DT)    # Für die dynamische Tabelle
 
 # ------------------------------------------------------------------
 # 1) Laden der Umgebungsvariablen und Datenbank-Verbindung herstellen
@@ -34,20 +35,19 @@ dbDisconnect(con)
 # ------------------------------------------------------------------
 # 2) Hilfsfunktionen
 # ------------------------------------------------------------------
-
 get_total_duration_text <- function(df) {
-  total_seconds <- sum(df$duration, na.rm=TRUE)
-  days    <- total_seconds %/% (24*3600)
-  hours   <- (total_seconds %% (24*3600)) %/% 3600
+  total_seconds <- sum(df$duration, na.rm = TRUE)
+  days    <- total_seconds %/% (24 * 3600)
+  hours   <- (total_seconds %% (24 * 3600)) %/% 3600
   minutes <- (total_seconds %% 3600) %/% 60
   seconds <- (total_seconds %% 60)
 
   paste0(
     "<h2 style='font-weight:bold; font-size:20px;'>Videogesamtdauer</h2>",
     "<p style='font-size:16px; font-weight:bold;'>Sekunden gesamt: ",
-      format(total_seconds, big.mark=","), "</p>",
+    format(total_seconds, big.mark = ","), "</p>",
     "<p style='font-size:16px; font-weight:bold;'>",
-      days, " Tage, ", hours, " Stunden, ", minutes, " Minuten, ", seconds, " Sekunden</p>"
+    days, " Tage, ", hours, " Stunden, ", minutes, " Minuten, ", seconds, " Sekunden</p>"
   )
 }
 
@@ -60,22 +60,22 @@ get_duration_counts <- function(df) {
 }
 
 get_channel_agg_long <- function(df) {
-  cols <- c("view_count","like_count","repost_count","comment_count")
+  cols <- c("view_count", "like_count", "repost_count", "comment_count")
   df_agg <- df %>%
     group_by(channel, uploader) %>%
     summarise(
-      view_count    = sum(view_count, na.rm=TRUE),
-      like_count    = sum(like_count, na.rm=TRUE),
-      repost_count  = sum(repost_count, na.rm=TRUE),
-      comment_count = sum(comment_count, na.rm=TRUE),
-      .groups="drop"
+      view_count    = sum(view_count, na.rm = TRUE),
+      like_count    = sum(like_count, na.rm = TRUE),
+      repost_count  = sum(repost_count, na.rm = TRUE),
+      comment_count = sum(comment_count, na.rm = TRUE),
+      .groups = "drop"
     )
 
-  pivot_longer(df_agg, cols = all_of(cols), names_to="metric", values_to="value")
+  pivot_longer(df_agg, cols = all_of(cols), names_to = "metric", values_to = "value")
 }
 
 top_50_by_metric <- function(df_long) {
-  cols <- c("view_count","like_count","repost_count","comment_count")
+  cols <- c("view_count", "like_count", "repost_count", "comment_count")
   out_list <- lapply(cols, function(m) {
     df_sub <- df_long %>% filter(metric == m)
     df_sub %>% arrange(desc(value)) %>% slice_head(n = 50)
@@ -84,32 +84,37 @@ top_50_by_metric <- function(df_long) {
 }
 
 top_88_videos <- function(df, metric) {
-  if(! metric %in% c("view_count","like_count","repost_count","comment_count")) {
+  if (!metric %in% c("view_count", "like_count", "repost_count", "comment_count")) {
     metric <- "view_count"
   }
   df_sorted <- df %>% arrange(desc(.data[[metric]]))
   df_top <- head(df_sorted, 88)
+
+  # Doppelte Labels vermeiden
   df_top$video_label <- paste0(
     df_top$uploader, " (",
     str_sub(df_top$title, 1, 30),
     if_else(nchar(df_top$title) > 30, "...", ""), ")"
   )
+  df_top$video_label <- make.unique(df_top$video_label)
+
   df_top
 }
 
+# Für das Tages-Aggregat: day + year + uploader + count
 get_daily_uploads <- function(df) {
-  if(!"timestamp" %in% names(df)) {
+  if (!"timestamp" %in% names(df)) {
     return(NULL)
   }
   # BIGINT-Werte in numerische Sekunden umwandeln
-  df$timestamp  <- as.numeric(df$timestamp)  
-  df$datetime   <- as.POSIXct(df$timestamp, origin="1970-01-01", tz="UTC")
-  df$day        <- floor_date(df$datetime, "day")
-  df$year       <- year(df$datetime)
+  df$timestamp <- as.numeric(df$timestamp)
+  df$datetime  <- as.POSIXct(df$timestamp, origin = "1970-01-01", tz = "UTC")
+  df$day       <- floor_date(df$datetime, "day")
+  df$year      <- year(df$datetime)
 
   df %>%
-    group_by(year, day, uploader, channel_url) %>%
-    summarise(count = n(), .groups="drop")
+    group_by(year, day, uploader) %>%
+    summarise(count = n(), .groups = "drop")
 }
 
 # ------------------------------------------------------------------
@@ -122,10 +127,16 @@ ui <- fluidPage(
         max-width: 1200px;
         margin: 0 auto;
       }
+      .toggle-legend-btn {
+        margin-bottom: 10px;
+      }
     "))
   ),
 
   titlePanel("Statistiktok"),
+
+  # Button für Legenden-Umschaltung
+  actionButton("toggleLegend", "Legende ein-/ausblenden", class = "toggle-legend-btn"),
 
   navset_pill(
     nav_panel(
@@ -138,39 +149,39 @@ ui <- fluidPage(
       "Videolänge",
       fluidPage(
         htmlOutput("totalDurationHTML"),
-        plotlyOutput("durationPlotShort", height="300px"),
-        plotlyOutput("durationPlotLong",  height="300px")
+        plotlyOutput("durationPlotShort", height = "300px"),
+        plotlyOutput("durationPlotLong",  height = "300px")
       )
     ),
     nav_panel(
       "Channels Top 50",
       fluidPage(
         h4("Vier Balkendiagramme, je Metrik"),
-        plotlyOutput("channelsPlotView",    height="300px"),
-        plotlyOutput("channelsPlotLike",    height="300px"),
-        plotlyOutput("channelsPlotRepost",  height="300px"),
-        plotlyOutput("channelsPlotComment", height="300px")
+        plotlyOutput("channelsPlotView",    height = "300px"),
+        plotlyOutput("channelsPlotLike",    height = "300px"),
+        plotlyOutput("channelsPlotRepost",  height = "300px"),
+        plotlyOutput("channelsPlotComment", height = "300px")
       )
     ),
     nav_panel(
       "Top 88 Videos",
       fluidPage(
         radioButtons(
-          "radioMetric", 
+          "radioMetric",
           "Metrik wählen:",
-          choices=c(
+          choices = c(
             "Aufrufe (Views)"       = "view_count",
             "Likes (Likes)"         = "like_count",
             "Geteilt (Shares)"      = "repost_count",
             "Kommentare (Comments)" = "comment_count"
           ),
-          selected="view_count",
-          inline=TRUE
+          selected = "view_count",
+          inline   = TRUE
         ),
-        plotlyOutput("top88Plot", height="1200px")
+        plotlyOutput("top88Plot", height = "1200px")
       )
     ),
-    id="main_nav"
+    id = "main_nav"
   )
 )
 
@@ -179,6 +190,13 @@ ui <- fluidPage(
 # ------------------------------------------------------------------
 server <- function(input, output, session) {
 
+  # Reaktiver Wert für Legenden-Umschaltung
+  legendVisible <- reactiveVal(FALSE)
+
+  observeEvent(input$toggleLegend, {
+    legendVisible(!legendVisible())
+  })
+
   # --------------------------------------------------------------
   # Veröffentlichungen pro Tag/Jahr
   # --------------------------------------------------------------
@@ -186,48 +204,52 @@ server <- function(input, output, session) {
     df_counts <- get_daily_uploads(df)
     validate(need(!is.null(df_counts), "Keine 'timestamp'-Spalte in den Daten."))
 
-    df_sums <- df_counts %>%
-      group_by(year, day, uploader) %>%
-      summarise(count = sum(count), .groups="drop")
+    validate(need(nrow(df_counts) > 0, "Keine Daten."))
+    years <- sort(unique(df_counts$year), decreasing = TRUE)
 
-    validate(need(nrow(df_sums) > 0, "Keine Daten."))
-
-    years <- sort(unique(df_sums$year), decreasing=TRUE)
-
+    # Dynamisch für jedes Jahr einen Tab
     tabs <- lapply(years, function(yr) {
-      plotOutputID <- paste0("publishPlot", yr)
+      plotID   <- paste0("publishPlot",  yr)
+      labelID  <- paste0("publishLabel", yr)  # Hier neu: Label über der Tabelle
+      tableID  <- paste0("publishTable", yr)
+
       tabPanel(
         title = paste(yr),
-        plotlyOutput(plotOutputID, height="450px")
+        plotlyOutput(plotID,  height = "450px"),
+        # Text-Anzeige (uploader & day), gerendert per HTML
+        htmlOutput(labelID),
+        DTOutput(tableID)
       )
     })
 
     do.call(navset_pill, tabs)
   })
 
+  # Beim Laden und bei Änderungen die Plots/Tables rendern
   observe({
     df_counts <- get_daily_uploads(df)
     validate(need(!is.null(df_counts), "Keine 'timestamp'-Spalte in den Daten."))
+    validate(need(nrow(df_counts) > 0, "Keine Daten."))
 
-    df_sums <- df_counts %>%
-      group_by(year, day, uploader) %>%
-      summarise(count = sum(count), .groups="drop")
-
-    validate(need(nrow(df_sums) > 0, "Keine Daten."))
-
-    years <- sort(unique(df_sums$year), decreasing=TRUE)
+    years <- sort(unique(df_counts$year), decreasing = TRUE)
 
     for (yr in years) {
       local({
         current_year <- yr
-        plotOutputID <- paste0("publishPlot", current_year)
+        plotID  <- paste0("publishPlot",  yr)
+        labelID <- paste0("publishLabel", yr)
+        tableID <- paste0("publishTable", yr)
 
-        output[[plotOutputID]] <- renderPlotly({
-          df_filtered <- df_sums %>% filter(year == current_year)
+        # Plot-Rendering
+        output[[plotID]] <- renderPlotly({
+          # Nur Daten für das aktuelle Jahr
+          df_filtered <- df_counts %>% filter(year == current_year)
+
           gg <- ggplot(df_filtered, aes(x = day, y = count)) +
             geom_col(
               aes(
                 fill = uploader,
+                key  = paste(uploader, day, sep = "###"),  # Key = "uploader###YYYY-MM-DD"
                 text = paste0(
                   "Datum: ", day, "\n",
                   "Uploader: ", uploader, "\n",
@@ -235,7 +257,7 @@ server <- function(input, output, session) {
                 )
               ),
               position = "stack",
-              show.legend = FALSE
+              show.legend = TRUE
             ) +
             labs(
               x = "Datum",
@@ -244,11 +266,90 @@ server <- function(input, output, session) {
             ) +
             theme_minimal() +
             theme(
-              plot.title = element_text(size=18, face="bold"),
-              axis.title = element_text(size=14, face="bold"),
-              axis.text  = element_text(size=12, face="bold")
+              plot.title = element_text(size = 18, face = "bold"),
+              axis.title = element_text(size = 14, face = "bold"),
+              axis.text  = element_text(size = 12, face = "bold")
             )
-          ggplotly(gg, tooltip="text")
+
+          ggplotly(gg, tooltip = "text", source = plotID) %>%
+            layout(showlegend = legendVisible())
+        })
+
+        # Klick-Ereignis verarbeiten
+        observeEvent(event_data("plotly_click", source = plotID), {
+          cd <- event_data("plotly_click", source = plotID)
+          req(cd)
+
+          # Zerlege Key in [uploader, day]
+          key_parts <- strsplit(cd$key, "###")[[1]]
+          if (length(key_parts) != 2) {
+            return(NULL)
+          }
+
+          clicked_uploader <- key_parts[1]
+          clicked_day_str   <- key_parts[2]
+          clicked_day       <- as.Date(clicked_day_str)
+
+          # Label über der Tabelle setzen (Uploader & Tag)
+          output[[labelID]] <- renderUI({
+            HTML(sprintf("<h4>Uploader: %s<br/>Tag: %s</h4>",
+                         clicked_uploader, clicked_day))
+          })
+
+          # Haupt-DF filtern
+          selected_data <- df %>%
+            mutate(
+              timestamp_num = as.numeric(timestamp),
+              datetime      = as.POSIXct(timestamp_num, origin = "1970-01-01", tz = "UTC"),
+              day           = as.Date(floor_date(datetime, "day"))
+            ) %>%
+            filter(
+              day == clicked_day,
+              uploader == clicked_uploader
+            ) %>%
+            # uploader & day entfernen wir aus der Anzeige:
+            select(
+              Datum = datetime,
+              id,
+              url,
+              title,
+              timestamp,
+              view_count,
+              like_count,
+              repost_count,
+              comment_count
+            )
+
+          # Tabelle aktualisieren
+          output[[tableID]] <- renderDT({
+            if (nrow(selected_data) == 0) {
+              datatable(
+                data.frame(Hinweis = "Keine Einträge gefunden."),
+                options = list(dom = "t"),
+                rownames = FALSE
+              )
+            } else {
+              datatable(
+                selected_data,
+                options = list(pageLength = 5),
+                rownames = FALSE
+              )
+            }
+          })
+        })
+
+        # Initial: leere Info (und leeres Label)
+        output[[labelID]] <- renderUI({
+          HTML("<h4>Bitte auf einen Teilbalken klicken.</h4>")
+        })
+        output[[tableID]] <- renderDT({
+          datatable(
+            data.frame(
+              Hinweis = "Noch keine Daten ausgewählt."
+            ),
+            options = list(dom = "t"),
+            rownames = FALSE
+          )
         })
       })
     }
@@ -267,7 +368,7 @@ server <- function(input, output, session) {
     validate(need(nrow(short_df) > 0, "Keine Videos <= 90s gefunden."))
 
     gg <- ggplot(short_df, aes(x = duration, y = n)) +
-      geom_col(fill="lightcoral") +
+      geom_col(fill = "lightcoral") +
       labs(
         x = "Dauer in Sekunden (0–90)",
         y = "Anzahl Videos",
@@ -275,12 +376,13 @@ server <- function(input, output, session) {
       ) +
       theme_minimal() +
       theme(
-        plot.title = element_text(size=20, face="bold"),
-        axis.title = element_text(size=14, face="bold"),
-        axis.text  = element_text(size=12, face="bold")
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text  = element_text(size = 12, face = "bold")
       )
 
-    ggplotly(gg)
+    ggplotly(gg) %>%
+      layout(showlegend = legendVisible())
   })
 
   output$durationPlotLong <- renderPlotly({
@@ -290,7 +392,7 @@ server <- function(input, output, session) {
 
     max_dur <- max(long_df$duration)
     gg <- ggplot(long_df, aes(x = duration, y = n)) +
-      geom_col(fill="lightcoral") +
+      geom_col(fill = "lightcoral") +
       labs(
         x = paste0("Dauer in Sekunden (91–", max_dur, ")"),
         y = "Anzahl Videos",
@@ -298,12 +400,13 @@ server <- function(input, output, session) {
       ) +
       theme_minimal() +
       theme(
-        plot.title = element_text(size=20, face="bold"),
-        axis.title = element_text(size=14, face="bold"),
-        axis.text  = element_text(size=12, face="bold")
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text  = element_text(size = 12, face = "bold")
       )
 
-    ggplotly(gg)
+    ggplotly(gg) %>%
+      layout(showlegend = legendVisible())
   })
 
   # --------------------------------------------------------------
@@ -330,9 +433,9 @@ server <- function(input, output, session) {
             metric_label, ": ", comma(value)
           )
         ),
-        show.legend = FALSE
+        show.legend = TRUE
       ) +
-      scale_y_continuous(labels=label_number(scale=1/1000, suffix="k")) +
+      scale_y_continuous(labels = label_number(scale = 1/1000, suffix = "k")) +
       labs(
         x = "Channel",
         y = metric_label,
@@ -340,10 +443,10 @@ server <- function(input, output, session) {
       ) +
       theme_minimal() +
       theme(
-        plot.title  = element_text(size=20, face="bold"),
-        axis.title  = element_text(size=14, face="bold"),
-        axis.text.x = element_text(size=8,  face="bold", angle=45, hjust=1),
-        axis.text.y = element_text(size=10, face="bold")
+        plot.title  = element_text(size = 20, face = "bold"),
+        axis.title  = element_text(size = 14, face = "bold"),
+        axis.text.x = element_text(size = 8,  face = "bold", angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 10, face = "bold")
       )
 
     gg
@@ -354,7 +457,8 @@ server <- function(input, output, session) {
     sub <- dd %>% filter(metric == "view_count")
     validate(need(nrow(sub) > 0, "Keine Daten für Aufrufe (Views)."))
     gg <- make_channel_barplot(sub, "Aufrufe (Views)")
-    ggplotly(gg, tooltip="text")
+    ggplotly(gg, tooltip = "text") %>%
+      layout(showlegend = legendVisible())
   })
 
   output$channelsPlotLike <- renderPlotly({
@@ -362,7 +466,8 @@ server <- function(input, output, session) {
     sub <- dd %>% filter(metric == "like_count")
     validate(need(nrow(sub) > 0, "Keine Daten für Likes (Likes)."))
     gg <- make_channel_barplot(sub, "Likes (Likes)")
-    ggplotly(gg, tooltip="text")
+    ggplotly(gg, tooltip = "text") %>%
+      layout(showlegend = legendVisible())
   })
 
   output$channelsPlotRepost <- renderPlotly({
@@ -370,7 +475,8 @@ server <- function(input, output, session) {
     sub <- dd %>% filter(metric == "repost_count")
     validate(need(nrow(sub) > 0, "Keine Daten für Geteilt (Shares)."))
     gg <- make_channel_barplot(sub, "Geteilt (Shares)")
-    ggplotly(gg, tooltip="text")
+    ggplotly(gg, tooltip = "text") %>%
+      layout(showlegend = legendVisible())
   })
 
   output$channelsPlotComment <- renderPlotly({
@@ -378,7 +484,8 @@ server <- function(input, output, session) {
     sub <- dd %>% filter(metric == "comment_count")
     validate(need(nrow(sub) > 0, "Keine Daten für Kommentare (Comments)."))
     gg <- make_channel_barplot(sub, "Kommentare (Comments)")
-    ggplotly(gg, tooltip="text")
+    ggplotly(gg, tooltip = "text") %>%
+      layout(showlegend = legendVisible())
   })
 
   # --------------------------------------------------------------
@@ -390,8 +497,12 @@ server <- function(input, output, session) {
     validate(need(nrow(df_top) > 0, "Keine Videos vorhanden."))
 
     df_top <- df_top %>% arrange(desc(.data[[met]]))
-    df_top$video_label <- as.character(df_top$video_label)
-    df_top$video_label <- factor(df_top$video_label, levels=rev(df_top$video_label))
+
+    # Doppelte Levels vermeiden
+    df_top$video_label <- factor(
+      df_top$video_label,
+      levels = rev(unique(df_top$video_label))
+    )
 
     metric_label <- switch(
       met,
@@ -414,10 +525,10 @@ server <- function(input, output, session) {
             metric_label, ": ", comma(.data[[met]])
           )
         ),
-        alpha=0.7,
-        show.legend=FALSE
+        alpha = 0.7,
+        show.legend = TRUE
       ) +
-      scale_x_continuous(labels=label_number(scale=1/1000, suffix="k")) +
+      scale_x_continuous(labels = label_number(scale = 1/1000, suffix = "k")) +
       labs(
         x = metric_label,
         y = "(Uploader & gekürzter Titel)",
@@ -425,12 +536,13 @@ server <- function(input, output, session) {
       ) +
       theme_minimal() +
       theme(
-        plot.title = element_text(size=20, face="bold"),
-        axis.title = element_text(size=14, face="bold"),
-        axis.text  = element_text(size=12, face="bold")
+        plot.title = element_text(size = 20, face = "bold"),
+        axis.title = element_text(size = 14, face = "bold"),
+        axis.text  = element_text(size = 12, face = "bold")
       )
 
-    ggplotly(gg, tooltip="text")
+    ggplotly(gg, tooltip = "text") %>%
+      layout(showlegend = legendVisible())
   })
 }
 

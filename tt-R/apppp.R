@@ -1,5 +1,3 @@
-
-
 library(shiny)
 library(DBI)
 library(RPostgres)
@@ -11,7 +9,7 @@ library(dotenv)
 # .env laden
 load_dot_env(".env")
 
-# Gemeinsamer Pool
+# Gemeinsamer Pool (PostgreSQL-Verbindung)
 db_pool <- dbPool(
   drv      = RPostgres::Postgres(),
   host     = Sys.getenv("DB_HOST"),
@@ -21,7 +19,7 @@ db_pool <- dbPool(
   password = Sys.getenv("DB_PASS")
 )
 
-# Hilfsfunktion für saubere Strings
+# Hilfsfunktion zur Konvertierung potenziell leerer/NA-Werte
 safe_str <- function(x) {
   if (is.null(x)) return("")
   if (length(x) == 0) return("")
@@ -35,7 +33,7 @@ ui <- fluidPage(
   titlePanel("Tricktok Photo-Archiv"),
   
   fluidRow(
-    column(width = 3, textInput("search", "Suchbegriff eingeben")),
+    column(width = 3, textInput("search", "Suchbegriff (ID/Titel/OCR)")),
     column(width = 1, actionButton("go", "Suchen", class = "btn-primary", style = "margin-top:25px;")),
     column(width = 3, dateRangeInput("dateRange", "Zeitraum (Timestamp)",
                                      start = NA, end = NA,
@@ -101,18 +99,18 @@ server <- function(input, output, session) {
     updateDateRangeInput(session, "dateRange", start = NA, end = NA)
   })
   
-  # Ablage roher Daten (inkl. numeric-Spalten)
+  # Rohe Daten (inkl. numerischer Hilfsspalten)
   rawData <- reactiveVal(data.frame())
   
-  # End-Datatable => nur row_html
+  # End-DT => row_html
   tableData <- reactiveVal(data.frame(row_html=character(0)))
   
-  # Aktualisierung von tableData() => nur row_html
+  # Hilfsfunktion: row_html in tableData() aktualisieren
   updateTable <- function(df) {
     tableData(data.frame(row_html = df$row_html))
   }
   
-  # row_html + numeric
+  # Datensätze um Bild/Audio-HTML etc. anreichern
   buildRowHTML <- function(df) {
     df <- df %>%
       rowwise() %>%
@@ -198,6 +196,7 @@ server <- function(input, output, session) {
       ) %>%
       ungroup()
     
+    # Numerische Sortierspalten
     df$Views    <- suppressWarnings(as.numeric(df$view_count))
     df$Likes    <- suppressWarnings(as.numeric(df$like_count))
     df$Reposts  <- suppressWarnings(as.numeric(df$repost_count))
@@ -206,80 +205,72 @@ server <- function(input, output, session) {
     df
   }
   
-  # Initialer Zufalls-Ladevorgang, once=TRUE
+  # Initial: Zufallsliste laden
   observeEvent(TRUE, {
     isolate({
       loadRandom()
     })
   }, once=TRUE)
   
-  # "Suchen"-Knopf
+  # Such-Button
   observeEvent(input$go, {
     doSearch()
   })
   
-  # Sortier-Buttons
+  # Sortierer
   observeEvent(input$sortViewsAsc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Views, decreasing=FALSE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   observeEvent(input$sortViewsDesc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Views, decreasing=TRUE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   
   observeEvent(input$sortLikesAsc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Likes, decreasing=FALSE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   observeEvent(input$sortLikesDesc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Likes, decreasing=TRUE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   
   observeEvent(input$sortRepostsAsc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Reposts, decreasing=FALSE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   observeEvent(input$sortRepostsDesc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Reposts, decreasing=TRUE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   
   observeEvent(input$sortComAsc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Comments, decreasing=FALSE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   observeEvent(input$sortComDesc, {
     df <- rawData()
-    if(nrow(df)==0)return()
+    if(nrow(df)==0) return()
     df <- df[order(df$Comments, decreasing=TRUE),]
-    rawData(df)
-    updateTable(df)
+    rawData(df); updateTable(df)
   })
   
-  # DataTable
+  # Tabelle mit Pagination oben UND unten => dom-Einstellung
   output$ergebnisTabelle <- renderDT({
     datatable(
       tableData(),
@@ -288,7 +279,8 @@ server <- function(input, output, session) {
         pageLength = 10,
         lengthMenu = list(c(10,25,50,1000),
                           c('10','25','50','1000')),
-        scrollX = TRUE
+        scrollX = TRUE,
+        dom = '<"top"lpf>rt<"bottom"ip><"clear">'  # Pagination, Filter usw. auch oben
       ),
       rownames = FALSE
     )
@@ -329,27 +321,32 @@ server <- function(input, output, session) {
       warning("DB Fehler (Zufall): ", e$message)
       data.frame()
     })
+    
     if(nrow(df)==0){
       tableData(data.frame(row_html="Keine Zufalls-Einträge."))
       rawData(data.frame())
       return()
     }
+    
     needed <- c("p_id","p_url","p_uploader","p_track","p_title","p_ocr_text",
                 "p_public_links","p_timestamp","p_description","p_duration",
                 "view_count","like_count","repost_count","comment_count")
     for(sp in needed) {
-      if(!sp %in% names(df)){ df[[sp]]<-"" } else {
-        df[[sp]]<-as.character(df[[sp]])
+      if(!sp %in% names(df)) {
+        df[[sp]] <- ""
+      } else {
+        df[[sp]] <- as.character(df[[sp]])
       }
     }
     
+    # Zeitstempelformatierung
     nts <- suppressWarnings(as.numeric(df$p_timestamp))
     hts <- rep("", nrow(df))
     i_ok <- which(!is.na(nts))
     if(length(i_ok)>0){
-      hts[i_ok] <- format(as.POSIXct(nts[i_ok], origin="1970-01-01"),"%Y-%m-%d %H:%M:%S")
+      hts[i_ok] <- format(as.POSIXct(nts[i_ok], origin="1970-01-01"), "%Y-%m-%d %H:%M:%S")
     }
-    i_str <- which(is.na(nts)&nzchar(df$p_timestamp))
+    i_str <- which(is.na(nts) & nzchar(df$p_timestamp))
     if(length(i_str)>0){
       hts[i_str] <- df$p_timestamp[i_str]
     }
@@ -360,12 +357,13 @@ server <- function(input, output, session) {
     updateTable(df)
   }
   
-  # Such-Funktion
+  # Such-Funktion (inkl. ID-Suche)
   doSearch <- function() {
     sb <- paste0("%", input$search, "%")
     up <- input$uploader
     dr <- input$dateRange
     
+    # Sucht ID, title oder OCR
     baseQuery <- "
       WITH combined AS (
         SELECT
@@ -388,22 +386,21 @@ server <- function(input, output, session) {
       )
       SELECT *
       FROM combined
-      WHERE (p_title ILIKE $1 OR p_ocr_text ILIKE $1)
+      WHERE (
+          p_id::text ILIKE $1
+          OR p_title ILIKE $1
+          OR p_ocr_text ILIKE $1
+      )
     "
     paramList <- list(sb)
     idx <- 1
     
-    # Datum
-    valStart <- FALSE
-    valEnd   <- FALSE
+    # Datumsfilter
     if(!all(is.na(dr))){
       st <- try(as.numeric(as.POSIXct(dr[1])), silent=TRUE)
       ed <- try(as.numeric(as.POSIXct(dr[2]))+86400-1, silent=TRUE)
       if(!inherits(st,"try-error") && !is.na(st) &&
          !inherits(ed,"try-error") && !is.na(ed)) {
-        valStart <- TRUE; valEnd <- TRUE
-      }
-      if(valStart && valEnd){
         baseQuery <- paste0(baseQuery," AND p_timestamp >= $",idx+1," AND p_timestamp <= $",idx+2)
         paramList[[idx+1]] <- st
         paramList[[idx+2]] <- ed
@@ -411,9 +408,10 @@ server <- function(input, output, session) {
       }
     }
     
+    # Uploader-Filter
     if(!is.null(up) && up!="Alle"){
-      baseQuery<-paste0(baseQuery," AND p_uploader = $",idx+1)
-      paramList[[idx+1]]<-up
+      baseQuery <- paste0(baseQuery," AND p_uploader = $",idx+1)
+      paramList[[idx+1]] <- up
       idx<-idx+1
     }
     
@@ -425,6 +423,7 @@ server <- function(input, output, session) {
       warning("DB Fehler (Search): ", e$message)
       data.frame()
     })
+    
     if(nrow(df)==0){
       tableData(data.frame(row_html="Keine Einträge gefunden."))
       rawData(data.frame())
@@ -435,10 +434,14 @@ server <- function(input, output, session) {
                 "p_public_links","p_timestamp","p_description","p_duration",
                 "view_count","like_count","repost_count","comment_count")
     for(sp in needed){
-      if(!sp %in% names(df)){ df[[sp]]<-"" } else {
+      if(!sp %in% names(df)){ 
+        df[[sp]]<-"" 
+      } else {
         df[[sp]]<-as.character(df[[sp]])
       }
     }
+    
+    # Zeitstempelkonvertierung
     nts <- suppressWarnings(as.numeric(df$p_timestamp))
     hts <- rep("", nrow(df))
     i_ok <- which(!is.na(nts))

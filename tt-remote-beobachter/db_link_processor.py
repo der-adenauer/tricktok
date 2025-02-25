@@ -1,10 +1,12 @@
 import os
 import psycopg2
 from psycopg2 import sql
+from psycopg2.extras import DictCursor
 from dotenv import load_dotenv
 import logging
 import subprocess
 import json
+import random
 from datetime import datetime
 
 logging.basicConfig(
@@ -35,6 +37,7 @@ def get_connection():
 def init_db():
     """
     Tabellen links, media_metadata und media_time_series erstellen (sofern nicht vorhanden).
+    Namen und Strukturen bleiben unverändert.
     """
     conn = get_connection()
     cur = conn.cursor()
@@ -115,7 +118,7 @@ def extract_metadata(url):
 def save_time_series(conn, video):
     """
     Eintrag in 'media_time_series' vorbereiten (aktueller Stats-Snapshot).
-    Kein Commit, damit mehrere Inserts gesammelt werden können.
+    Keine Umbenennung oder Strukturänderung.
     """
     cur = conn.cursor()
     try:
@@ -138,6 +141,7 @@ def update_existing_video(conn, existing_data, new_data):
     """
     Vorhandenen Datensatz in 'media_metadata' aktualisieren
     und Eintrag in 'media_time_series' anlegen.
+    Struktur unverändert.
     """
     cur = conn.cursor()
     try:
@@ -210,6 +214,7 @@ def save_video_metadata(conn, video):
     Prüft, ob das Video in 'media_metadata' existiert. 
     Falls nein: neuer Datensatz. Falls ja: Update.
     In beiden Fällen Zeitreihen-Eintrag anlegen.
+    Keine Strukturänderung.
     """
     cur = conn.cursor()
     try:
@@ -223,7 +228,7 @@ def save_video_metadata(conn, video):
         if existing:
             update_existing_video(conn, existing, video)
         else:
-            # Neuer Eintrag
+            # Neuer Eintrag mit ON CONFLICT (id) verhindert Duplicate-Key-Abbruch
             try:
                 cur.execute("""
                     INSERT INTO media_metadata (
@@ -236,6 +241,26 @@ def save_video_metadata(conn, video):
                               %s, %s, %s, %s,
                               %s, %s, %s, %s,
                               %s, %s)
+                    ON CONFLICT (id)
+                    DO UPDATE
+                    SET url = EXCLUDED.url,
+                        title = EXCLUDED.title,
+                        description = EXCLUDED.description,
+                        duration = EXCLUDED.duration,
+                        view_count = EXCLUDED.view_count,
+                        like_count = EXCLUDED.like_count,
+                        repost_count = EXCLUDED.repost_count,
+                        comment_count = EXCLUDED.comment_count,
+                        uploader = EXCLUDED.uploader,
+                        uploader_id = EXCLUDED.uploader_id,
+                        channel = EXCLUDED.channel,
+                        channel_id = EXCLUDED.channel_id,
+                        channel_url = EXCLUDED.channel_url,
+                        track = EXCLUDED.track,
+                        album = EXCLUDED.album,
+                        artists = EXCLUDED.artists,
+                        timestamp = EXCLUDED.timestamp,
+                        extractor = EXCLUDED.extractor
                 """, (
                     video.get("id"),
                     video.get("url"),
@@ -257,7 +282,7 @@ def save_video_metadata(conn, video):
                     video.get("timestamp"),
                     video.get("extractor")
                 ))
-                logging.info(f"Neuer Datensatz: {video.get('url')}")
+                logging.info(f"Neuer Datensatz: {video.get('url')} (ON CONFLICT verarbeitet)")
                 # Zeitreihe
                 save_time_series(conn, video)
             except psycopg2.Error as e:
@@ -267,9 +292,9 @@ def save_video_metadata(conn, video):
 
 def process_playlist_metadata(conn, playlist_metadata):
     """
-    Alle 'entries' in playlist_metadata durchgehen und 
-    die Videos mit save_video_metadata ablegen/aktualisieren.
-    Kein Commit innerhalb der Schleife, damit alles gesammelt wird.
+    Alle 'entries' in playlist_metadata durchgehen und
+    in 'media_metadata' / 'media_time_series' aktualisieren.
+    Keine Strukturänderungen.
     """
     if not playlist_metadata or "entries" not in playlist_metadata:
         logging.debug("Keine 'entries' in diesem JSON gefunden.")
@@ -279,23 +304,55 @@ def process_playlist_metadata(conn, playlist_metadata):
 
 def process_links_with_locking():
     """
-    Holt alle Links per row-level locking:
-    FOR UPDATE SKIP LOCKED verhindert doppelte Bearbeitung bei Parallelität.
-    Danach für jeden Link Metadaten ermitteln und erst nach vollständigem Durchlauf committen.
+    1) Lädt alle Links aus 'links' (unabhängig von 'processed').
+    2) Mischt sie zufällig.
+    3) Sperrt jeden Link per row-level locking (FOR UPDATE SKIP LOCKED) 
+       und führt die Metadatenverarbeitung durch.
+    4) Keine Endlosschleife -> Skript endet nach Durchlauf.
     """
     conn = get_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=DictCursor)
 
+    # Alle Links laden
     cur.execute("""
         SELECT id, url
           FROM links
          ORDER BY id
-         FOR UPDATE SKIP LOCKED
     """)
     rows = cur.fetchall()
-    logging.info(f"{len(rows)} Zeilen gelockt. Verarbeitung starten ...")
 
-    for (link_id, link_url) in rows:
+    # Falls keine Einträge, direkt beenden
+    if not rows:
+        logging.info("Keine Links in der Tabelle 'links' vorhanden. Skript beendet sich.")
+        cur.close()
+        conn.close()
+        return
+
+    logging.info(f"Starte Verarbeitung. Anzahl Links: {len(rows)}")
+    # Zufällig mischen
+    random.shuffle(rows)
+
+    # Für jeden Link: Row-Level-Lock, extrahieren, verarbeiten
+    for row in rows:
+        link_id = row["id"]
+        link_url = row["url"]
+
+        logging.info(f"Versuche Link ID={link_id} via FOR UPDATE SKIP LOCKED zu sperren.")
+        # Einzelner Versuch, Link per SKIP LOCKED zu holen
+        cur.execute("""
+            SELECT id, url
+              FROM links
+             WHERE id = %s
+             FOR UPDATE SKIP LOCKED
+        """, (link_id,))
+        locked_row = cur.fetchone()
+
+        if not locked_row:
+            # Anderer Prozess hat das bereits gesperrt
+            logging.debug(f"Link ID={link_id} ist bereits gesperrt. Überspringe.")
+            continue
+
+        # Jetzt haben wir exklusiven Zugriff -> Metadaten extrahieren
         logging.info(f"Bearbeite Link ID={link_id}, URL={link_url}")
         metadata_json = extract_metadata(link_url)
 
@@ -303,7 +360,6 @@ def process_links_with_locking():
             process_playlist_metadata(conn, metadata_json)
             # Beispiel: processed-Flag setzen, wenn alles geklappt hat
             cur.execute("UPDATE links SET processed = true WHERE id = %s", (link_id,))
-            # Jetzt gesamtes Paket committen
             conn.commit()
             logging.info(f"Link {link_id} erfolgreich verarbeitet und gespeichert.")
         else:
@@ -311,7 +367,7 @@ def process_links_with_locking():
 
     cur.close()
     conn.close()
-    logging.info("Fertig mit dem locked-Durchlauf.")
+    logging.info("Fertig mit dem Durchlauf. Skript beendet sich.")
 
 def main():
     init_db()
