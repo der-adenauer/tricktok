@@ -1,3 +1,4 @@
+import sys
 import os
 import psycopg2
 from psycopg2 import sql
@@ -211,7 +212,7 @@ def update_existing_video(conn, existing_data, new_data):
 
 def save_video_metadata(conn, video):
     """
-    Prüft, ob das Video in 'media_metadata' existiert. 
+    Prüft, ob das Video in 'media_metadata' existiert.
     Falls nein: neuer Datensatz. Falls ja: Update.
     In beiden Fällen Zeitreihen-Eintrag anlegen.
     Keine Strukturänderung.
@@ -306,39 +307,33 @@ def process_links_with_locking():
     """
     1) Lädt alle Links aus 'links' (unabhängig von 'processed').
     2) Mischt sie zufällig.
-    3) Sperrt jeden Link per row-level locking (FOR UPDATE SKIP LOCKED) 
+    3) Sperrt jeden Link per row-level locking (FOR UPDATE SKIP LOCKED)
        und führt die Metadatenverarbeitung durch.
     4) Keine Endlosschleife -> Skript endet nach Durchlauf.
     """
     conn = get_connection()
     cur = conn.cursor(cursor_factory=DictCursor)
 
-    # Alle Links laden
-    cur.execute("""
-        SELECT id, url
-          FROM links
-         ORDER BY id
-    """)
+    cur.execute("SELECT id, url FROM links ORDER BY id")
     rows = cur.fetchall()
 
-    # Falls keine Einträge, direkt beenden
     if not rows:
         logging.info("Keine Links in der Tabelle 'links' vorhanden. Skript beendet sich.")
         cur.close()
         conn.close()
         return
 
-    logging.info(f"Starte Verarbeitung. Anzahl Links: {len(rows)}")
-    # Zufällig mischen
+    total_links = len(rows)
+    processed_count = 0
+
+    logging.info(f"Starte Verarbeitung. Anzahl Links: {total_links}")
     random.shuffle(rows)
 
-    # Für jeden Link: Row-Level-Lock, extrahieren, verarbeiten
     for row in rows:
         link_id = row["id"]
         link_url = row["url"]
 
         logging.info(f"Versuche Link ID={link_id} via FOR UPDATE SKIP LOCKED zu sperren.")
-        # Einzelner Versuch, Link per SKIP LOCKED zu holen
         cur.execute("""
             SELECT id, url
               FROM links
@@ -348,20 +343,19 @@ def process_links_with_locking():
         locked_row = cur.fetchone()
 
         if not locked_row:
-            # Anderer Prozess hat das bereits gesperrt
             logging.debug(f"Link ID={link_id} ist bereits gesperrt. Überspringe.")
             continue
 
-        # Jetzt haben wir exklusiven Zugriff -> Metadaten extrahieren
         logging.info(f"Bearbeite Link ID={link_id}, URL={link_url}")
         metadata_json = extract_metadata(link_url)
 
         if metadata_json:
             process_playlist_metadata(conn, metadata_json)
-            # Beispiel: processed-Flag setzen, wenn alles geklappt hat
             cur.execute("UPDATE links SET processed = true WHERE id = %s", (link_id,))
             conn.commit()
+            processed_count += 1
             logging.info(f"Link {link_id} erfolgreich verarbeitet und gespeichert.")
+            logging.info(f"Verarbeitet {processed_count} von {total_links} Links.")
         else:
             logging.warning(f"Keine Metadaten / Fehler für {link_url}")
 
@@ -370,8 +364,14 @@ def process_links_with_locking():
     logging.info("Fertig mit dem Durchlauf. Skript beendet sich.")
 
 def main():
-    init_db()
-    process_links_with_locking()
+    try:
+        init_db()
+        process_links_with_locking()
+        logging.info("Skript erfolgreich abgeschlossen.")
+        sys.exit(0)
+    except Exception as e:
+        logging.error(f"Fehler im Skript: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
