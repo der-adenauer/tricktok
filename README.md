@@ -4,11 +4,11 @@ Tiktok Archiver   - systematische Erfassung, Erhaltung und Bewertung von Medien 
 Demo-Version:  https://py.afd-verbot.de/R/
 
 
-*T**r**icktok* ist ein Projekt zur systematischen Erfassung, Auswertung und Archivierung von Medieninhalten auf der Plattform Tiktok. Es konzentriert sich auf die fortlaufende Beobachtung und Dokumentation von Beiträgen, die einen extremistischen oder manipulativ-propagandistischen Charakter aufweisen können. Die Infrastruktur setzt sich aus drei separaten Komponenten zusammen. Ein öffentlicher **Webauftritt** präsentiert Informationen, Statistiken und weiteren Daten in einer stilistischen Form **[Adenauer OS](https://tricktok.afd-verbot.de)**. Ein weiteres System deckt die interne **Datenauswertung** ab, in dem automatisierte Prozesse kontinuierlich Metadaten von Tiktok erfassen, Zeitreihen für Likes, Kommentare und Views aufbauen sowie Inhalte auf extremistische oder verfassungsfeindliche Elemente überprüfen. Ein unabhängiges **Archiv** speichert langfristig sämtliche Videos und Bilddateien, um sie für spätere Untersuchungen bereitzustellen.
+*T**r**icktok** ist ein Projekt zur systematischen Erfassung, Auswertung und Archivierung von Medieninhalten auf der Plattform Tiktok. Es konzentriert sich auf die fortlaufende Beobachtung und Dokumentation von Beiträgen, die einen extremistischen oder manipulativ-propagandistischen Charakter aufweisen können. Die Infrastruktur setzt sich aus drei separaten Komponenten zusammen. Ein öffentlicher **Webauftritt** präsentiert Informationen, Statistiken und weiteren Daten in einer stilistischen Form **[Adenauer OS](https://tricktok.afd-verbot.de)**. Ein weiteres System deckt die interne **Datenauswertung** ab, in dem automatisierte Prozesse kontinuierlich Metadaten von Tiktok erfassen, Zeitreihen für Likes, Kommentare und Views aufbauen sowie Inhalte auf extremistische oder verfassungsfeindliche Elemente überprüfen. Ein unabhängiges **Archiv** speichert langfristig sämtliche Videos und Bilddateien, um sie für spätere Untersuchungen bereitzustellen.
 
 ### Tricktok Zeitreihen
 
-Eine zentrale Funktion von *T**r**icktok*, sind automatisierte Verfahren, die in regelmäßigen Abständen Kanäle und deren Postings auswerten. Mit einer Reichweitenstatistik lassen sich kurzzeitige Trends als auch längerfristige Kampagnen mit möglichen Manipulationsmustern erkennen. 
+Die Funktion Zeitreihen von *T**r**icktok*  erzeugt einen graphischen Verlauf der Reichweite einer Veröffentlichung von Tiktok. Die Grundlage dafür bilden über die Zeit gespeicherte Metadaten von jeder erfassten  Veröffentlichung durch einen Crawler, die in regelmäßigen Abständen Kanäle und deren Postings auswerten. Mit einer Reichweitenstatistik lassen sich kurzzeitige Trends als auch längerfristige Kampagnen mit möglichen Manipulationsmustern erkennen. 
 
 ### Medienverarbeitung
 
@@ -17,7 +17,7 @@ Da Tiktok neben Videos zunehmend Fotostrecken oder Diashows anbietet, wird eine 
 ### Teilhabe
 
 Eine öffentliche Fahndungsliste ermöglicht es interessierten Nutzerinnen und Nutzern von Tricktok, potenziell auffällige TikTok-Kanäle zu melden. Diese Meldungen fließen anschließend in den automatisierten Erfassungsprozess ein. Gleichwohl kann dadurch das Risiko entstehen, dass einige Personen in großem Umfang unkritische Kanäle eintragen und so den Fokus der Fahndungsliste verwässern.
-Im deutschsprachigen Raum lassen sich jedoch häufig wiederkehrende Hashtags und charakteristische Formulierungen beobachten, die auf ein rechtsextremes oder verfassungsfeindliches Gedankengut hindeuten. Indem alle Metadaten zu Videoveröffentlichungen analysiert werden, ist es in vielen Fällen möglich, anhand der Gesamtheit der Inhalte eines Kanals schnell zu erkennen, ob dieser dem rechten Spektrum zuzuordnen ist. Kanäle, die nicht in dieses Muster fallen, werden für die weitere Überwachung ausgeschlossen, indem sie in einer Blacklist vermerkt werden.
+Im deutschsprachigen Raum lassen sich jedoch häufig wiederkehrende Hashtags und charakteristische Formulierungen beobachten, die auf ein  verfassungsfeindliches Gedankengut hindeuten. Indem alle Metadaten zu Videoveröffentlichungen analysiert werden, ist es in vielen Fällen möglich, anhand der Gesamtheit der Inhalte eines Kanals schnell zu erkennen, ob dieser dem rechten Spektrum zuzuordnen ist. Kanäle, die nicht in dieses Muster fallen, werden für die weitere Überwachung ausgeschlossen, indem sie in einer Blacklist vermerkt werden.
 
 
 ### Backend Strategie
