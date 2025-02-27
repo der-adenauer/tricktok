@@ -8,7 +8,7 @@ Demo-Version:  https://py.afd-verbot.de/R/
 
 ### Tricktok Zeitreihen
 
-Die Funktion Zeitreihen von *T**r**icktok*  erzeugt einen graphischen Verlauf der Reichweite einer Veröffentlichung von Tiktok. Die Grundlage dafür bilden über die Zeit gespeicherte Metadaten von jeder erfassten  Veröffentlichung durch einen Crawler, die in regelmäßigen Abständen Kanäle und deren Postings auswerten. Mit einer Reichweitenstatistik lassen sich kurzzeitige Trends als auch längerfristige Kampagnen mit möglichen Manipulationsmustern erkennen. 
+Die Funktion Zeitreihen von *T**r**icktok*  erzeugt einen graphischen Verlauf der Reichweite einer Veröffentlichung von Tiktok. Die Grundlage dafür bilden über die Zeit gespeicherte Metadaten von jeder erfassten  Veröffentlichung durch verteilte Crawler, die in regelmäßigen Abständen Kanäle und deren Postings auswerten. Mit einer Reichweitenstatistik lassen sich kurzzeitige Trends als auch längerfristige Kampagnen mit möglichen Manipulationsmustern erkennen. 
 
 ### Medienverarbeitung
 
@@ -45,7 +45,7 @@ Die gesamte Softwareentwicklung erfolgt unter aktiver Verwendung fortgeschritten
 
  **Python** – SystemBasics, Crawling   
  
- **ffmprg** - Medeinverarbeitung
+ **ffmpeg** - Medeinverarbeitung
  
  **Flask** – Webapplikation   
  
