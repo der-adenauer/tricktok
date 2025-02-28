@@ -1,8 +1,7 @@
 // script_mobile.js
-
-// Diese mobile JS-Datei arbeitet mit nur einem Vollbild-Modal,
-// anstatt vieler Fenster wie im Desktop-Modus (script.js).
-// Jede Icon-Aktion öffnet ein Fullscreen-Overlay (Modal) mit ggf. einem iframe.
+//
+// Mobile JS-Datei mit nur einem Vollbild-Modal (Overlay) statt vieler Fenster.
+// Jede Icon-Aktion öffnet ein Fullscreen-Overlay mit ggf. einem iframe.
 
 document.addEventListener("DOMContentLoaded", () => {
   const systemTimeEl = document.getElementById("systemTime");
@@ -10,9 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateSystemTime() {
     if (!systemTimeEl) return;
     const now = new Date();
-    const hh = String(now.getHours()).padStart(2,"0");
-    const mm = String(now.getMinutes()).padStart(2,"0");
-    const ss = String(now.getSeconds()).padStart(2,"0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
     systemTimeEl.textContent = hh + ":" + mm + ":" + ss;
   }
   setInterval(updateSystemTime, 1000);
@@ -22,41 +21,46 @@ document.addEventListener("DOMContentLoaded", () => {
   // Menü-Buttons (System -> Hilfe, Programmquelle, Kontakt)
   // --------------------------------------------------------
 
-  // 1) Hilfe (öffnen via /hilfe_extended im iFrame)
-  const btn3 = document.getElementById('openWindow3');
+  // Hilfe
+  const btn3 = document.getElementById("openWindow3");
   if (btn3) {
-    btn3.addEventListener('click', (e) => {
+    btn3.addEventListener("click", (e) => {
       e.preventDefault();
       openFullScreenModal("/hilfe_extended", "Hilfe");
     });
   }
 
-  // 2) Programmquelle (statisches HTML)
-  const btn4 = document.getElementById('openWindow4');
+  // Programmquelle (statisches HTML)
+  const btn4 = document.getElementById("openWindow4");
   if (btn4) {
-    btn4.addEventListener('click', (e) => {
+    btn4.addEventListener("click", (e) => {
       e.preventDefault();
-      // Inhalt des Fensters "Programmquelle" wird hier per HTML-String eingefügt
-      openFullScreenModal(null, "Programmquelle", `
+      openFullScreenModal(
+        null,
+        "Programmquelle",
+        `
         <div style="padding:1rem;">
           <h2>Adenauer OS <br> Projekt Tricktok</h2>
           <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, 
-             dafür entwickelt, rechtsextreme Inhalte auf TikTok zu identifizieren.</p>
+             entwickelt, um rechtsextreme Inhalte auf TikTok zu identifizieren.</p>
           <p>Version: v.02 | Buildnummer: 1933.1</p>
           <img src="/static/qrcodegithub.png" alt="github" 
                style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
         </div>
-      `);
+        `
+      );
     });
   }
 
-  // 3) Kontakt (statisches HTML — entspricht template20 im Desktop)
-  const btn20 = document.getElementById('openWindow20');
+  // Kontakt (statisches HTML)
+  const btn20 = document.getElementById("openWindow20");
   if (btn20) {
-    btn20.addEventListener('click', (e) => {
+    btn20.addEventListener("click", (e) => {
       e.preventDefault();
-      // Anstatt /contact einfach direkt das HTML von template20
-      openFullScreenModal(null, "Kontakt", `
+      openFullScreenModal(
+        null,
+        "Kontakt",
+        `
         <div style="padding:1rem; text-align:center;">
           <br><br>
           <p>
@@ -64,21 +68,23 @@ document.addEventListener("DOMContentLoaded", () => {
             der-adenauer.de
           </p>
         </div>
-      `);
+        `
+      );
     });
   }
 
   // --------------------------------------------------------
-  // Desktop-Icons -> Mobile-Fullscreen (jeweils 1 Modal-Fenster)
+  // Desktop-Icons -> Mobile-Fullscreen
   // --------------------------------------------------------
 
-  // Icon6 (Index) => im Desktop "window1". Hier mobile: Statisches HTML
-  const icon6 = document.getElementById('icon6');
+  // Icon6 (Index)
+  const icon6 = document.getElementById("icon6");
   if (icon6) {
-    icon6.addEventListener('click', () => {
-      // Beispiel: Index-Liste. Zum Teil verlinken wir hier 
-      // mit `mobile-entry`, um das an unser Delegations-Event zu binden
-      openFullScreenModal(null, "Index", `
+    icon6.addEventListener("click", () => {
+      openFullScreenModal(
+        null,
+        "Index",
+        `
         <div style="padding:1rem;">
           <p>Verzeichnis</p>
           <ul>
@@ -112,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
                  Anweisungen zu Datenfilterung
               </a>
             </li>
-            <!-- Anweisungen zu Telearbeit (hier: statisches HTML aus template17) -->
+            <!-- Anweisungen zu Telearbeit (statisches HTML) -->
             <li>
               <a href="#" 
                  class="mobile-entry-telearbeit" 
@@ -122,26 +128,30 @@ document.addEventListener("DOMContentLoaded", () => {
             </li>
           </ul>
         </div>
-      `);
+        `
+      );
     });
   }
 
-  // Icon7 (Benutzerkonto) => fetch benutzer_info + session_name
-  const icon7 = document.getElementById('icon7');
+  // Icon7 (Benutzerkonto)
+  const icon7 = document.getElementById("icon7");
   if (icon7) {
-    icon7.addEventListener('click', () => {
-      fetch('/benutzer_info')
-        .then(response => response.text())
-        .then(agentInfo => {
-          return fetch('/session_name')
-            .then(r => r.text())
-            .then(name => ({
+    icon7.addEventListener("click", () => {
+      fetch("/benutzer_info")
+        .then((response) => response.text())
+        .then((agentInfo) => {
+          return fetch("/session_name")
+            .then((r) => r.text())
+            .then((name) => ({
               agentInfo: agentInfo,
-              name: name
+              name: name,
             }));
         })
-        .then(data => {
-          openFullScreenModal(null, "Benutzerkonto", `
+        .then((data) => {
+          openFullScreenModal(
+            null,
+            "Benutzerkonto",
+            `
             <div style="padding:1rem;">
               <div style="display:flex; align-items:center;">
                 <img src="/static/icon7.png" alt="icon7" width="64" height="64">
@@ -152,119 +162,117 @@ document.addEventListener("DOMContentLoaded", () => {
               <p>Infos zum angemeldeten Benutzer:</p>
               <div style="font-size:0.8rem; color:#666;">${data.agentInfo}</div>
             </div>
-          `);
+            `
+          );
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     });
   }
 
-  // Icon8 (Fahndungsliste) => /fahndungsliste_db
-  const icon8 = document.getElementById('icon8');
+  // Icon8 (Fahndungsliste)
+  const icon8 = document.getElementById("icon8");
   if (icon8) {
-    icon8.addEventListener('click', () => {
+    icon8.addEventListener("click", () => {
       openFullScreenModal("/fahndungsliste_db", "Fahndungsliste");
     });
   }
 
-  // Icon9 (Tricktok-Suche) => externe Domain
-  const icon9 = document.getElementById('icon9');
+  // Icon9 (Tricktok-Suche, externe Domain)
+  const icon9 = document.getElementById("icon9");
   if (icon9) {
-    icon9.addEventListener('click', () => {
+    icon9.addEventListener("click", () => {
       openFullScreenModal("https://tricktok.afd-verbot.de/suche", "Tricktok-Suche", null, true);
     });
   }
 
   // Icon10 (Archiv)
-  const icon10 = document.getElementById('icon10');
+  const icon10 = document.getElementById("icon10");
   if (icon10) {
-    icon10.addEventListener('click', () => {
+    icon10.addEventListener("click", () => {
       openFullScreenModal("https://py.afd-verbot.de/tricktok-archiv/", "Archiv", null, true);
     });
   }
 
   // Icon12 (Statistiktok)
-  const icon12 = document.getElementById('icon12');
+  const icon12 = document.getElementById("icon12");
   if (icon12) {
-    icon12.addEventListener('click', () => {
+    icon12.addEventListener("click", () => {
       openFullScreenModal("https://py.afd-verbot.de/statistiktok", "Statistiktok", null, true);
     });
   }
 
   // Icon13 (Video Feature)
-  const icon13 = document.getElementById('icon13');
+  const icon13 = document.getElementById("icon13");
   if (icon13) {
-    icon13.addEventListener('click', () => {
+    icon13.addEventListener("click", () => {
       openFullScreenModal("/video_feature", "Player");
     });
   }
 
   // Icon14 (Nachrichten)
-  const icon14 = document.getElementById('icon14');
+  const icon14 = document.getElementById("icon14");
   if (icon14) {
-    icon14.addEventListener('click', () => {
+    icon14.addEventListener("click", () => {
       openFullScreenModal("https://neuters.de/search?query=tiktok", "Nachrichten", null, true);
     });
   }
 
   // Icon15 (Bilder-Archiv)
-  const icon15 = document.getElementById('icon15');
+  const icon15 = document.getElementById("icon15");
   if (icon15) {
-    icon15.addEventListener('click', () => {
+    icon15.addEventListener("click", () => {
       openFullScreenModal("https://py.afd-verbot.de/tiktok/", "Bilder-Archiv", null, true);
     });
   }
 
-  // Icon16 (Gallery Feature -> /gallery_feature)
-  const icon16 = document.getElementById('icon16');
+  // Icon16 (Tricktok-Photo)
+  const icon16 = document.getElementById("icon16");
   if (icon16) {
-    icon16.addEventListener('click', () => {
-      openFullScreenModal("https://py.afd-verbot.de/photoarchiv", "Tricktok Photo", null, true);
+    icon16.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/photoarchiv", "Tricktok-Photo", null, true);
     });
   }
 
-  // OPTIONAL: Icon17 (Zeitreihen) - analog zum Desktop-Fenster window24
-  const icon17 = document.getElementById('icon17');
+  // Icon17 (Zeitreihen)
+  const icon17 = document.getElementById("icon17");
   if (icon17) {
-    icon17.addEventListener('click', () => {
-      // z.B. Zeitreihen -> https://py.afd-verbot.de/zeitreihen/
+    icon17.addEventListener("click", () => {
       openFullScreenModal("https://py.afd-verbot.de/zeitreihen/", "Zeitreihen", null, true);
     });
   }
 
-  // Optional: Icon21 (Kleiner Max)
-  const icon21 = document.getElementById('icon21');
-  if (icon21) {
-    icon21.addEventListener('click', () => {
-      // Snippet analog zu template21 (Kleiner Max)
-      openFullScreenModal(null, "Kleiner Max", `
-        <iframe src="https://archive.afd-verbot.de/videos/embed/b666e9c0-d5ae-4817-b120-3ae0fe949576?start=16s"
-                style="width:100%; height:calc(100% - 2rem); border:none;"
-                allowfullscreen=""
-                sandbox="allow-same-origin allow-scripts allow-popups allow-forms">
-        </iframe>
-      `, false);
+  // Icon18 (Beweisführung) - optional
+  const icon18 = document.getElementById("icon18");
+  if (icon18) {
+    icon18.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/beweise", "Beweisführung", null, true);
+    });
+  }
+
+  // Icon19 (Content-Schleuder)
+  const icon19 = document.getElementById("icon19");
+  if (icon19) {
+    icon19.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/bilderwerfer", "Content-Schleuder", null, true);
     });
   }
 
   // --------------------------------------------------------
-  // Delegation für Einträge innerhalb des "Index"-Modals
+  // Delegation für Einträge innerhalb des Index-Modals
   // --------------------------------------------------------
-  // 1) "mobile-entry" => kann Bilder oder iframe laden
-  // 2) "mobile-entry-telearbeit" => spezieller Klick für "Anweisungen zu Telearbeit" (template17)
-  document.body.addEventListener('click', (e) => {
+  document.body.addEventListener("click", (e) => {
     // A) "mobile-entry"
-    if (e.target.classList && e.target.classList.contains('mobile-entry')) {
+    if (e.target.classList && e.target.classList.contains("mobile-entry")) {
       e.preventDefault();
       const src = e.target.dataset.src || "";
       const title = e.target.dataset.title || "Vollbild";
       const isIframe = e.target.dataset.iframe === "true";
+
       if (isIframe) {
-        // iframe laden
         openFullScreenModal(src, title, null, true);
       } else {
-        // Bild
         const contentHtml = `
           <div style="width:100%; text-align:center;">
             <img src="${src}" alt="${title}" style="max-width:100%; max-height:calc(100vh - 100px);" />
@@ -274,12 +282,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // B) "mobile-entry-telearbeit" => direkter Snippet für template17
-    if (e.target.classList && e.target.classList.contains('mobile-entry-telearbeit')) {
+    // B) "mobile-entry-telearbeit"
+    if (e.target.classList && e.target.classList.contains("mobile-entry-telearbeit")) {
       e.preventDefault();
       const title = e.target.dataset.title || "Anweisungen zu Telearbeit";
-      // Hier das HTML aus template17 (desktop) sinngemäß:
-      openFullScreenModal(null, title, `
+      openFullScreenModal(
+        null,
+        title,
+        `
         <div style="padding:1rem;">
           <h2>Anweisungen zu Telearbeit</h2>
           <p>
@@ -289,9 +299,9 @@ document.addEventListener("DOMContentLoaded", () => {
           </p>
           <p>
             Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät 
-            erweist sich dieses Verfahren als besonders zweckmäßig.
+            erweist sich dieses Verfahren als zweckmäßig.
             Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, 
-            wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend 
+            wird angeordnet, den entsprechenden Kanal umgehend 
             und unter Nutzung der zentralen Fahndungsliste zu melden.
           </p>
           <center>
@@ -299,7 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
                  style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
           </center>
         </div>
-      `);
+        `
+      );
     }
   });
 });
@@ -307,14 +318,14 @@ document.addEventListener("DOMContentLoaded", () => {
 /**
  * Zeigt ein Vollbild-Overlay (Modal) mit optionaler iframe-Quelle oder statischem HTML-Inhalt.
  *
- * @param {string|null} srcUrl - Falls vorhanden, wird dieser Pfad in ein iframe geladen
- *                               (z.B. "/hilfe_extended" oder "https://...").
+ * @param {string|null} srcUrl - Pfad für ein iframe (z.B. "/hilfe_extended" oder "https://..."),
+ *                               oder null für reinen HTML-Inhalt.
  * @param {string} headline - Titelzeile im Modal.
- * @param {string|null} contentHtml - Falls wir statisches HTML anzeigen wollen (z.B. Kontakt-Infos).
- * @param {boolean} forceIframe - ob wir unbedingt ein iframe nutzen (etwa bei externen URLs).
+ * @param {string|null} contentHtml - Falls statisches HTML angezeigt werden soll.
+ * @param {boolean} forceIframe - true erzwingt iframe (z.B. für externe URLs).
  */
-function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=false) {
-  // Vorhandenes Modal entfernen, nur 1 Fenster gleichzeitig
+function openFullScreenModal(srcUrl, headline, contentHtml = null, forceIframe = false) {
+  // Nur ein Fenster gleichzeitig
   const existingModal = document.getElementById("mobileFullscreenModal");
   if (existingModal) {
     existingModal.remove();
@@ -339,11 +350,11 @@ function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=fal
   closeBtn.style.cursor = "pointer";
   closeBtn.style.fontSize = "1.2rem";
   closeBtn.innerHTML = "✕";
-  closeBtn.addEventListener('click', () => {
+  closeBtn.addEventListener("click", () => {
     overlay.remove();
   });
 
-  // Title bar
+  // Titel
   const titleBar = document.createElement("div");
   titleBar.style.backgroundColor = "#e1e1e1";
   titleBar.style.height = "40px";
@@ -367,12 +378,11 @@ function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=fal
   contentArea.style.bottom = "0";
   contentArea.style.overflow = "auto";
 
-  // 1) Falls wir statisches HTML haben:
+  // Statisches HTML
   if (contentHtml) {
     contentArea.innerHTML = contentHtml;
-
-  // 2) Falls wir eine srcUrl haben (iframe), oder "forceIframe == true"
   } else if (srcUrl && (forceIframe || srcUrl.startsWith("http") || srcUrl.startsWith("/"))) {
+    // iframe
     const iframe = document.createElement("iframe");
     iframe.src = srcUrl;
     iframe.style.width = "100%";
@@ -381,7 +391,6 @@ function openFullScreenModal(srcUrl, headline, contentHtml=null, forceIframe=fal
     contentArea.appendChild(iframe);
   }
 
-  // In DOM einhängen
   overlay.appendChild(titleBar);
   overlay.appendChild(closeBtn);
   overlay.appendChild(contentArea);
