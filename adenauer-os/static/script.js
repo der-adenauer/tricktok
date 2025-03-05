@@ -96,9 +96,15 @@ const template1 = `
     <ul>
       <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
-      <li><a href="#" class="entry-link" data-target="window15">Anweisungen zu Datenfilterung</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
-      <li><a href="#" class="entry-link" data-target="window21">Kleiner Max</a></li>
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
     </ul>
   </div>
 </div>
