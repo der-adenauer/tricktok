@@ -3,7 +3,7 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
-const PORT = 4050;
+const PORT = 4001;
 const ROOT_DIR = "/mnt/HC_Volume_101955489/gallery-dl/tiktok"; // Anpassen
 
 const app = express();

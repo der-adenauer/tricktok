@@ -3,12 +3,17 @@
 
 # ==================================================
 # Shiny-App mit:
-#   - Endlos-Scroll, 14 Abschnitte
-#   - CSS-Scroll-Snap (snapt zu jedem Abschnitt)
-#   - Hamburger-Menü links oben
-#   - Sticky-Logo + Reload-Icon oben rechts
-#   - IFrames in 100% Größe (an Viewport angepasst)
-#   - CSV-Download-Handler für DB
+#   - 14 Sektionen, einzeln dargestellt
+#   - Navigation über < zurück / weiter >
+#   - Navbar (Top-Bar) sticky am oberen Rand
+#   - Hamburger-Menü öffnet von links
+#   - Reload-Button und Logo rechts
+#   - Keine globalen Scrollbalken (Overflow hidden)
+#   - Metadaten / Anheuern / Impressum: Text mittig (Blocksatz)
+#   - Wechselanimation: nächste Seite fällt von oben herab (SlideDown)
+#   - In den meisten Sektionen 10% Abstand (links/rechts)
+#   - Adenauer OS / Fahndungsliste / Contentschleuder: füllen ganzen Bildschirm (unterhalb der Top-Bar)
+#   - 30s Cooldown für alle CSV-Downloads
 # ==================================================
 
 options(shiny.fullstacktrace = TRUE)
@@ -26,6 +31,12 @@ library(markdown)
 library(dotenv)
 
 cat("==== START APP SCRIPT ====\n")
+
+# -------------------------------------------------------
+# Globale Variablen für 30s-Cooldown (für alle Nutzer)
+# -------------------------------------------------------
+LAST_DOWNLOAD_TIME <- as.numeric(Sys.time()) - 9999  
+COOLDOWN_SECONDS   <- 30
 
 # -------------------------------------------------------
 # Hilfsfunktionen: Datenbank-Abfragen
@@ -72,76 +83,155 @@ lade_media_time_series <- function(con) {
 # Benutzeroberfläche
 # -------------------------------------------------------
 ui <- fluidPage(
-  # Kein Standard-Padding/Margin
   style = "margin:0; padding:0;",
 
   tags$head(
-    # Responsives Meta-Viewport
-    tags$meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"),
+    tags$meta(
+      name    = "viewport",
+      content = "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    ),
 
-    # JavaScript für Hamburger-Menü
+    # JavaScript (Steuerung: Überschriften, Hamburger-Menü, Seitenwechsel)
     tags$script(HTML("
+      var currentSectionIndex = 0;
+      var sections = [];
+      var sectionTitles = [
+        'Start',
+        'Einführung',
+        'Adenauer OS',
+        'Fahndung',
+        'Metadaten',
+        'Zeitreihen',
+        'Statistiktok',
+        'Hashtag',
+        'Contentschleuder',
+        'Photo-Archiv',
+        'Video-Archiv',
+        'Beweisführung',
+        'Anheuern',
+        'Impressum'
+      ];
+
       function openNav(){
-        document.getElementById('mySidenav').style.width = '250px';
+        var sn = document.getElementById('mySidenav');
+        if(sn) sn.style.width = '250px';
       }
       function closeNav(){
-        document.getElementById('mySidenav').style.width = '0';
+        var sn = document.getElementById('mySidenav');
+        if(sn) sn.style.width = '0';
       }
       document.addEventListener('click', function(e){
         var sidenav = document.getElementById('mySidenav');
         var hamburgerBtn = document.getElementById('hamburgerBtn');
-        if(!sidenav.contains(e.target) && !hamburgerBtn.contains(e.target)){
+        if(sidenav && hamburgerBtn && !sidenav.contains(e.target) && !hamburgerBtn.contains(e.target)){
           closeNav();
         }
       });
+
+      document.addEventListener('DOMContentLoaded', function(){
+        sections = document.getElementsByClassName('sectionBlock');
+        zeigeAktiveSektion(0);
+      });
+
+      function zeigeAktiveSektion(index){
+        if(index < 0 || index >= sections.length){ return; }
+        for(var i=0; i<sections.length; i++){
+          sections[i].classList.remove('activeSection');
+        }
+        sections[index].classList.add('activeSection');
+        currentSectionIndex = index;
+        var heading = document.getElementById('currentHeading');
+        if(heading) heading.textContent = sectionTitles[index];
+      }
+
+      function geheVor(){
+        if(currentSectionIndex < sections.length - 1){
+          zeigeAktiveSektion(currentSectionIndex + 1);
+        }
+      }
+      function geheZurueck(){
+        if(currentSectionIndex > 0){
+          zeigeAktiveSektion(currentSectionIndex - 1);
+        }
+      }
     ")),
 
-    # CSS für Scroll-Snap, Layout usw.
+    # CSS
     tags$style(HTML("
-      /* Grundlayout: vertikales Scrollen mit snap */
       html, body {
         margin: 0;
         padding: 0;
-        height: 100%;
-        scroll-snap-type: y mandatory; /* Hauptmerkmal: Snap in Y-Richtung */
-        overflow-y: scroll;
-        overflow-x: hidden;
+        overflow: hidden; 
         font-family: sans-serif;
         background-color: #fff;
       }
-      /* Jede Sektion snappt an den Start */
-      .sectionBlock {
-        scroll-snap-align: start;
-        position: relative;
-        width: 100%;
-        height: 100vh; /* Jede Sektion füllt genau eine Bildschirmhöhe */
-      }
 
-      /* Hamburger-Button links oben */
-      #hamburgerBtn {
+      /* Top-Bar: sticky Navbar */
+      .topBar {
         position: fixed;
-        top: 10px;
-        left: 10px;
-        z-index: 10001;
-        background-color: transparent;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10002;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 10px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .topBarLeft {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .topBarRight {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      #hamburgerBtn {
         border: none;
-        font-size: 30px;
+        background-color: transparent;
+        font-size: 28px;
         cursor: pointer;
-        color: #000;
+      }
+      #currentHeading {
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .reloadIcon {
+        width: 40px;
+        height: 40px;
+        background-color: #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s;
+        font-size: 20px;
+      }
+      .reloadIcon:hover {
+        transform: rotate(360deg);
+      }
+      #logoImage {
+        width: 100px;
+        height: auto;
       }
 
-      /* Sidebar/Hamburger-Menü */
+      /* Seitliche Navigation (nun von links) */
       .sidenav {
         height: 100%;
         width: 0;
         position: fixed;
         z-index: 10000;
         top: 0;
-        left: 0;
+        left: 0; /* statt right: 0 */
         background-color: rgba(255,255,255,0.95);
         overflow-x: hidden;
         transition: 0.3s;
-        padding-top: 60px;
+        padding-top: 60px; /* Platz unter dem oberen Rand */
       }
       .sidenav a {
         padding: 8px 8px 8px 16px;
@@ -158,55 +248,68 @@ ui <- fluidPage(
       .sidenav .closebtn {
         position: absolute;
         top: 0;
-        right: 10px;
+        left: 210px; /* So ist das X nah am rechten Rand des aufgeklappten Menüs */
         font-size: 40px;
       }
 
-      /* Sticky-Container oben rechts, enthält Logo und Reload-Icon */
-      .topRightSticky {
+      /* Buttons unten rechts */
+      .navButtons {
         position: fixed;
-        top: 10px;
+        bottom: 10px;
         right: 10px;
-        z-index: 10002;
+        z-index: 10003;
         display: flex;
-        align-items: center;
-        gap: 15px;
+        gap: 10px;
       }
-      /* Logo */
-      #logoImage {
-        width: 100px;
-        height: auto;
-      }
-      /* Reload-Icon: Kreis mit Pfeil, rotiert beim Hover */
-      .reloadIcon {
-        width: 40px;
-        height: 40px;
-        background-color: #ddd;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.3s;
-        font-size: 20px;
-      }
-      .reloadIcon:hover {
-        transform: rotate(360deg);
-      }
-
-      /* IFrame-Wrapper: füllt komplette Section minus evtl. Überschriften */
-      .iframe-wrapper {
-        width: 100%;
-        height: 100%;
-      }
-      .iframe-wrapper iframe {
-        width: 100%;
-        height: 100%;
+      .navButton {
+        padding: 10px 15px;
+        background-color: #444;
+        color: #fff;
         border: none;
-        display: block;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+      }
+      .navButton:hover {
+        background-color: #555;
       }
 
-      /* Beispiel-Farbhintergründe wie gewünscht */
+      /* SectionBlock: füllt den Bereich UNTER der Top-Bar */
+      .sectionBlock {
+        position: absolute;
+        top: 60px; /* Top-Bar-Höhe anpassen */
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 60px); 
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-100%);
+        transition: transform 0.6s ease, opacity 0.6s ease, visibility 0.6s;
+        overflow: hidden;
+      }
+      .sectionBlock.activeSection {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Inhalt: 10% Rand, mobil weniger (Standard) */
+      .sectionContent {
+        padding-top: 30px; 
+        padding-bottom: 0; 
+        margin-left: 10%;
+        margin-right: 10%;
+        text-align: left;
+        height: calc(100% - 30px); /* Bisschen Abstand oben */
+      }
+      @media (max-width: 768px){
+        .sectionContent {
+          margin-left: 3%;
+          margin-right: 3%;
+        }
+      }
+
+      /* Farbschema Beispiel */
       #section_start       { background-color: #f9ceb2; }
       #section_intro       { background-color: #ffffff; }
       #section_adenaueros  { background-color: #cccccc; }
@@ -222,15 +325,27 @@ ui <- fluidPage(
       #section_anheuern    { background-color: #ffffff; }
       #section_impressum   { background-color: #ffffff; }
 
-      /* Optionale Headline & Text-Styles in den Sections */
-      .sectionContent {
-        padding: 20px;
-        max-width: 800px;
-        margin: 0 auto;
+      /* Adenauer OS / Fahndungsliste / Contentschleuder = voller Bildschirm unterhalb Top-Bar */
+      #section_adenaueros .sectionContent,
+      #section_fahndung   .sectionContent,
+      #section_medienholen .sectionContent {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
       }
-      h2.sectionHeadline {
-        margin-top: 20px;
-        font-size: 32px;
+      #section_adenaueros .iframe-wrapper,
+      #section_fahndung   .iframe-wrapper,
+      #section_medienholen .iframe-wrapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Metadaten / Anheuern / Impressum zentriert + Blocksatz */
+      #section_meta .sectionContent,
+      #section_anheuern .sectionContent,
+      #section_impressum .sectionContent {
+        text-align: justify;
       }
 
       /* Download-Buttons */
@@ -250,10 +365,33 @@ ui <- fluidPage(
         margin-right: auto;
       }
 
-      /* Mobile Adjustments */
+      /* Standard IFrame-Wrapper */
+      .iframe-wrapper {
+        width: 100%;
+        height: 100%;
+      }
+      .iframe-wrapper iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+
+      /* Mobil: leichte Anpassungen */
       @media (max-width: 768px){
+        .sectionBlock {
+          top: 50px; 
+          height: calc(100vh - 50px);
+        }
         #logoImage {
           width: 80px;
+        }
+        #currentHeading {
+          font-size: 16px;
+        }
+        .navButton {
+          font-size: 14px;
+          padding: 8px 12px;
         }
         .reloadIcon {
           width: 35px;
@@ -264,71 +402,86 @@ ui <- fluidPage(
     "))
   ),
 
-  # Hamburger-Menü-Button
-  tags$button(
-    id = "hamburgerBtn",
-    HTML("&#9776;"),
-    onclick = "openNav()"
-  ),
-
-  # Sticky-Bereich oben rechts: Logo + Reload
+  # Obere Leiste
   div(
-    class="topRightSticky",
-    tags$img(
-      id="logoImage",
-      src="https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg"
+    class = "topBar",
+    div(
+      class = "topBarLeft",
+      tags$button(
+        id = "hamburgerBtn",
+        HTML("&#9776;"),
+        onclick = "openNav()"
+      ),
+      div(id = "currentHeading", "Start")
     ),
     div(
-      class="reloadIcon",
-      HTML("&#x21bb;"),  # kreisender Pfeil
-      onclick="location.reload();"
+      class = "topBarRight",
+      div(
+        class = "reloadIcon",
+        HTML("&#x21bb;"),
+        onclick = "location.reload();"
+      ),
+      tags$img(
+        id = "logoImage",
+        src = "https://politicalbeauty.de/assets/images/politische-schoenheit-logo-2023.svg"
+      )
     )
   ),
 
-  # Seitliche Navigation (Hamburger-Menü)
+  # Navigations-Buttons (unten rechts)
   div(
-    id="mySidenav", class="sidenav",
-    tags$a(href="javascript:void(0)", class="closebtn", onclick="closeNav()", HTML("&times;")),
-
-    tags$a(href="#section_start",       "Start"),
-    tags$a(href="#section_intro",       "Einführung"),
-    tags$a(href="#section_adenaueros",  "Adenauer OS"),
-    tags$a(href="#section_fahndung",    "Fahndung"),
-    tags$a(href="#section_meta",        "Metadaten"),
-    tags$a(href="#section_zeitreihen",  "Zeitreihen"),
-    tags$a(href="#section_iframeExtra", "Statistiktok"),
-    tags$a(href="#section_hashtag",     "Hashtag"),
-    tags$a(href="#section_medienholen", "Contentschleuder"),
-    tags$a(href="#section_photoarchiv", "Photo-Archiv"),
-    tags$a(href="#section_videoarchiv", "Video-Archiv"),
-    tags$a(href="#section_reiter2",     "Beweisführung"),
-    tags$a(href="#section_anheuern",    "Anheuern"),
-    tags$a(href="#section_impressum",   "Impressum")
+    class = "navButtons",
+    tags$button(class = "navButton", "< zurück", onclick = "geheZurueck()"),
+    tags$button(class = "navButton", "weiter >",  onclick = "geheVor()")
   ),
 
-  # 14 Sektionen, je 100vh hoch, scroll-snap
+  # Hamburger-Menü (LINKS statt rechts)
+  div(
+    id = "mySidenav", class = "sidenav",
+    tags$a(
+      href     = "javascript:void(0)",
+      class    = "closebtn",
+      onclick  = "closeNav()",
+      HTML("&times;")
+    ),
+    tags$a("Start",            onclick="zeigeAktiveSektion(0); closeNav();"),
+    tags$a("Einführung",       onclick="zeigeAktiveSektion(1); closeNav();"),
+    tags$a("Adenauer OS",      onclick="zeigeAktiveSektion(2); closeNav();"),
+    tags$a("Fahndung",         onclick="zeigeAktiveSektion(3); closeNav();"),
+    tags$a("Metadaten",        onclick="zeigeAktiveSektion(4); closeNav();"),
+    tags$a("Zeitreihen",       onclick="zeigeAktiveSektion(5); closeNav();"),
+    tags$a("Statistiktok",     onclick="zeigeAktiveSektion(6); closeNav();"),
+    tags$a("Hashtag",          onclick="zeigeAktiveSektion(7); closeNav();"),
+    tags$a("Contentschleuder", onclick="zeigeAktiveSektion(8); closeNav();"),
+    tags$a("Photo-Archiv",     onclick="zeigeAktiveSektion(9); closeNav();"),
+    tags$a("Video-Archiv",     onclick="zeigeAktiveSektion(10); closeNav();"),
+    tags$a("Beweisführung",    onclick="zeigeAktiveSektion(11); closeNav();"),
+    tags$a("Anheuern",         onclick="zeigeAktiveSektion(12); closeNav();"),
+    tags$a("Impressum",        onclick="zeigeAktiveSektion(13); closeNav();")
+  ),
+
+  # --- 14 Sektionen ---
+
   # 1) Start
   div(
-    id="section_start", class="sectionBlock",
+    id = "section_start", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Projekt Tricktok", class="sectionHeadline"),
-      p("Methode zur systematischen Erfassung, Dokumentation und Analyse von Medien auf Tiktok."),
+      class = "sectionContent",
+      p("Projekt Tricktok: Methode zur systematischen Erfassung, Dokumentation und Analyse von Medien auf Tiktok."),
       img(
-        src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/adenauer-os/static/banderole.png",
-        style="width:100%; max-width:900px; height:auto; margin-top:10px;"
+        src   = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/adenauer-os/static/banderole.png",
+        style = "width:100%; max-width:900px; height:auto; margin-top:10px;"
       )
     )
   ),
 
   # 2) Einführung
   div(
-    id="section_intro", class="sectionBlock",
+    id = "section_intro", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Einführung", class="sectionHeadline"),
+      class = "sectionContent",
       div(
-        class="markdown-container",
+        class = "markdown-container",
         includeMarkdown("intro.md")
       )
     )
@@ -336,53 +489,46 @@ ui <- fluidPage(
 
   # 3) Adenauer OS
   div(
-    id="section_adenaueros", class="sectionBlock",
+    id = "section_adenaueros", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Adenauer OS", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      # Leicht skaliert
-      tags$iframe(
-        src="https://tricktok.afd-verbot.de/",
-        style="transform:scale(0.8); transform-origin: top center; width:125%; height:125%;"
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://tricktok.afd-verbot.de/")
       )
     )
   ),
 
   # 4) Fahndungsliste
   div(
-    id="section_fahndung", class="sectionBlock",
+    id = "section_fahndung", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Fahndungsliste", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://tricktok.afd-verbot.de/fahndungsliste")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://tricktok.afd-verbot.de/fahndungsliste")
+      )
     )
   ),
 
   # 5) Metadaten
   div(
-    id="section_meta", class="sectionBlock",
+    id = "section_meta", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Tricktok Metadaten", class="sectionHeadline"),
+      class = "sectionContent",
       div(
-        class="meta-info-block",
+        class = "meta-info-block",
         img(
-          src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
-          height="200px"
+          src    = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-remote-beobachter/qrcode.png",
+          height = "200px"
         ),
         div(
-          class="meta-info-text",
-          p("Zentrale Datenbank verwaltet Tiktok-Kanäle ...")
+          class = "meta-info-text",
+          p("Zentrale Datenbank verwaltet Tiktok-Kanäle der Fahndungsliste und stellt Links für automatisierten Abruf bereit. Mehrere Clients nutzen verteilte Verbindungen, um Anfragen an Tiktok-Server zu senden. Erhaltene Metadaten und Reichweitenstatistiken werden in zentraler Datenbank gespeichert. Ein Python-Programm übernimmt Extraktion der Daten. Verteilter Abruf auf mehreren Geräten reduziert das Risiko von IP-Sperrungen. Live-Monitoring ermöglicht kontinuierliche Reichweiten-Erfassung.")
         )
       ),
       div(
-        class="exportButtons",
+        class = "exportButtons",
         downloadButton("download_links",      "Export Fahndungsliste"),
         downloadButton("download_metadata",   "Export Medien-Metadaten"),
         downloadButton("download_timeseries", "Export Zeitreihen")
@@ -392,103 +538,95 @@ ui <- fluidPage(
 
   # 6) Zeitreihen
   div(
-    id="section_zeitreihen", class="sectionBlock",
+    id = "section_zeitreihen", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Zeitreihen", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://py.afd-verbot.de/zeitreihen/?uploader=23.02.25afd&video=7471398852642278678")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://py.afd-verbot.de/zeitreihen/?uploader=23.02.25afd&video=7471398852642278678")
+      )
     )
   ),
 
   # 7) Statistiktok
   div(
-    id="section_iframeExtra", class="sectionBlock",
+    id = "section_iframeExtra", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Statistiktok", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://py.afd-verbot.de/statistiktok/")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://py.afd-verbot.de/statistiktok/")
+      )
     )
   ),
 
-  # 8) Hashtag-Suche
+  # 8) Hashtag
   div(
-    id="section_hashtag", class="sectionBlock",
+    id = "section_hashtag", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Hashtag-Suche", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://tricktok.afd-verbot.de/suche/")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://tricktok.afd-verbot.de/suche/")
+      )
     )
   ),
 
   # 9) Contentschleuder
   div(
-    id="section_medienholen", class="sectionBlock",
+    id = "section_medienholen", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Contentschleuder", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://py.afd-verbot.de/bilderwerfer/")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://py.afd-verbot.de/bilderwerfer/")
+      )
     )
   ),
 
   # 10) Photo-Archiv
   div(
-    id="section_photoarchiv", class="sectionBlock",
+    id = "section_photoarchiv", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Photo-Archiv", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://py.afd-verbot.de/photoarchiv/")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://py.afd-verbot.de/photoarchiv/")
+      )
     )
   ),
 
   # 11) Video-Archiv
   div(
-    id="section_videoarchiv", class="sectionBlock",
+    id = "section_videoarchiv", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Video-Archiv", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://tricktok.afd-verbot.de/video_feature")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://tricktok.afd-verbot.de/video_feature")
+      )
     )
   ),
 
-  # 12) Reiter2 / Beweisführung
+  # 12) Beweisführung
   div(
-    id="section_reiter2", class="sectionBlock",
+    id = "section_reiter2", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Beweisführung", class="sectionHeadline")
-    ),
-    div(
-      class="iframe-wrapper",
-      tags$iframe(src="https://py.afd-verbot.de/beweise/")
+      class = "sectionContent",
+      div(
+        class = "iframe-wrapper",
+        tags$iframe(src="https://py.afd-verbot.de/beweise/")
+      )
     )
   ),
 
   # 13) Anheuern
   div(
-    id="section_anheuern", class="sectionBlock",
+    id = "section_anheuern", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Anheuern", class="sectionHeadline"),
+      class = "sectionContent",
       div(
-        class="markdown-container",
+        class = "markdown-container",
         includeMarkdown("anheuern.md")
       )
     )
@@ -496,12 +634,11 @@ ui <- fluidPage(
 
   # 14) Impressum
   div(
-    id="section_impressum", class="sectionBlock",
+    id = "section_impressum", class = "sectionBlock",
     div(
-      class="sectionContent",
-      h2("Impressum", class="sectionHeadline"),
+      class = "sectionContent",
       div(
-        class="markdown-container",
+        class = "markdown-container",
         includeMarkdown("impressum.md")
       )
     )
@@ -514,7 +651,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   cat("[Server] Appstart. Verbindung zur DB...\n")
 
-  # DB-Verbindung (optional)
+  # DB-Verbindung
   dotenv::load_dot_env(".env")
   con <- dbConnect(
     Postgres(),
@@ -529,40 +666,64 @@ server <- function(input, output, session) {
     dbDisconnect(con)
   })
 
-  # CSV-Downloads
+  # Gemeinsamer 30s-Cooldown
+  observe({})
+
+  checkCooldown <- function() {
+    nowSec <- as.numeric(Sys.time())
+    diff   <- nowSec - LAST_DOWNLOAD_TIME
+    if(diff < COOLDOWN_SECONDS) {
+      stop(paste0(
+        "Bitte noch ",
+        round(COOLDOWN_SECONDS - diff),
+        " Sekunden warten, bevor erneut exportiert wird!"
+      ))
+    }
+    assign("LAST_DOWNLOAD_TIME", nowSec, envir = .GlobalEnv)
+  }
+
   output$download_links <- downloadHandler(
-    filename = function() { paste0("links_", Sys.Date(), ".csv") },
+    filename = function() {
+      paste0("links_", Sys.Date(), ".csv")
+    },
     content = function(file) {
+      checkCooldown()
       df <- lade_links(con)
       write.csv(df, file, row.names=FALSE, fileEncoding="UTF-8")
     }
   )
+
   output$download_metadata <- downloadHandler(
-    filename = function() { paste0("media_metadata_", Sys.Date(), ".csv") },
+    filename = function() {
+      paste0("media_metadata_", Sys.Date(), ".csv")
+    },
     content = function(file) {
+      checkCooldown()
       df <- lade_media_metadata(con)
       write.csv(df, file, row.names=FALSE, fileEncoding="UTF-8")
     }
   )
+
   output$download_timeseries <- downloadHandler(
-    filename = function() { paste0("media_time_series_", Sys.Date(), ".csv") },
+    filename = function() {
+      paste0("media_time_series_", Sys.Date(), ".csv")
+    },
     content = function(file) {
+      checkCooldown()
       df <- lade_media_time_series(con)
       write.csv(df, file, row.names=FALSE, fileEncoding="UTF-8")
     }
   )
 }
 
-# -------------------------------------------------------
-# App-Start
-# -------------------------------------------------------
 cat("==== Starting shinyApp ====\n")
+
 shinyApp(
   ui = ui,
   server = server,
   options = list(
-    host="0.0.0.0",
-    port=4040,
-    launch.browser=FALSE
+    host           = "0.0.0.0",
+    port           = 4040,
+    launch.browser = FALSE
   )
 )

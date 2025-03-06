@@ -14,14 +14,50 @@
       background: #fafafa;
       font-family: sans-serif;
     }
-    /* Canvas, wird per JS angelegt */
+
+    /* Canvas wird per JS angelegt (ID: "worldCanvas") */
     #worldCanvas {
       display: block;
       background: #ffffff;
     }
+
+    /* Overlay-Container => mittig platzieren */
+    #centerOverlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); 
+      text-align: center;
+      z-index: 9999;
+      color: #333;
+
+      /* Kein Textauswählen / Kopieren */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Große Schrift für den Titel */
+    #centerOverlay h1 {
+      font-size: 2em;  /* nach Bedarf anpassen */
+      margin: 0.5em 0;
+    }
+
+    /* Etwas kleinere Schrift für die Unterzeile */
+    #centerOverlay p {
+      font-size: 1.2em; 
+      margin: 0.5em 0;
+    }
   </style>
 </head>
 <body>
+  <!-- Text-Overlay -->
+  <div id="centerOverlay">
+    <h1>Projekt Tricktok</h1>
+    <p>Methode zur systematischen Erfassung, Dokumentation und Analyse von Medien auf Tiktok.</p>
+  </div>
+
   <!-- Matter.js via CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <!-- Haupt-Skript -->
