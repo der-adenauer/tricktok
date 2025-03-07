@@ -1,0 +1,9 @@
+<svg viewBox="0 0 174.47064 46.34594" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wave-gradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop style="stop-color:#00003f;" offset="0" id="deep-ocean" />
+      <stop style="stop-color:#4e6fff;" offset="1" id="shallow-ocean" />
+    </linearGradient>
+  </defs>
+  <path style="fill:url(#wave-gradient);fill-rule:evenodd" d="m 0,11.38448 c 0,0 21.133851,11.39531 43.617661,11.38441 C 66.101471,22.75799 107.96856,0.03262 130.508,7e-5 c 22.53944,-0.0325 43.96264,11.38441 43.96264,11.38441 V 46.34594 H 0 Z" />
+</svg>
