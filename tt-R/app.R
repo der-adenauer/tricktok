@@ -625,7 +625,7 @@ ui <- fluidPage(
          ========================================================= */
 .floating-images-container {
   position: relative;
-  bottom: 650px;        /* Diese Zahl anpassen, um Höhe über dem Rand zu ändern */
+  bottom: 640px;        /* Diese Zahl anpassen, um Höhe über dem Rand zu ändern */
   left: 0;
   width: 100%;
   height: 0;
@@ -634,42 +634,40 @@ ui <- fluidPage(
 }
 
 
-      .floating-image {
-        position: absolute;
-        display: none; /* Ausblenden bis zur Aktivierung */
-        width: auto;
-        height: auto;
-        transform: scale(0.33); /* 3% Originalgröße */
-        animation: floatUpDown 5s infinite ease-in-out; /* Gleiche Dauer wie wave */
-      }
+      .floating-images-container {
+  position: relative;
+  bottom: 670px;  /* Diese Zahl für Höhe anpassen */
+  left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+  z-index: 0;
+}
 
-      /* Einfaches Auf-und-Ab (in Y-Richtung) für synchronen Effekt */
-      @keyframes floatUpDown {
-        0%, 100% {
-          transform: translateY(0) scale(0.03);
-        }
-        50% {
-          transform: translateY(-30px) scale(0.03);
-        }
-      }
+.floating-image {
+  position: absolute;
+  display: none; /* Erst ausblenden */
+  width: auto;
+  height: auto;
+  transform: scale(0.43); /* Größe */
+  animation: floatUpDown 5s infinite ease-in-out; /* Synchron mit Wellenbewegung */
+}
 
-      /* Horizontal-Animation: langsames Einblenden und von rechts -> links */
-      .moveFromRight {
-        animation: moveHorizontally 10s linear forwards;
-        /* 5s = Dauer eines Wellenloops */
-      }
-      @keyframes moveHorizontally {
-        0% {
-          right: -100px; /* Start knapp rechts außerhalb */
-          opacity: 0.0;
-        }
-        5% {
-          opacity: 1.0;
-        }
-        100% {
-          right: 100%; /* nach links raus */
-          opacity: 1.0;
-        }
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0) scale(0.03); }
+  50% { transform: translateY(-300px) scale(0.03); }
+}
+
+.moveFromRight {
+  animation: moveHorizontally 10s linear forwards;
+}
+
+@keyframes moveHorizontally {
+  0% { right: -100px; opacity: 0.0; }
+  5% { opacity: 1.0; }
+  100% { right: 100%; opacity: 1.0; }
+}
+
       }
     ")),
 
