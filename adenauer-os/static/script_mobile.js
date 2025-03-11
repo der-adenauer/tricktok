@@ -211,11 +211,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon14 (Nachrichten)
+  // Icon14 (Jukebox)
   const icon14 = document.getElementById("icon14");
   if (icon14) {
     icon14.addEventListener("click", () => {
-      openFullScreenModal("https://neuters.de/search?query=tiktok", "Nachrichten", null, true);
+      openFullScreenModal("https://py.afd-verbot.de/jukebox/", "Jukebox", null, true);
     });
   }
 
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon18 (Beweisführung) - optional
+  // Icon18 (Beweisführung)
   const icon18 = document.getElementById("icon18");
   if (icon18) {
     icon18.addEventListener("click", () => {
