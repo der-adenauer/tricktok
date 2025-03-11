@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const icon13 = document.getElementById("icon13");
   if (icon13) {
     icon13.addEventListener("click", () => {
-      openFullScreenModal("/video_feature", "Player");
+      openFullScreenModal("https://tricktok.net", "Player");
     });
   }
 
