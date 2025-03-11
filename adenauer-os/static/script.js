@@ -266,25 +266,25 @@ const template12 = `
 `;
 
 const template13 = `
-<div class="window modal-window" data-win="win13" style="width:1000px; height:700px;">
+<div class="window modal-window" data-win="win13" style="width:250px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Tricktok-Video</h1>
+    <h1 class="title">Tricktok-Live</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <iframe src="/video_feature" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="https://tricktok.net" style="width:155%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
 
 const template19 = `
-<div class="window modal-window" data-win="win19" style="width:800px; height:600px;">
+<div class="window modal-window" data-win="win19" style="max-width:100vw; max-height:70vh; width:40%; height:100%;">
   <div class="title-bar" style="justify-content:space-between;">
-    <h1 class="title">Nachrichten</h1>
+    <h1 class="title">Jukebox</h1>
     <span class="close"></span>
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
-    <iframe src="https://neuters.de/search?query=tiktok" style="width:100%; height:100%; border:none;"></iframe>
+    <iframe src="https://py.afd-verbot.de/jukebox/" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
