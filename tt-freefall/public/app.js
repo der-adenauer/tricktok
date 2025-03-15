@@ -98,13 +98,13 @@ const photoBodies = [];
 const maxCount = 150; // maximale Anzahl gleichzeitig
 
 // Globale (feste) Skalierung => Bilder sehr klein
-let currentGlobalScale = 0.15;
+let currentGlobalScale = 0.09;
 
 /**
  * boundingBoxFactor => vergrößert die Kollision
  * => leichteres Anklicken
  */
-const boundingBoxFactor = 10.4;
+const boundingBoxFactor = 8.4;
 
 /**
  * Bilder hinzufügen => periodisch, kein Button
