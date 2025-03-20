@@ -42,6 +42,10 @@
 #       14) Beweisführung
 #       15) Anheuern
 #       16) Impressum
+#
+#   - Zusätzlich: neue Sektion „Hashtags“ (Index 17) mit iframe
+#     tricktok.afd-verbot.de/suche
+#     (Kopie der „Statistiktok“-Sektion, aber anderer iframe-Link)
 # ==================================================
 
 options(shiny.fullstacktrace = TRUE)
@@ -125,7 +129,8 @@ ui <- fluidPage(
     tags$script(HTML("
       var currentSectionIndex = 0;
       var sections = [];
-      // Reihenfolge / Titel (Index 5: Tricktok-Tutorial)
+      // Reihenfolge / Titel laut oben
+      // + neue Section ‚Hashtags‘ am Ende (Index 17)
       var sectionTitles = [
         'Start',
         'Einführung',
@@ -141,7 +146,8 @@ ui <- fluidPage(
         'Photo-Archiv',
         'Beweisführung',
         'Anheuern',
-        'Impressum'
+        'Impressum',
+        'Hashtags'
       ];
 
       function openNav(){
@@ -209,7 +215,7 @@ ui <- fluidPage(
     ")),
 
     # --------------------------------
-    # CSS
+    # Zusätzliche CSS
     # --------------------------------
     tags$style(HTML("
       html, body {
@@ -438,95 +444,73 @@ ui <- fluidPage(
         }
       }
 
-/* --- An anderen Stellen unverändert, aber das hier bitte ersetzen/ergänzen --- */
-
-/* Der Einführungsabschnitt (#section_intro) erlaubt Overflow, 
-   damit die Bilder oben/unten nicht abgeschnitten werden */
-#section_intro {
-  overflow: visible !important;  /* wichtig, sonst 'overflow:hidden' */
-  position: relative;            /* Kinder (floating-images-container) können absolut sein */
-}
-
-/* Container für die Bilder, positioniert über den Wellen */
-.floating-images-container {
-  position: absolute;
-  bottom: 660px;   /* je nach gewünschter Höhe */
-  left: 0;
-  width: 100%;
-  height: 0;
-  pointer-events: none;
-  z-index: 5;      /* höher als wave (z-index:1 oder 0) */
-}
-
-/* Anfangszustand: display:none (später per JS auf 'block' gesetzt) */
-.floating-image {
-  position: absolute;
-  display: none;
-  width: auto;
-  height: auto;
-  transform: scale(0.43); /* Skalierung Desktop */
-}
-
-/* Desktop-Keyframes: 25s, von rechts außerhalb (right:-40%) 
-   nach links außerhalb (right:140%), 
-   zwischendrin leichte Wellenbewegung */
-@keyframes moveHorizontallyDesktop {
-  0% {
-    right: -40%;
-    transform: translateY(0) scale(0.43);
-  }
-  25% {
-    transform: translateY(-50px) scale(0.43);
-  }
-  50% {
-    transform: translateY(0) scale(0.43);
-  }
-  75% {
-    transform: translateY(-40px) scale(0.43);
-  }
-  100% {
-    right: 140%;
-    transform: translateY(0) scale(0.43);
-  }
-}
-
-/* Mobile-Keyframes: 15s, weiter außen starten (z. B. -60%) / enden (160%). 
-   Auch weniger Vertikalbewegung, wenn gewünscht. */
-@keyframes moveHorizontallyMobile {
-  0% {
-    right: -160%;
-    transform: translateY(0) scale(0.35);
-  }
-  25% {
-    transform: translateY(-35px) scale(0.35);
-  }
-  50% {
-    transform: translateY(0) scale(0.35);
-  }
-  75% {
-    transform: translateY(-25px) scale(0.35);
-  }
-  100% {
-    right: 160%;
-    transform: translateY(0) scale(0.35);
-  }
-}
-
-/* Standard-Fall (Desktop): 15s, Keyframes moveHorizontallyDesktop */
-.moveFromRight {
-  animation: moveHorizontallyDesktop 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) forwards;
-}
-
-/* Mobile-Anpassungen per Media Query:
-   - andere Keyframes
-   - andere Dauer (z. B. 15s)
-*/
-@media (max-width: 768px) {
-  .moveFromRight {
-    animation: moveHorizontallyMobile 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) forwards;
-  }
-}
-
+      /* Der Einführungsabschnitt (#section_intro) erlaubt Overflow */
+      #section_intro {
+        overflow: visible !important;  
+        position: relative;
+      }
+      .floating-images-container {
+        position: absolute;
+        bottom: 660px; 
+        left: 0;
+        width: 100%;
+        height: 0;
+        pointer-events: none;
+        z-index: 5;
+      }
+      .floating-image {
+        position: absolute;
+        display: none;
+        width: auto;
+        height: auto;
+        transform: scale(0.43);
+      }
+      @keyframes moveHorizontallyDesktop {
+        0% {
+          right: -40%;
+          transform: translateY(0) scale(0.43);
+        }
+        25% {
+          transform: translateY(-50px) scale(0.43);
+        }
+        50% {
+          transform: translateY(0) scale(0.43);
+        }
+        75% {
+          transform: translateY(-40px) scale(0.43);
+        }
+        100% {
+          right: 140%;
+          transform: translateY(0) scale(0.43);
+        }
+      }
+      @keyframes moveHorizontallyMobile {
+        0% {
+          right: -160%;
+          transform: translateY(0) scale(0.35);
+        }
+        25% {
+          transform: translateY(-35px) scale(0.35);
+        }
+        50% {
+          transform: translateY(0) scale(0.35);
+        }
+        75% {
+          transform: translateY(-25px) scale(0.35);
+        }
+        100% {
+          right: 160%;
+          transform: translateY(0) scale(0.35);
+        }
+      }
+      .moveFromRight {
+        animation: moveHorizontallyDesktop 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) forwards;
+      }
+      @media (max-width: 768px) {
+        .moveFromRight {
+          animation: moveHorizontallyMobile 15s cubic-bezier(0.36, 0.45, 0.63, 0.53) forwards;
+        }
+      }
 
       /* Scrollytelling-Effekte */
       .scrollWrapper {
@@ -630,82 +614,93 @@ ui <- fluidPage(
       }
 
       .two-column-container {
-        display: flex; 
-        flex-wrap: wrap; 
+        display: flex;
+        flex-wrap: wrap;
         gap: 20px;
       }
       .two-column-container > div {
-        flex: 1; 
-        min-width: 200px; 
+        flex: 1;
+        min-width: 200px;
         max-width: 50%;
+      }
+
+      /* Zusätzliche CSS-Regeln für blaue Welle in finalem Zitat */
+      .blueWave {
+        font-family: 'Brush Script MT', cursive;
+        color: #0066cc;
+        display: inline-block;
+        animation: blueWaveAnim 2.5s infinite alternate ease-in-out;
+      }
+      @keyframes blueWaveAnim {
+        0%   { transform: scale(1) rotate(0deg); }
+        50%  { transform: scale(1.2) rotate(3deg); }
+        100% { transform: scale(1) rotate(0deg); }
       }
     ")),
 
     # --------------------------------
     # JS: Scrollytelling-Effekte
     # --------------------------------
-tags$script(HTML("
-  function checkSloganBars(){
-    var elements = document.querySelectorAll('.slogan-bar-right, .quote-left, .quote-right');
-    for (var i = 0; i < elements.length; i++) {
-      var rect = elements[i].getBoundingClientRect();
-      var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      if (rect.top <= windowHeight - 100 && rect.bottom >= 0) {
-        elements[i].classList.add('show');
+    tags$script(HTML("
+      function checkSloganBars(){
+        var elements = document.querySelectorAll('.slogan-bar-right, .quote-left, .quote-right');
+        for (var i = 0; i < elements.length; i++) {
+          var rect = elements[i].getBoundingClientRect();
+          var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+          if (rect.top <= windowHeight - 100 && rect.bottom >= 0) {
+            elements[i].classList.add('show');
+          }
+        }
       }
-    }
-  }
 
- document.addEventListener('DOMContentLoaded', function(){
-  // 1) Scrollytelling-Effekte wie gehabt (Intro, Meta, Tutorial)
-  var scrollWrapper = document.getElementById('introScrollWrapper');
-  if(scrollWrapper){
-    scrollWrapper.addEventListener('scroll', checkSloganBars);
-    setTimeout(function(){ checkSloganBars(); }, 200);
-  }
+      document.addEventListener('DOMContentLoaded', function(){
+        // 1) Scrollytelling-Effekte (Intro, Meta, Tutorial)
+        var scrollWrapper = document.getElementById('introScrollWrapper');
+        if(scrollWrapper){
+          scrollWrapper.addEventListener('scroll', checkSloganBars);
+          setTimeout(function(){ checkSloganBars(); }, 200);
+        }
 
-  var metaScrollWrapper = document.getElementById('metaScrollWrapper');
-  if(metaScrollWrapper){
-    metaScrollWrapper.addEventListener('scroll', checkSloganBars);
-    setTimeout(function(){ checkSloganBars(); }, 200);
-  }
+        var metaScrollWrapper = document.getElementById('metaScrollWrapper');
+        if(metaScrollWrapper){
+          metaScrollWrapper.addEventListener('scroll', checkSloganBars);
+          setTimeout(function(){ checkSloganBars(); }, 200);
+        }
 
-  var tutorialScrollWrapper = document.getElementById('tricktokTutorialScrollWrapper');
-  if(tutorialScrollWrapper){
-    tutorialScrollWrapper.addEventListener('scroll', checkSloganBars);
-    setTimeout(function(){ checkSloganBars(); }, 200);
-  }
+        var tutorialScrollWrapper = document.getElementById('tricktokTutorialScrollWrapper');
+        if(tutorialScrollWrapper){
+          tutorialScrollWrapper.addEventListener('scroll', checkSloganBars);
+          setTimeout(function(){ checkSloganBars(); }, 200);
+        }
 
-  // 2) Floating Images: Unabhängig von Wellen. 
-  var floatingImages = document.querySelectorAll('.floating-image');
-  var imageIndex = 0;
+        // 2) Floating Images: Unabhängig von Wellen.
+        var floatingImages = document.querySelectorAll('.floating-image');
+        var imageIndex = 0;
 
-  // Optional: direkt erstes Bild starten
-  triggerNextImage();
+        // Optional: direkt erstes Bild starten
+        triggerNextImage();
 
-  // Alle 25s ein neues Bild anstoßen (Flug)
-  setInterval(triggerNextImage, 12000);
+        // Alle 25s ein neues Bild anstoßen (Flug)
+        setInterval(triggerNextImage, 12000);
 
-  function triggerNextImage() {
-    // Alle Bilder unsichtbar machen
-    for(var i=0; i<floatingImages.length; i++){
-      floatingImages[i].style.display = 'none';
-      floatingImages[i].classList.remove('moveFromRight');
-    }
-    // Nächstes Bild anzeigen + Animation triggern
-    var img = floatingImages[imageIndex];
-    img.style.display = 'block';
-    // Reflow Trick
-    void img.offsetWidth;
-    img.classList.add('moveFromRight');
+        function triggerNextImage() {
+          // Alle Bilder unsichtbar machen
+          for(var i=0; i<floatingImages.length; i++){
+            floatingImages[i].style.display = 'none';
+            floatingImages[i].classList.remove('moveFromRight');
+          }
+          // Nächstes Bild anzeigen + Animation triggern
+          var img = floatingImages[imageIndex];
+          img.style.display = 'block';
+          // Reflow Trick
+          void img.offsetWidth;
+          img.classList.add('moveFromRight');
 
-    // Weiter zum nächsten
-    imageIndex = (imageIndex + 1) % floatingImages.length;
-  }
-});
-
-"))
-
+          // Weiter zum nächsten
+          imageIndex = (imageIndex + 1) % floatingImages.length;
+        }
+      });
+    "))
   ),
 
   # --------------------------------------------------
@@ -758,7 +753,9 @@ tags$script(HTML("
     tags$a("Photo-Archiv",      onclick="zeigeAktiveSektion(11); closeNav();"),
     tags$a("Beweisführung",     onclick="zeigeAktiveSektion(12); closeNav();"),
     tags$a("Anheuern",          onclick="zeigeAktiveSektion(13); closeNav();"),
-    tags$a("Impressum",         onclick="zeigeAktiveSektion(14); closeNav();")
+    tags$a("Impressum",         onclick="zeigeAktiveSektion(14); closeNav();"),
+    # Neue Sektion (Index 15) Hashtags
+    tags$a("Hashtags",          onclick="zeigeAktiveSektion(15); closeNav();")
   ),
 
   # --------------------------------------------------
@@ -782,7 +779,7 @@ tags$script(HTML("
     )
   ),
 
-  # 1) Einführung
+  # 1) Einführung (inkl. neuer Zitate + blauer Welle)
   div(
     id = "section_intro", 
     class = "sectionBlock",
@@ -792,8 +789,8 @@ tags$script(HTML("
         id = "introScrollWrapper", 
         class = "scrollWrapper",
 
-
-          div(
+        # Logo oben
+        div(
           class="start-image",
           img(
             src   = "https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/logo1.png",
@@ -832,15 +829,12 @@ tags$script(HTML("
           span(class = "quote-citation", "- Algo 101 , Bytedance , Peking ")
         ),
 
-                  div(
-            class = "quote-right show",
-            "\".. kennt keine keine demokratischen Werte \"",
-          
-          ),
-        
+        div(
+          class = "quote-right show",
+          "\".. kennt keine keine demokratischen Werte \""
+        ),
 
-          
-
+        # Verstärkung von Ängsten ...
         div(
           class = "scroll-section",
           div(
@@ -849,15 +843,16 @@ tags$script(HTML("
           ),
           div(
             class = "quote-left",
-            "\"But if your democracy can be destroyed with a few hundred thousand dollars of digital advertising from a foreign country, then it wasn’t very strong to begin with. \"",
+            "\"But if your democracy can be destroyed with a few hundred thousand dollars of digital advertising from a foreign country, then it wasn’t very strong to begin with.\"",
             span(class = "quote-citation", "- J.D Vance, 2025 in München")
           )
         ),
 
+        # Untergrabung des Vertrauens ...
         div(
           class = "scroll-section",
           div(
-            class="slogan-bar slogan-bar-right",
+            class = "slogan-bar slogan-bar-right",
             "Untergrabung des Vertrauens in staatliche Institutionen."
           ),
           div(
@@ -867,6 +862,7 @@ tags$script(HTML("
           )
         ),
 
+        # Stärkung euroskeptischer ...
         div(
           class = "scroll-section",
           div(
@@ -880,41 +876,106 @@ tags$script(HTML("
           )
         ),
 
+        # Darstellung negativer Auswirkungen ...
         div(
           class = "scroll-section",
-          style = "margin: 10px 0;",
           div(
             class = "slogan-bar",
             "Darstellung negativer Auswirkungen politischer Entscheidungen auf die soziale und wirtschaftliche Situation"
           ),
-          p("bäm bäm bäm!", style="color:#666; margin-top:10px; font-weight:bold;")
-        ),
-
-        div(
-          class = "scroll-section",
-          style = "margin: 10px 0;",
           div(
-            class = "slogan-bar",
-            "Zuspitzung sozialer Unzufriedenheit."
-          )
-        ),
-        div(
-          class = "scroll-section",
-          style = "margin: 10px 0;",
-          div(
-            class = "slogan-bar",
-            HTML("Diskreditierung europäischer Führungspersönlichkeiten oder Regierungsparteien.")
-          )
-        ),
-        div(
-          class = "scroll-section",
-          style = "margin: 10px 0;",
-          div(
-            class = "slogan-bar",
-            HTML("Ausnutzung der staatlichen Passivität zur Öffnung weiterer Lücken in der öffentlichen Wahrnehmung.")
+            class = "quote-right",
+            "\"bäm bäm bäm!\""
           )
         ),
 
+                div(
+          class = "scroll-section",
+          div(
+            class = "slogan-bar slogan-bar-right",
+            "Zuspitzung sozialer Unzufriedenheit"
+          ),
+          div(
+            class="quote-right",
+            "\"Tiktok zählt 22 Millionen deutsche Nutzer.\"",
+            span(class="quote-citation", " Tiktok Transparency Report 2024")
+          )
+        ),
+
+# Zuspitzung sozialer Unzufriedenheit
+div(
+  class = "scroll-section",
+  div(
+    class = "quote-left",
+    "\"Die Afd zählt\""
+  )
+),
+
+div(
+  class = "quote-left",
+  "\"Die AfD zählt 10.3 Millionen deutsche Stimmen.\"",
+  span(class="quote-citation", " Bundeswahlleiterin 2025")
+),
+
+div(
+  class = "scroll-section",
+  div(
+    class = "slogan-bar",
+    "Diskreditierung europäischer Führungspersönlichkeiten oder Regierungsparteien"
+  )
+),
+
+                    div(
+            class="quote-right",
+            "Verfahrensschrift zum Tiktok Meldesystem",
+                        br(),
+            "\"Im Übrigen hat die Antragsgegnerin durch ihre automatisierten Antworten (gemäß den Seiten 12, 13 und 15 des Verfügungsantrags), mit welcher sie die Meldung des Antragstellers in Bezug auf den hier in Rede stehenden Account zurückwies, mit dem Hinweis, nach Überprüfung keine Verstöße gefunden zu haben, zum Ausdruck gebracht, dass ihr die vom Antragsteller gemachten Angaben für die Sperre des Accounts nicht ausreichten, was für den Antragsteller die Möglichkeit eröffnete, über die ihm bekannten und leicht auffindbaren Kontaktmöglichkeiten individuell zu erwidern und weiter vorzutragen\"",
+            span(class="quote-citation", " vgl. OLG Frankfurt a. M., Urteil von 24/25).")
+          ),
+        
+
+      
+        div(
+          class = "scroll-section",
+          div(
+            class = "quote-right",
+            "\"Tiktoks Meldesystem ist eine Simulation.\""
+          )
+        ),
+
+
+
+                  div(
+          class = "scroll-section",
+          div(
+            class = "slogan-bar",
+            "Ausnutzung der staatlichen Passivität zur Öffnung weiterer Lücken in der öffentlichen Wahrnehmung."
+          ),
+
+        ),
+
+        # Ausnutzung der staatlichen Passivität ...
+        div(
+          class = "scroll-section",
+          div(
+            class = "quote-left",
+            "\"Ausnutzung der staatlichen Passivität zur Öffnung weiterer Lücken in der öffentlichen Wahrnehmung.\""
+          )
+        ),
+
+
+
+          
+
+        # Finale Aussage mit animierter "blauen Welle"
+        div(
+          class = "scroll-section",
+          div(
+            class = "slogan-bar",
+            "Internationale Akteure cruisen zusammen mit der AfD auf der ",
+            span(class="blueWave", "blauen Welle")
+          )
+        )
       )
     ),
     div(class="wave"),
@@ -922,23 +983,23 @@ tags$script(HTML("
     div(
       class="floating-images-container",
       div(
-        class="floating-image float1", 
+        class="floating-image float1",
         tags$img(src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/de.png")
       ),
       div(
-        class="floating-image float2", 
+        class="floating-image float2",
         tags$img(src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/tt.png")
       ),
       div(
-        class="floating-image float3", 
+        class="floating-image float3",
         tags$img(src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/afd.png")
       ),
       div(
-        class="floating-image float4", 
+        class="floating-image float4",
         tags$img(src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/ru.png")
       ),
       div(
-        class="floating-image float5", 
+        class="floating-image float5",
         tags$img(src="https://raw.githubusercontent.com/der-adenauer/tricktok/refs/heads/main/tt-R/www/usa.png")
       )
     )
@@ -946,7 +1007,7 @@ tags$script(HTML("
 
   # 2) live
   div(
-    id="section_live", 
+    id="section_live",
     class="sectionBlock",
     div(
       class="sectionContent",
@@ -959,7 +1020,7 @@ tags$script(HTML("
 
   # 5) Fahndung
   div(
-    id="section_fahndung", 
+    id="section_fahndung",
     class="sectionBlock",
     div(
       class="sectionContent",
@@ -970,246 +1031,215 @@ tags$script(HTML("
     )
   ),
 
-# 6) Metadaten
-div(
-  id = "section_meta",
-  class = "sectionBlock",
+  # 6) Metadaten
   div(
-    class = "sectionContent",
+    id = "section_meta",
+    class = "sectionBlock",
     div(
-      id = "metaScrollWrapper",
-      class = "scrollWrapper",
-
-
-
-              div(
-        style = "
-          margin-bottom: 15px; 
-          background-color: #000; 
-          color: #fff;
-          font-size: 2.5em; 
-          font-weight: bold;
-          padding: 15px; 
-          white-space: normal; 
-          word-break: break-word;
-        ",
-        "Tricktok-Metadaten"
-      ),
-
-
-
-
-                              p(
-        style = "
-          margin-bottom: 45px; 
-          font-size: 1.2em; 
-          line-height: 1.3;
-        ",
-        "Tricktok ist eine dezentrale, community-basierte Plattform zur Aufdeckung manipulativer Social-Media-Inhalte und um Eingriffe in die europäische Wertegemeinschaft zu identifizieren."
-      ),
-
-
-
-
-      # -- Oberer schwarzer Balken: Tricktok-Metadaten-Download
+      class = "sectionContent",
       div(
-        style = "
-          margin-bottom: 15px; 
-          background-color: #000; 
-          color: #fff;
-          font-size: 2.5em; 
-          font-weight: bold;
-          padding: 15px; 
-          white-space: normal; 
-          word-break: break-word;
-        ",
-        "Tricktok-Metadaten-Download"
-      ),
+        id = "metaScrollWrapper",
+        class = "scrollWrapper",
 
-                    # -- Kurze Einleitung
-      div(
-        class = "quote-right",
-        style = "
-          font-size: 2.0em; 
-          font-weight: bold;
-          margin-bottom: 15px;
-          color: #000;
-        ",
-        "Tricktok Datensatz Größe ca. 3.6 GB"
-      ),
-
-
-      # -- QR-Code + Export-Buttons
-      div(
-        style = "margin: 15px 0; display: flex; align-items: flex-start; gap: 20px;",
-        img(
-          src = "",
-          height = "200px"
+        div(
+          style = "
+            margin-bottom: 15px; 
+            background-color: #000; 
+            color: #fff;
+            font-size: 2.5em; 
+            font-weight: bold;
+            padding: 15px; 
+            white-space: normal; 
+            word-break: break-word;
+          ",
+          "Tricktok-Metadaten"
         ),
 
+        p(
+          style = "
+            margin-bottom: 45px; 
+            font-size: 1.2em; 
+            line-height: 1.3;
+          ",
+          "Tricktok ist eine dezentrale, community-basierte Plattform zur Aufdeckung manipulativer Social-Media-Inhalte und um Eingriffe in die europäische Wertegemeinschaft zu identifizieren."
+        ),
 
-  
-          
+        # Oberer schwarzer Balken: Tricktok-Metadaten-Download
         div(
-          style = "flex: 1;",
-          br(),
-          div(
-            class = "exportButtons",
-            style = "display: flex; flex-direction: column; gap: 10px;",
-            downloadButton("download_links",      "Export Fahndungsliste"),
-            downloadButton("download_metadata",   "Export Medien-Metadaten"),
-            downloadButton("download_timeseries", "Export Zeitreihen")
+          style = "
+            margin-bottom: 15px; 
+            background-color: #000; 
+            color: #fff;
+            font-size: 2.5em; 
+            font-weight: bold;
+            padding: 15px; 
+            white-space: normal; 
+            word-break: break-word;
+          ",
+          "Tricktok-Metadaten-Download"
+        ),
+
+        # Kurze Einleitung
+        div(
+          class = "quote-right",
+          style = "
+            font-size: 2.0em; 
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #000;
+          ",
+          "Tricktok Datensatz Größe ca. 3.6 GB"
+        ),
+
+        # QR-Code + Export-Buttons
+        div(
+          style = "margin: 15px 0; display: flex; align-items: flex-start; gap: 20px;",
+          img(
+            src = "",
+            height = "200px"
           ),
-          br()
-        )
-      ),
-
-      # -- Kurze Einleitung
-      div(
-        class = "quote-left",
-        style = "
-          font-size: 2.0em; 
-          font-weight: bold;
-          margin-bottom: 15px;
-          color: #000;
-        ",
-        "Tricktok ist OPENDATA"
-      ),
-
-
-
-      p(
-        style = "
-          margin-bottom: 15px; 
-          font-size: 1.2em; 
-          line-height: 1.3;
-        ",
-        "Bietet Zugang zu gesammelten Metadaten 
-         für Interessierte und Forschende in digitaler Gesellschaft. 
-         Ermöglicht dezentrale Analyse und Austausch von Arbeitsergebnissen, 
-         um Manipulationsmuster auf Tiktok besser zu verstehen."
-      ),
-
-
-
-      # -- Slogan-Balken: Werde Analyst/in ...
-      div(
-        class = "scroll-section",
-        style = "margin: 20px 0;",
-        div(
-          class = "slogan-bar",
-          "Werde Analyst/in beim Zentrum für politische Schönheit"
-        )
-      ),
-      div(
-        class = "quote-left",
-        style = "margin-bottom: 10px;",
-        "Verantwortungsvolle Position mit Fokus auf gesellschaftliche Herausforderungen",
-        span(class="quote-citation", "Setze zur Impulse")
-      ),
-
-      div(
-        class = "quote-left",
-        style = "margin-bottom: 10px;",
-        "100 % Remote mit Gleitzeit",
-        span(class="quote-citation", "Keine Zeiterfassung")
-      ),
-      div(
-        class = "quote-left",
-        style = "margin-bottom: 10px;",
-        "Ausgestattet mit den besten Methoden unserer Zeit.",
-        span(class="quote-citation", "Verwende KI-Technologien in Bild, Ton und Text")
-      ),  
-
-      div(
-        class = "quote-right",
-        style = "margin-bottom: 10px;",
-        "JETZT bewerben!",
-        span(class="quote-citation", "adenauer@tutamail.com")
-      ),
-
-      p(
-        style = "margin: 10px 0;",
-        "..."
-      ),
-
-
-
-
-           # -- Neuer Slogan-Balken: Hilf bei ...
-      div(
-        class = "scroll-section",
-        style = "margin: 20px 0;",
-        div(
-          class = "slogan-bar",
-          "Hilf bei der Erkennung von Wahl-beeinflussung, Hass und Falschrede."
+          div(
+            style = "flex: 1;",
+            br(),
+            div(
+              class = "exportButtons",
+              style = "display: flex; flex-direction: column; gap: 10px;",
+              downloadButton("download_links",      "Export Fahndungsliste"),
+              downloadButton("download_metadata",   "Export Medien-Metadaten"),
+              downloadButton("download_timeseries", "Export Zeitreihen")
+            ),
+            br()
+          )
         ),
-        # Einzelne Quotes
+
+        # Kurze Einleitung
         div(
           class = "quote-left",
-          style = "margin-bottom: 10px;",
-          "Verfolge die Verbreitung falscher Informationen.",
-          span(class = "quote-citation", "Ermittele deren Ursprung.")
+          style = "
+            font-size: 2.0em; 
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #000;
+          ",
+          "Tricktok ist OPENDATA"
+        ),
+
+        p(
+          style = "
+            margin-bottom: 15px; 
+            font-size: 1.2em; 
+            line-height: 1.3;
+          ",
+          "Bietet Zugang zu gesammelten Metadaten 
+           für Interessierte und Forschende in digitaler Gesellschaft. 
+           Ermöglicht dezentrale Analyse und Austausch von Arbeitsergebnissen, 
+           um Manipulationsmuster auf Tiktok besser zu verstehen."
+        ),
+
+        # Slogan-Balken: Werde Analyst/in ...
+        div(
+          class = "scroll-section",
+          style = "margin: 20px 0;",
+          div(
+            class = "slogan-bar",
+            "Werde Analyst/in beim Zentrum für politische Schönheit"
+          )
         ),
         div(
           class = "quote-left",
           style = "margin-bottom: 10px;",
-          "Indentifiziere automatisierte Accounts (Bots)",
-          span(class = "quote-citation", "Erkenne die Muster.")
+          "Verantwortungsvolle Position mit Fokus auf gesellschaftliche Herausforderungen",
+          span(class="quote-citation", "Setze zur Impulse")
+        ),
+
+        div(
+          class = "quote-left",
+          style = "margin-bottom: 10px;",
+          "100 % Remote mit Gleitzeit",
+          span(class="quote-citation", "Keine Zeiterfassung")
         ),
         div(
           class = "quote-left",
           style = "margin-bottom: 10px;",
-          "Besuche meinungsverstärkende Echokammern.",
-          span(class = "quote-citation", "Mensch, ärgere dich nicht!")
-        ),
-        div(
-          class = "quote-left",
-          style = "margin-bottom: 10px;",
-          "Analysiere virale Trends",
-          span(class = "quote-citation", "Verstehe die modernen Mechanismen schneller Verbreitung von Inhalten.")
-        ),
-        div(
-          class = "quote-left",
-          style = "margin-bottom: 10px;",
-          "Erforsche manipulative Engagement-Strategien",
-          span(class = "quote-citation", "Verstehe dein eigenes Nutzungsverhalten.")
-        )
-      )
-     ,
-
-
-
-
-
-
-        
-
-      # -- Slogan-Balken: Europaweite Offensive
-      div(
-        class = "scroll-section",
-        style = "margin: 20px 0;",
-        div(
-          class = "slogan-bar",
-          "Tricktok Europatour"
+          "Ausgestattet mit den besten Methoden unserer Zeit.",
+          span(class="quote-citation", "Verwende KI-Technologien in Bild, Ton und Text")
         ),
 
-
-              div(
-        class = "scroll-section",
-        style = "margin: 20px 0;",
         div(
           class = "quote-right",
           style = "margin-bottom: 10px;",
-          "Hilf uns Wahlbeeinflussung auf europäischer Ebene zu indentifizieren. ",
-          span(class="quote-citation", "- ZpS-Lab")
-        )
-      ),
+          "JETZT bewerben!",
+          span(class="quote-citation", "adenauer@tutamail.com")
+        ),
 
-        # -----------------------------
-        # Große EU-Wahlliste / Tabelle (jetzt zentriert)
-        # -----------------------------
-        HTML("
+        p(
+          style = "margin: 10px 0;",
+          "..."
+        ),
+
+        # Neuer Slogan-Balken: Hilf bei ...
+        div(
+          class = "scroll-section",
+          style = "margin: 20px 0;",
+          div(
+            class = "slogan-bar",
+            "Hilf bei der Erkennung von Wahl-beeinflussung, Hass und Falschrede."
+          ),
+          # Einzelne Quotes
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Verfolge die Verbreitung falscher Informationen.",
+            span(class = "quote-citation", "Ermittele deren Ursprung.")
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Indentifiziere automatisierte Accounts (Bots)",
+            span(class = "quote-citation", "Erkenne die Muster.")
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Besuche meinungsverstärkende Echokammern.",
+            span(class = "quote-citation", "Mensch, ärgere dich nicht!")
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Analysiere virale Trends",
+            span(class = "quote-citation", "Verstehe die modernen Mechanismen schneller Verbreitung von Inhalten.")
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Erforsche manipulative Engagement-Strategien",
+            span(class = "quote-citation", "Verstehe dein eigenes Nutzungsverhalten.")
+          )
+        ),
+
+        # Slogan-Balken: Europaweite Offensive
+        div(
+          class = "scroll-section",
+          style = "margin: 20px 0;",
+          div(
+            class = "slogan-bar",
+            "Tricktok Europatour"
+          ),
+
+          div(
+            class = "scroll-section",
+            style = "margin: 20px 0;",
+            div(
+              class = "quote-right",
+              style = "margin-bottom: 10px;",
+              "Hilf uns Wahlbeeinflussung auf europäischer Ebene zu indentifizieren. ",
+              span(class="quote-citation", "- ZpS-Lab")
+            )
+          ),
+
+          # Große EU-Wahlliste / Tabelle
+          HTML("
 <div style='margin-top:20px;'>
   <style>
     .mini-table {
@@ -1225,14 +1255,14 @@ div(
     .mini-table td {
       border: 1px solid #ccc;
       padding: 8px;
-      text-align: center; /* Zentrierung */
+      text-align: center; 
       vertical-align: middle;
     }
     .mini-table tbody tr:nth-child(even) {
       background-color: #fafafa;
     }
     .flag {
-      font-size: 1.5em; /* Flaggen in größerer Schriftgröße */
+      font-size: 1.5em; 
       margin-right: 6px;
     }
   </style>
@@ -1354,62 +1384,40 @@ div(
   </table>
 </div>
 ")
-      ),
-
-
-
-      # -- Weiterer Slogan
-div(
-  class = "scroll-section",
-  style = "margin: 20px 0;",
-  
-  div(
-    class = "slogan-bar slogan-bar-right",
-    "Tricktok ist Open-Source."
-  ),
-  
-  div(
-    class = "quote-left",
-    style = "margin-bottom: 10px;",
-    "Installiere eine Tricktok-Instanz in deinem EU-Staat",
-    span(class="quote-citation", "")
-  ),
-  
-  # Hier das Bild der Tabelle einfügen
-#  img(
-#    src    = "DEIN-BILD-URL.png",  # Ersetze mit der richtigen Bild-URL
-#    height = "400px"
-#  ),
-
-
-
-
-      ),
-
-
-      
-      div(
-        class = "scroll-section",
-        style = "margin: 20px 0;",
-        div(
-          class = "slogan-bar",
-          "Gestalte wehrhafte Digitalpolitik"
         ),
+
         div(
-          class = "quote-left",
-          style = "margin-bottom: 10px;",
-          "Sei dabei.",
-          span(class="quote-citation", "")
+          class = "scroll-section",
+          style = "margin: 20px 0;",
+          div(
+            class = "slogan-bar slogan-bar-right",
+            "Tricktok ist Open-Source."
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Installiere eine Tricktok-Instanz in deinem EU-Staat"
+          )
+        ),
+
+        div(
+          class = "scroll-section",
+          style = "margin: 20px 0;",
+          div(
+            class = "slogan-bar",
+            "Gestalte wehrhafte Digitalpolitik"
+          ),
+          div(
+            class = "quote-left",
+            style = "margin-bottom: 10px;",
+            "Sei dabei."
+          )
         )
-      ),
-
-
+      )
     )
-  )
-)
-,
+  ),
 
-  # 7) Tricktok-Tutorial (vormals Propaganda-Bots)
+  # 7) Tricktok-Tutorial
   div(
     id="section_tricktokTutorial",
     class="sectionBlock",
@@ -1434,20 +1442,20 @@ div(
         ),
 
         div(
-        style = "
-          font-size: 1.2em;
-          line-height: 1.3;
-          margin-bottom: 15px;
-        ",
-        p("Tiktok-Kanäle:"),
-        tags$ul(
-          tags$li("."),
-          tags$li("Atlhen."),
-          tags$li("ung."),
-          tags$li("eitung."),
-          tags$li("Eten.")
-        )
-      ),
+          style = "
+            font-size: 1.2em;
+            line-height: 1.3;
+            margin-bottom: 15px;
+          ",
+          p("Tiktok-Kanäle:"),
+          tags$ul(
+            tags$li("."),
+            tags$li("Atlhen."),
+            tags$li("ung."),
+            tags$li("eitung."),
+            tags$li("Eten.")
+          )
+        ),
 
         div(
           class = "scroll-section",
@@ -1486,14 +1494,10 @@ div(
           div(
             class = "two-column-container",
             div(
-              tags$p("
-                ...
-              ")
+              tags$p("...")
             ),
             div(
-              tags$p("
-                ...
-              ")
+              tags$p("...")
             )
           )
         ),
@@ -1633,6 +1637,19 @@ div(
         class="markdown-container",
         h2("Impressum"),
         p("Kontaktinformationen und rechtliche Hinweise unter https://politicalbeauty.de/")
+      )
+    )
+  ),
+
+  # 17) NEUE SEKTION: Hashtags (Kopie von Statistiktok, anderer Link)
+  div(
+    id="section_hashtags",
+    class="sectionBlock",
+    div(
+      class="sectionContent",
+      div(
+        class="iframe-wrapper",
+        tags$iframe(`data-src`="https://tricktok.afd-verbot.de/suche", src="about:blank")
       )
     )
   )
