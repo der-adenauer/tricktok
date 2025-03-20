@@ -206,7 +206,7 @@ ui <- fluidPage(
     ),
 
     # -----------------------------------------
-    # 3) Es Veröffentlichungsdicht
+    # 3) Es Veröffentlichungsdichte
     # -----------------------------------------
     nav_panel(
       "Veröffentlichungsdichte",
@@ -717,7 +717,7 @@ server <- function(input, output, session) {
     day_start <- as.POSIXct(paste0(as.character(input$veroeffDate), " 00:00:00"), tz = "UTC")
     day_end   <- as.POSIXct(paste0(as.character(input$veroeffDate), " 23:59:59"), tz = "UTC")
 
-    # customdata = "uploader###timestamp"
+    # --- ANPASSUNG DER BALKENBREITE HIER ---
     gg <- ggplot(
       data_v,
       aes(
@@ -732,7 +732,7 @@ server <- function(input, output, session) {
         )
       )
     ) +
-      geom_col(position = "stack") +
+      geom_col(position = "stack", width = 60) +  # <--- Breitere Balken (1 Stunde)
       scale_x_datetime(
         limits = c(day_start, day_end),
         date_breaks = "2 hours",
@@ -836,7 +836,7 @@ server <- function(input, output, session) {
       ),
       session$clientData$url_pathname
     )
-    shareTab  <- "Es+Veröffentlichungsdicht"
+    shareTab  <- "Veröffentlichungsdichte"
     shareUpl  <- URLencode(paste(input$veroeffUploader, collapse = ","), reserved = TRUE)
     shareDate <- as.character(input$veroeffDate)
 
