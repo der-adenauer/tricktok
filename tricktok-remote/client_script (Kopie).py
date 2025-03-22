@@ -27,12 +27,12 @@ start_zeit = 0.0
 maus_listener = None
 tastatur_listener = None
 
-# Sicherheits-Token, analog zum Server
-SECRET_TOKEN = "SUPER_SECRET_TOKEN"
+# Bei Bedarf wss:// verwenden, wenn SSL aktiv
+SERVER_URL = "ws://tricktok.net:5000/ws"
 
-# WebSocket-URL mit SSL und Port 443 via Nginx-Proxy
-# Token-Anhang in Query-Param (alternativ Header)
-SERVER_URL = f"wss://tricktok.net/ws?token={SECRET_TOKEN}"
+#####################################################################
+# Aufzeichnung und Wiedergabe
+#####################################################################
 
 def speichere_sequenz(dateiname, daten):
     logging.info(f"Speichervorgang: {dateiname}, Einträge={len(daten)}")
@@ -74,18 +74,22 @@ def on_scroll(x, y, dx, dy):
 
 def on_press(key):
     global aufzeichnung_aktiv, sequenz_daten, alle_sequenzen, sequenz_index
+    # '#' → Sofortiges Beenden
     if key == keyboard.KeyCode.from_char('#'):
         logging.info("Beenden durch '#' erkannt.")
         sys.exit(0)
+    # '-' → Umschalten Aufzeichnung
     if key == keyboard.KeyCode.from_char('-'):
         aufzeichnung_umschalten()
         return
+    # '1..9' und '0' → Sequenz abspielen
     if hasattr(key, 'char') and key.char in [str(i) for i in range(1,10)] + ["0"]:
         if key.char == "0":
             dateiname = "sequenz_10.json"
         else:
             dateiname = f"sequenz_{key.char}.json"
         wiederhole_sequenz(dateiname)
+    # Tastendruck in Sequenz festhalten
     if aufzeichnung_aktiv:
         zeit_diff = time.time() - start_zeit
         try:
@@ -180,18 +184,14 @@ def wiederhole_sequenz(dateiname):
     logging.info("Sequenz ausgeführt.")
 
 #####################################################################
-# WebSocket-Empfang
+# WebSocket-Client
 #####################################################################
 
 async def websocket_empfang():
-    logging.info(f"Versuch einer Verbindung: {SERVER_URL}")
-    # Beispiel: Komprimierung explizit deaktivieren
-    extra_headers = {
-        'Sec-WebSocket-Extensions': 'x-no-compression'
-    }
+    logging.info(f"Versuche Verbindung zum Server: {SERVER_URL}")
     try:
-        async with websockets.connect(SERVER_URL, extra_headers=extra_headers) as ws:
-            logging.info("WebSocket-Verbindung erfolgreich.")
+        async with websockets.connect(SERVER_URL) as ws:
+            logging.info("WebSocket: Verbindung erfolgreich.")
             while True:
                 try:
                     message = await ws.recv()
@@ -207,7 +207,7 @@ async def websocket_empfang():
                     elif daten.get("typ") == "start_aktion":
                         seq = daten.get("sequenz")
                         if seq:
-                            logging.info(f"Starte Replay-Sequenz {seq} (Server-Trigger).")
+                            logging.info(f"Starte Replay Sequenz {seq} (Trigger vom Server).")
                             if seq == "10":
                                 dateiname = "sequenz_10.json"
                             else:
@@ -226,8 +226,12 @@ def start_websocket_thread():
     loop.run_until_complete(websocket_empfang())
     loop.close()
 
+#####################################################################
+# Hauptprogramm
+#####################################################################
+
 def main():
-    logging.info("Lokales Client-Skript gestartet.")
+    logging.info("Starte lokales Client-Skript.")
     global maus_listener, tastatur_listener
 
     maus_listener = mouse.Listener(on_move=on_move, on_click=on_click, on_scroll=on_scroll)
@@ -242,7 +246,7 @@ def main():
         while True:
             time.sleep(0.1)
     except KeyboardInterrupt:
-        logging.info("Beenden durch KeyboardInterrupt")
+        logging.info("Beende durch KeyboardInterrupt")
     finally:
         maus_listener.stop()
         tastatur_listener.stop()
@@ -250,4 +254,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
