@@ -27,8 +27,16 @@ start_zeit = 0.0
 maus_listener = None
 tastatur_listener = None
 
+<<<<<<< HEAD
 # Sicherheits-Token, analog zum Server
 SECRET_TOKEN = "SUPER_SECRET_TOKEN"
+=======
+# Sichere Token-Konstante (muss mit app.py übereinstimmen)
+SICHERHEITS_TOKEN = "jkS89N*skskAHD12_???"
+
+# Bei Bedarf wss:// verwenden, wenn SSL aktiv
+SERVER_URL = "ws://tricktok.net:5000/ws"
+>>>>>>> 650a500 (client update)
 
 # WebSocket-URL mit SSL und Port 443 via Nginx-Proxy
 # Token-Anhang in Query-Param (alternativ Header)
@@ -75,7 +83,7 @@ def on_scroll(x, y, dx, dy):
 def on_press(key):
     global aufzeichnung_aktiv, sequenz_daten, alle_sequenzen, sequenz_index
     if key == keyboard.KeyCode.from_char('#'):
-        logging.info("Beenden durch '#' erkannt.")
+        logging.info("Beenden mit '#' initiiert.")
         sys.exit(0)
     if key == keyboard.KeyCode.from_char('-'):
         aufzeichnung_umschalten()
@@ -184,11 +192,15 @@ def wiederhole_sequenz(dateiname):
 #####################################################################
 
 async def websocket_empfang():
+<<<<<<< HEAD
     logging.info(f"Versuch einer Verbindung: {SERVER_URL}")
     # Beispiel: Komprimierung explizit deaktivieren
     extra_headers = {
         'Sec-WebSocket-Extensions': 'x-no-compression'
     }
+=======
+    logging.info(f"Verbindung zum Server wird aufgebaut: {SERVER_URL}")
+>>>>>>> 650a500 (client update)
     try:
         async with websockets.connect(SERVER_URL, extra_headers=extra_headers) as ws:
             logging.info("WebSocket-Verbindung erfolgreich.")
@@ -227,7 +239,11 @@ def start_websocket_thread():
     loop.close()
 
 def main():
+<<<<<<< HEAD
     logging.info("Lokales Client-Skript gestartet.")
+=======
+    logging.info("Lokales Client-Skript wird gestartet.")
+>>>>>>> 650a500 (client update)
     global maus_listener, tastatur_listener
 
     maus_listener = mouse.Listener(on_move=on_move, on_click=on_click, on_scroll=on_scroll)
@@ -242,7 +258,11 @@ def main():
         while True:
             time.sleep(0.1)
     except KeyboardInterrupt:
+<<<<<<< HEAD
         logging.info("Beenden durch KeyboardInterrupt")
+=======
+        logging.info("Beende durch KeyboardInterrupt.")
+>>>>>>> 650a500 (client update)
     finally:
         maus_listener.stop()
         tastatur_listener.stop()
