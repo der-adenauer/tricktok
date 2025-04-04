@@ -61,6 +61,7 @@
   <h3>Adenauer OS – Funktionsübersicht</h3>
 
   <div class="icon-row">
+    <!-- Reihenfolge entsprechend der Auflistung -->
     <div class="icon-card" data-goto="1">
       <img src="/static/icon6.png" alt="icon6">
       <div class="label">Index</div>
@@ -74,44 +75,56 @@
       <div class="label">Fahndung</div>
     </div>
     <div class="icon-card" data-goto="4">
-      <img src="/static/icon9.png" alt="icon9">
-      <div class="label">Hashtag-Suche</div>
-    </div>
-    <div class="icon-card" data-goto="5">
-      <img src="/static/icon10.png" alt="icon10">
-      <div class="label">Video-Archiv</div>
-    </div>
-    <div class="icon-card" data-goto="6">
-      <img src="/static/icon12.svg" alt="icon12">
-      <div class="label">Statistiktok</div>
-    </div>
-    <div class="icon-card" data-goto="7">
-      <img src="/static/icon13.svg" alt="icon13">
-      <div class="label">Tricktok-Video</div>
-    </div>
-    <div class="icon-card" data-goto="8">
-      <img src="/static/icon14.svg" alt="icon14">
-      <div class="label">Nachrichten</div>
-    </div>
-    <div class="icon-card" data-goto="9">
-      <img src="/static/icon16.svg" alt="icon17">
-      <div class="label">Zeitreihen</div>
-    </div>
-    <div class="icon-card" data-goto="10">
-      <img src="/static/icon10.png" alt="icon15">
-      <div class="label">Bilder-Archiv</div>
-    </div>
-    <div class="icon-card" data-goto="11">
-      <img src="/static/icon15.svg" alt="icon16">
-      <div class="label">Tricktok-Photo</div>
-    </div>
-    <div class="icon-card" data-goto="12">
       <img src="/static/icon17.svg" alt="icon18">
       <div class="label">Beweis-führung</div>
     </div>
+    <div class="icon-card" data-goto="5">
+      <img src="/static/icon20.svg" alt="icon20">
+      <div class="label">Info</div>
+    </div>
+    <div class="icon-card" data-goto="6">
+      <img src="/static/icon9.png" alt="icon9">
+      <div class="label">Hashtag-Suche</div>
+    </div>
+    <div class="icon-card" data-goto="7">
+      <img src="/static/icon12.svg" alt="icon12">
+      <div class="label">Statistiktok</div>
+    </div>
+    <div class="icon-card" data-goto="8">
+      <img src="/static/icon16.svg" alt="icon17">
+      <div class="label">Zeitreihen</div>
+    </div>
+    <div class="icon-card" data-goto="9">
+      <img src="/static/icon10.png" alt="icon10">
+      <div class="label">Video-Archiv</div>
+    </div>
+    <div class="icon-card" data-goto="10">
+      <img src="/static/icon13.svg" alt="icon13">
+      <div class="label">Tricktok-Live</div>
+    </div>
+    <div class="icon-card" data-goto="11">
+      <img src="/static/icon10.png" alt="icon15">
+      <div class="label">Bilder-Archiv</div>
+    </div>
+    <div class="icon-card" data-goto="12">
+      <img src="/static/icon15.svg" alt="icon16">
+      <div class="label">Tricktok-Photo</div>
+    </div>
     <div class="icon-card" data-goto="13">
-      <img src="/static/icon18.svg" alt="icon19">
+      <img src="/static/icon14.svg" alt="icon14">
+      <div class="label">Juke-Box</div>
+    </div>
+    <div class="icon-card" data-goto="14">
+      <img src="/static/icon19.svg" alt="icon19">
+      <div class="label">Tricktok-Maps</div>
+    </div>
+    <div class="icon-card" data-goto="15">
+      <img src="/static/icon18.svg" alt="icon22">
       <div class="label">Content-Schleuder</div>
+    </div>
+    <div class="icon-card" data-goto="16">
+      <img src="/static/icon21.svg" alt="icon21">
+      <div class="label">Log</div>
     </div>
   </div>
 
@@ -121,11 +134,12 @@
   </div>
 </div>
 
-<!-- Slide 1: Icon6 -->
+
+<!-- Slide 1: icon6 => Index -->
 <div class="slide" id="slide1">
   <img src="/static/icon6.png" alt="Icon6" class="icon-in-slide">
   <h3>Index</h3>
-  <p>Ordnerstruktur und Dateisammlung der zuständigen Beamten für dienstliche Zwecke.</p>
+  <p>Übersicht zu Ordnerstruktur und Dateisammlung. Enthält Dokumente und Ressourcen zu den dienstlichen Ermittlungen.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev1">Zurück</button>
@@ -133,11 +147,11 @@
   </div>
 </div>
 
-<!-- Slide 2: Icon7 -->
+<!-- Slide 2: icon7 => Benutzer -->
 <div class="slide" id="slide2">
   <img src="/static/icon7.png" alt="Icon7" class="icon-in-slide">
   <h3>Benutzer</h3>
-  <p>Zeigt Name und Verbindungsinformationen zum aktiven Konto des ermittelnden Beamten.</p>
+  <p>Zeigt Namen und Verbindungsinformationen zum aktiven Konto des ermittelnden Beamten.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev2">Zurück</button>
@@ -145,20 +159,12 @@
   </div>
 </div>
 
-<!-- Slide 3: Icon8 -->
+<!-- Slide 3: icon8 => Fahndung -->
 <div class="slide" id="slide3">
   <img src="/static/icon8.png" alt="Icon8" class="icon-in-slide">
   <h3>Fahndungsliste</h3>
-  <p>Dienstprogramm für das Sammeln von Tiktok-Kanälen mit potenziell verfassungsfeindlichen Inhalten durch Nutzereingabe. 
-  Bei einer Eingabe im Formularfeld erfolgt automatische Extraktion des Kanalnamens aus vorhandenen Links.
-
-  <br><br>
-  Beispiel: afd_bestofclips<br><br>
-  tiktok.com/@afd_bestofclips<br>
-  https://www.tiktok.com/@afd_bestofclips<br>
-  https://www.tiktok.com/@afd_bestofclips/photo/245...<br>
-  https://www.tiktok.com/@afd_bestofclips/video/345...<br>
-  </p>
+  <p>Dient der Meldung von TikTok-Kanälen mit potenziell extremistischen Inhalten. 
+     Die Eingabe von Links führt zur automatischen Extraktion des Kanalnamens.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev3">Zurück</button>
@@ -166,14 +172,11 @@
   </div>
 </div>
 
-<!-- Slide 4: Icon9 -->
+<!-- Slide 4: icon18 => Beweis-führung -->
 <div class="slide" id="slide4">
-  <img src="/static/icon9.png" alt="Icon9" class="icon-in-slide">
-  <h3>Hashtag-Suche</h3>
-  <p>Tricktok-Suche für die Analyse observierter Kanäle. 
-  Eine Wortwolke zeigt die Verteilung häufig verwendeter Begriffe und kann durch verschiedene Einstellungen angepasst werden. 
-  Der Hashtag-Modus veranschaulicht die thematische Ausrichtung eines Kanals. 
-  Über ein Dropdown-Menü können Kanäle gezielt ausgewählt werden.</p>
+  <img src="/static/icon17.svg" alt="Icon18" class="icon-in-slide">
+  <h3>Beweis-führung</h3>
+  <p>Erstellung und Verwaltung von Beweisen, Dokumentation relevanter Inhalte zur rechtssicheren Aufbereitung.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev4">Zurück</button>
@@ -181,11 +184,11 @@
   </div>
 </div>
 
-<!-- Slide 5: Icon10 -->
+<!-- Slide 5: icon20 => Info -->
 <div class="slide" id="slide5">
-  <img src="/static/icon10.png" alt="Icon10" class="icon-in-slide">
-  <h3>Video-Archiv</h3>
-  <p>Langzeitspeicher für TikTok-Daten observierter Kanäle. Zeigt Archivstände aller erfassten Videos, Screenshots, Storyboards und einzelne Tonspuren.</p>
+  <img src="/static/icon20.svg" alt="Icon20" class="icon-in-slide">
+  <h3>Info</h3>
+  <p>Allgemeine Projekt- und Systeminformationen. Nützliche Hinweise zu Version, Kontakt und weiteren Ressourcen.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev5">Zurück</button>
@@ -193,14 +196,11 @@
   </div>
 </div>
 
-<!-- Slide 6: Icon12 -->
+<!-- Slide 6: icon9 => Hashtag-Suche -->
 <div class="slide" id="slide6">
-  <img src="/static/icon12.svg" alt="Icon12" class="icon-in-slide">
-  <h3>Statistiktok</h3>
-  <p>Statistik- und Analysebereich mit Echtzeitauswertung während laufender Observierung.
-
-  <br><br>
-  Dargestellt werden Veröffentlichungshäufigkeiten auf Tages- und Jahresebene, die Verteilung der Videolänge zur Gesamtanzahl und eine Übersicht der 50 reichweitenstärksten Kanäle sowie 88 relevantesten Videos im Datensatz.</p>
+  <img src="/static/icon9.png" alt="Icon9" class="icon-in-slide">
+  <h3>Hashtag-Suche</h3>
+  <p>Dient der Analyse von Hashtags und Wortwolken, um thematische Schwerpunkte der beobachteten Kanäle zu erkennen.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev6">Zurück</button>
@@ -208,13 +208,11 @@
   </div>
 </div>
 
-<!-- Slide 7: Icon13 -->
+<!-- Slide 7: icon12 => Statistiktok -->
 <div class="slide" id="slide7">
-  <img src="/static/icon13.svg" alt="Icon13" class="icon-in-slide">
-  <h3>Tricktok-Video</h3>
-  <p>Programm für die Anzeige von Videobeiträgen der Unterhaltungsplattform TikTok. 
-  Suchfunktion für den observierten Datenbestand ist integriert. 
-  Zusätzlich steht eine Flag-Funktion zur Verfügung, um missbräuchliches oder verdächtiges Material zu kennzeichnen.</p>
+  <img src="/static/icon12.svg" alt="Icon12" class="icon-in-slide">
+  <h3>Statistiktok</h3>
+  <p>Echtzeitauswertungen zum Datenbestand. </p>
 
   <div class="nav-btns">
     <button class="btn" id="prev7">Zurück</button>
@@ -222,12 +220,11 @@
   </div>
 </div>
 
-<!-- Slide 8: Icon14 -->
+<!-- Slide 8: icon17 => Zeitreihen -->
 <div class="slide" id="slide8">
-  <img src="/static/icon14.svg" alt="Icon14" class="icon-in-slide">
-  <h3>Nachrichten</h3>
-  <p>
-  Stets wird eine aktuelle Berichterstattung zum Weltgeschehen gewährleistet.</p>
+  <img src="/static/icon16.svg" alt="Icon17" class="icon-in-slide">
+  <h3>Zeitreihen</h3>
+  <p>Darstellung der zeitlichen Entwicklung aller Metriken. Es können einzelne Uploader / Medien-ID gesucht werden. Zusätzlich werden die Erfolgreichsten Reichteiten in einer Liste dargestellt.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev8">Zurück</button>
@@ -235,11 +232,11 @@
   </div>
 </div>
 
-<!-- Slide 9: Icon17 -->
+<!-- Slide 9: icon10 => Video-Archiv -->
 <div class="slide" id="slide9">
-  <img src="/static/icon16.svg" alt="Icon17" class="icon-in-slide">
-  <h3>Zeitreihen</h3>
-  <p>Modul zur zeitbasierten Auswertung. Zeigt historische Entwicklungen und Trendverläufe wichtiger Kennzahlen.</p>
+  <img src="/static/icon10.png" alt="Icon10" class="icon-in-slide">
+  <h3>Video-Archiv</h3>
+  <p>Langzeitspeicher für TikTok-Photos. OCR-Algorithen extrahieren Text aus den Bildern.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev9">Zurück</button>
@@ -247,11 +244,11 @@
   </div>
 </div>
 
-<!-- Slide 10: Icon15 -->
+<!-- Slide 10: icon13 => Tricktok-Live -->
 <div class="slide" id="slide10">
-  <img src="/static/icon10.png" alt="Icon15" class="icon-in-slide">
-  <h3>Bilder-Archiv</h3>
-  <p>Archivierungsbereich für Bildmaterial aus beobachteten Kanälen. Enthält Screenshots, Vorschaubilder und weitere statische Bildressourcen.</p>
+  <img src="/static/icon13.svg" alt="Icon13" class="icon-in-slide">
+  <h3>Tricktok-Live</h3>
+  <p>Tricktok-Streaming-Funktion. Ermöglicht das unmittelbare Beobachten laufender Übertragungen auf Tiktok.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev10">Zurück</button>
@@ -259,11 +256,11 @@
   </div>
 </div>
 
-<!-- Slide 11: Icon16 -->
+<!-- Slide 11: icon15 => Bilder-Archiv -->
 <div class="slide" id="slide11">
-  <img src="/static/icon15.svg" alt="Icon16" class="icon-in-slide">
-  <h3>Tricktok-Photo</h3>
-  <p>Volltextsuche von Tricktok-Fotos aus observierten Quellen. Mit OCR-Technologie wurden Textinhalte aus den Bildern extrahiert.</p>
+  <img src="/static/icon10.png" alt="Icon15" class="icon-in-slide">
+  <h3>Bilder-Archiv</h3>
+  <p>Speichert sämtliche statische Bildinhalte, Thumbnails und Screenshots aus observierten Kanälen.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev11">Zurück</button>
@@ -271,11 +268,11 @@
   </div>
 </div>
 
-<!-- Slide 12: Icon18 -->
+<!-- Slide 12: icon16 => Tricktok-Photo -->
 <div class="slide" id="slide12">
-  <img src="/static/icon17.svg" alt="Icon18" class="icon-in-slide">
-  <h3>Beweis-führung</h3>
-  <p>Modul zum Sammeln und Zusammenstellen von Beweisen.</p>
+  <img src="/static/icon15.svg" alt="Icon16" class="icon-in-slide">
+  <h3>Tricktok-Photo</h3>
+  <p>Suchsystem für Fotos inklusive OCR-Auswertung. Erfasst Textinhalte in Bilddateien zur tieferen Analyse.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev12">Zurück</button>
@@ -283,17 +280,54 @@
   </div>
 </div>
 
-<!-- Slide 13: Icon19 -->
+<!-- Slide 13: icon14 => Juke-Box -->
 <div class="slide" id="slide13">
-  <img src="/static/icon18.svg" alt="Icon19" class="icon-in-slide">
-  <h3>Content-Schleuder</h3>
-  <p>Werkzeug zur massenhaften Sichtung von Photo-Veröffentlichungen. </p>
+  <img src="/static/icon14.svg" alt="Icon14" class="icon-in-slide">
+  <h3>Juke-Box</h3>
+  <p>Medien-Player für Audiomaterial. Hilfreich zum Abspielen archivierter Tonspuren aus observierten TikTok-Photos.</p>
 
   <div class="nav-btns">
     <button class="btn" id="prev13">Zurück</button>
+    <button class="btn" id="next13">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 14: icon19 => Tricktok-Maps -->
+<div class="slide" id="slide14">
+  <img src="/static/icon19.svg" alt="Icon19" class="icon-in-slide">
+  <h3>Tricktok-Maps</h3>
+  <p>Visuelle Darstellung mit georeferenzierten Daten der Entfernung von Desinforamtion auf Tiktok. </p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev14">Zurück</button>
+    <button class="btn" id="next14">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 15: icon22 => Content-Schleuder -->
+<div class="slide" id="slide15">
+  <img src="/static/icon18.svg" alt="Icon22" class="icon-in-slide">
+  <h3>Content-Schleuder</h3>
+  <p>Massen-Sichtung von Bildern oder Kurzclips in einer dynamischen Übersicht.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev15">Zurück</button>
+    <button class="btn" id="next15">Weiter</button>
+  </div>
+</div>
+
+<!-- Slide 16: icon21 => Log -->
+<div class="slide" id="slide16">
+  <img src="/static/icon21.svg" alt="Icon21" class="icon-in-slide">
+  <h3>Log</h3>
+  <p>Protokollierung laufender Systemereignisse der Tricktok-Crawler.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="prev16">Zurück</button>
     <div></div>
   </div>
 </div>
+
 
 <!-- Minimales JS für Navigation -->
 <script>
@@ -316,7 +350,7 @@
     next0.addEventListener('click', () => showSlide(1));
   }
 
-  // Buttons in den Slides 1..13
+  // Buttons in den Slides 1..16
   for (let i = 1; i < slides.length; i++) {
     const prevBtn = document.getElementById(`prev${i}`);
     const nextBtn = document.getElementById(`next${i}`);

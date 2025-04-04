@@ -1,3 +1,5 @@
+// script.js
+
 let zIndexCounter = 100;
 
 const openedWindows = {
@@ -24,7 +26,11 @@ const openedWindows = {
   window21: false,
   window22: false,
   window23: false,
-  window24: false
+  window24: false,
+  window25: false,
+  window26: false,
+  window27: false,
+  window28: false
 };
 
 let windowState = {};
@@ -97,14 +103,6 @@ const template1 = `
       <li><a href="#" class="entry-link" data-target="window14">Hashtag - Wortwolke</a></li>
       <li><a href="#" class="entry-link" data-target="window16">Logo</a></li>
       <li><a href="#" class="entry-link" data-target="window17">Anweisungen zu Telearbeit</a></li>
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
     </ul>
   </div>
 </div>
@@ -149,7 +147,7 @@ const template4 = `
   </div>
   <div class="window-pane" style="padding:1rem;">
     <h2>Adenauer OS <br> Projekt Tricktok</h2>
-    <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, dafür entwicklet, rechtsextreme Inhalte auf TikTok zu identifizieren.</p>
+    <p>Adenauer OS ist ein Mehrbenutzer-Betriebssystem, entwickelt zur Untersuchung rechtsextremer Inhalte auf TikTok.</p>
     <p>Version: v.02 | Buildnummer: 1933.1</p>
     <img src="/static/qrcodegithub.png" alt="github" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
   </div>
@@ -243,8 +241,8 @@ const template17 = `
       Die Ausübung dienstlicher Tätigkeiten im Rahmen der Telearbeit, sei es von der häuslichen Arbeitsstätte oder einem anderen entfernten Standort aus, ist ausschließlich unter Zuhilfenahme der hierfür vorgesehenen Plattform durchzuführen.
     </p>
     <p>
-      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich dieses Verfahren als besonders zweckmäßig.
-      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird ausdrücklich angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
+      Für die parallele Nutzung der TikTok-App auf einem mobilen Endgerät erweist sich dieses Verfahren als zweckmäßig.
+      Sollte bei der Sichtung verdächtiger Inhalte ein erhöhtes Gefährdungspotential erkannt werden, wird angeordnet, den entsprechenden Kanal umgehend und unter Nutzung der zentralen Fahndungsliste zu melden.
     </p>
     <center>
       <img src="/static/qrcodefahndung.png" alt="QR-Code Fahndungsliste" style="transform: scale(1); width:auto; height:auto; max-width:none; max-height:none;">
@@ -266,7 +264,7 @@ const template12 = `
 `;
 
 const template13 = `
-<div class="window modal-window" data-win="win13" style="width:250px; height:700px;">
+<div class="window modal-window" data-win="win13" style="width:750px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
     <h1 class="title">Tricktok-Live</h1>
     <span class="close"></span>
@@ -343,7 +341,6 @@ const template24 = `
 </div>
 `;
 
-/* Beweisführung (window18) */
 const template18 = `
 <div class="window modal-window" data-win="win18" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -356,7 +353,6 @@ const template18 = `
 </div>
 `;
 
-/* NEUES TEMPLATE für Contentschleuder (window25) */
 const template25 = `
 <div class="window modal-window" data-win="win25" style="width:1000px; height:700px;">
   <div class="title-bar" style="justify-content:space-between;">
@@ -365,6 +361,43 @@ const template25 = `
   </div>
   <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:1rem;">
     <iframe src="https://py.afd-verbot.de/bilderwerfer" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+/* Neue Fenster: Info (window26), Log (window27), Tricktok Maps (window28) */
+const template26 = `
+<div class="window modal-window" data-win="win26" style="width:800px; height:600px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Info</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <iframe src="https://py.afd-verbot.de/intro/" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+const template27 = `
+<div class="window modal-window" data-win="win27" style="width:600px; height:500px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Log</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <iframe src="https://tricktok.afd-verbot.de/livelog/" style="width:100%; height:100%; border:none;"></iframe>
+  </div>
+</div>
+`;
+
+const template28 = `
+<div class="window modal-window" data-win="win28" style="width:800px; height:600px;">
+  <div class="title-bar" style="justify-content:space-between;">
+    <h1 class="title">Tricktok Maps</h1>
+    <span class="close"></span>
+  </div>
+  <div class="window-pane" style="width:100%; height:calc(100% - 2rem); padding:0;">
+    <iframe src="https://tiktok-code-of-practice-on-disinformation.shinyapps.io/europa/" style="width:100%; height:100%; border:none;"></iframe>
   </div>
 </div>
 `;
@@ -611,12 +644,14 @@ function getTemplate(key) {
     case 'window13': return template13;
     case 'window19': return template19;
     case 'window20': return template20;
-    case 'window21': return template21;
     case 'window22': return template22;
     case 'window23': return template23;
     case 'window24': return template24;
     case 'window18': return template18;
-    case 'window25': return template25; // NEUER EINTRAG
+    case 'window25': return template25;
+    case 'window26': return template26;
+    case 'window27': return template27;
+    case 'window28': return template28;
     default:
       return template4; 
   }
@@ -684,54 +719,6 @@ if (btn4) {
   });
 }
 
-const icon6 = document.getElementById('icon6');
-if (icon6) {
-  icon6.addEventListener('click', () => {
-    createWindow(getTemplate('window1'), 'window1');
-  });
-}
-const icon7 = document.getElementById('icon7');
-if (icon7) {
-  icon7.addEventListener('click', () => {
-    createWindow(getTemplate('window2'), 'window2');
-  });
-}
-const icon8 = document.getElementById('icon8');
-if (icon8) {
-  icon8.addEventListener('click', () => {
-    createWindow(getTemplate('window8'), 'window8');
-  });
-}
-const icon9 = document.getElementById('icon9');
-if (icon9) {
-  icon9.addEventListener('click', () => {
-    createWindow(getTemplate('window9'), 'window9');
-  });
-}
-const icon10 = document.getElementById('icon10');
-if (icon10) {
-  icon10.addEventListener('click', () => {
-    createWindow(getTemplate('window10'), 'window10');
-  });
-}
-const icon12 = document.getElementById('icon12');
-if (icon12) {
-  icon12.addEventListener('click', () => {
-    createWindow(getTemplate('window12'), 'window12');
-  });
-}
-const icon13 = document.getElementById('icon13');
-if (icon13) {
-  icon13.addEventListener('click', () => {
-    createWindow(getTemplate('window13'), 'window13');
-  });
-}
-const icon14 = document.getElementById('icon14');
-if (icon14) {
-  icon14.addEventListener('click', () => {
-    createWindow(getTemplate('window19'), 'window19');
-  });
-}
 const btn20 = document.getElementById('openWindow20');
 if (btn20) {
   btn20.addEventListener('click', (e) => {
@@ -739,38 +726,108 @@ if (btn20) {
     createWindow(getTemplate('window20'), 'window20');
   });
 }
-const icon15 = document.getElementById('icon15');
-if (icon15) {
-  icon15.addEventListener('click', () => {
-    createWindow(getTemplate('window22'), 'window22');
-  });
-}
-const icon16 = document.getElementById('icon16');
-if (icon16) {
-  icon16.addEventListener('click', () => {
-    createWindow(getTemplate('window23'), 'window23');
-  });
-}
-const icon17 = document.getElementById('icon17');
-if (icon17) {
-  icon17.addEventListener('click', () => {
-    createWindow(getTemplate('window24'), 'window24');
-  });
-}
 
-/* Beweisführung (window18) */
-const icon18 = document.getElementById('icon18');
+// Icon-Klicks:
+const icon6 = document.getElementById('icon6');   // Index
+if (icon6) {
+  icon6.addEventListener('click', () => {
+    createWindow(getTemplate('window1'), 'window1');
+  });
+}
+const icon7 = document.getElementById('icon7');   // Benutzer
+if (icon7) {
+  icon7.addEventListener('click', () => {
+    createWindow(getTemplate('window2'), 'window2');
+  });
+}
+const icon8 = document.getElementById('icon8');   // Fahndung
+if (icon8) {
+  icon8.addEventListener('click', () => {
+    createWindow(getTemplate('window8'), 'window8');
+  });
+}
+const icon18 = document.getElementById('icon18'); // Beweis-führung
 if (icon18) {
   icon18.addEventListener('click', () => {
     createWindow(getTemplate('window18'), 'window18');
   });
 }
 
-// NEUES ICON #19 -> Öffnet window25 (Bilderwerfer)
-const icon19 = document.getElementById('icon19');
+const icon20 = document.getElementById('icon20'); // Info
+if (icon20) {
+  icon20.addEventListener('click', () => {
+    createWindow(getTemplate('window26'), 'window26');
+  });
+}
+const icon9 = document.getElementById('icon9');   // Hashtag-Suche
+if (icon9) {
+  icon9.addEventListener('click', () => {
+    createWindow(getTemplate('window9'), 'window9');
+  });
+}
+const icon12 = document.getElementById('icon12'); // Statistiktok
+if (icon12) {
+  icon12.addEventListener('click', () => {
+    createWindow(getTemplate('window12'), 'window12');
+  });
+}
+const icon17 = document.getElementById('icon17'); // Zeitreihen
+if (icon17) {
+  icon17.addEventListener('click', () => {
+    createWindow(getTemplate('window24'), 'window24');
+  });
+}
+
+const icon10 = document.getElementById('icon10'); // Video-Archiv
+if (icon10) {
+  icon10.addEventListener('click', () => {
+    createWindow(getTemplate('window10'), 'window10');
+  });
+}
+const icon13 = document.getElementById('icon13'); // Tricktok-Live
+if (icon13) {
+  icon13.addEventListener('click', () => {
+    createWindow(getTemplate('window13'), 'window13');
+  });
+}
+const icon15 = document.getElementById('icon15'); // Bilder-Archiv
+if (icon15) {
+  icon15.addEventListener('click', () => {
+    createWindow(getTemplate('window22'), 'window22');
+  });
+}
+const icon16 = document.getElementById('icon16'); // Tricktok-Photo
+if (icon16) {
+  icon16.addEventListener('click', () => {
+    createWindow(getTemplate('window23'), 'window23');
+  });
+}
+
+const icon14 = document.getElementById('icon14'); // Juke-Box
+if (icon14) {
+  icon14.addEventListener('click', () => {
+    createWindow(getTemplate('window19'), 'window19');
+  });
+}
+
+const icon19 = document.getElementById('icon19'); // Tricktok-Maps
 if (icon19) {
   icon19.addEventListener('click', () => {
+    createWindow(getTemplate('window28'), 'window28');
+  });
+}
+
+const icon22 = document.getElementById('icon22'); // Content-Schleuder
+if (icon22) {
+  icon22.addEventListener('click', () => {
     createWindow(getTemplate('window25'), 'window25');
+  });
+}
+
+const icon21 = document.getElementById('icon21'); // Log
+if (icon21) {
+  icon21.addEventListener('click', () => {
+    createWindow(getTemplate('window27'), 'window27');
   });
 }
 

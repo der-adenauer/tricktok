@@ -1,3 +1,5 @@
+<!-- index.html -->
+
 {% extends "base.html" %}
 {% block title %}Adenauer OS{% endblock %}
 {% block content %}
@@ -16,6 +18,16 @@
     <img src="{{ url_for('static', filename='icon8.png') }}" alt="icon8" width="64" height="64">
     <div class="icon-label">Fahndung</div>
   </div>
+  <div class="icon-item" id="icon18">
+    <img src="{{ url_for('static', filename='icon17.svg') }}" alt="icon18" width="64" height="64">
+    <div class="icon-label">Beweis-führung</div>
+  </div>
+
+  <!-- Zeile 2 -->
+  <div class="icon-item" id="icon20">
+    <img src="{{ url_for('static', filename='icon20.svg') }}" alt="icon20" width="64" height="64">
+    <div class="icon-label">Info</div>
+  </div>
   <div class="icon-item" id="icon9">
     <img src="{{ url_for('static', filename='icon9.png') }}" alt="icon9" width="64" height="64">
     <div class="icon-label">Hashtag-Suche</div>
@@ -24,14 +36,12 @@
     <img src="{{ url_for('static', filename='icon12.svg') }}" alt="icon12" width="64" height="64">
     <div class="icon-label">Statistiktok</div>
   </div>
-
-  <!-- Zeitreihen -->
   <div class="icon-item" id="icon17">
-    <img src="{{ url_for('static', filename='icon16.svg') }}" alt="icon16" width="64" height="64">
+    <img src="{{ url_for('static', filename='icon16.svg') }}" alt="icon17" width="64" height="64">
     <div class="icon-label">Zeitreihen</div>
   </div>
 
-  <!-- Zeile 2 -->
+  <!-- Zeile 3 -->
   <div class="icon-item" id="icon10">
     <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon10" width="64" height="64">
     <div class="icon-label">Video-Archiv</div>
@@ -40,8 +50,6 @@
     <img src="{{ url_for('static', filename='icon13.svg') }}" alt="icon13" width="64" height="64">
     <div class="icon-label">Tricktok-Live</div>
   </div>
-
-  <!-- Zeile 3 -->
   <div class="icon-item" id="icon15">
     <img src="{{ url_for('static', filename='icon10.png') }}" alt="icon15" width="64" height="64">
     <div class="icon-label">Bilder-Archiv</div>
@@ -50,22 +58,23 @@
     <img src="{{ url_for('static', filename='icon15.svg') }}" alt="icon16" width="64" height="64">
     <div class="icon-label">Tricktok-Photo</div>
   </div>
-  <!-- Neues Icon für Beweisführung -->
-  <div class="icon-item" id="icon18">
-    <img src="{{ url_for('static', filename='icon17.svg') }}" alt="icon18" width="64" height="64">
-    <div class="icon-label">Beweis-führung</div>
-  </div>
 
   <!-- Zeile 4 -->
   <div class="icon-item" id="icon14">
     <img src="{{ url_for('static', filename='icon14.svg') }}" alt="icon14" width="64" height="64">
-    <div class="icon-label">Jukebox</div>
+    <div class="icon-label">Juke-Box</div>
   </div>
-
-  <!-- NEUES ICON in Zeile 4 -->
   <div class="icon-item" id="icon19">
-    <img src="{{ url_for('static', filename='icon18.svg') }}" alt="icon19" width="64" height="64">
+    <img src="{{ url_for('static', filename='icon19.svg') }}" alt="icon19" width="64" height="64">
+    <div class="icon-label">Tricktok-Maps</div>
+  </div>
+  <div class="icon-item" id="icon22">
+    <img src="{{ url_for('static', filename='icon18.svg') }}" alt="icon22" width="64" height="64">
     <div class="icon-label">Content-Schleuder</div>
+  </div>
+  <div class="icon-item" id="icon21">
+    <img src="{{ url_for('static', filename='icon21.svg') }}" alt="icon21" width="64" height="64">
+    <div class="icon-label">Log</div>
   </div>
 
 </div>
