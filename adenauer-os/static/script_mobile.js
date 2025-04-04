@@ -179,19 +179,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon9 (Tricktok-Suche, externe Domain)
-  const icon9 = document.getElementById("icon9");
-  if (icon9) {
-    icon9.addEventListener("click", () => {
-      openFullScreenModal("https://tricktok.afd-verbot.de/suche", "Tricktok-Suche", null, true);
+  // Icon18 (Beweisführung)
+  const icon18 = document.getElementById("icon18");
+  if (icon18) {
+    icon18.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/beweise", "Beweisführung", null, true);
     });
   }
 
-  // Icon10 (Archiv)
-  const icon10 = document.getElementById("icon10");
-  if (icon10) {
-    icon10.addEventListener("click", () => {
-      openFullScreenModal("https://py.afd-verbot.de/tricktok-archiv/", "Archiv", null, true);
+  // Icon20 (Info)
+  const icon20 = document.getElementById("icon20");
+  if (icon20) {
+    icon20.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/intro/", "Info", null, true);
+    });
+  }
+
+  // Icon9 (Hashtag-Suche)
+  const icon9 = document.getElementById("icon9");
+  if (icon9) {
+    icon9.addEventListener("click", () => {
+      openFullScreenModal("https://tricktok.afd-verbot.de/suche", "Hashtag-Suche", null, true);
     });
   }
 
@@ -203,19 +211,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon13 (Video Feature)
-  const icon13 = document.getElementById("icon13");
-  if (icon13) {
-    icon13.addEventListener("click", () => {
-      openFullScreenModal("https://tricktok.net", "Player");
+  // Icon17 (Zeitreihen)
+  const icon17 = document.getElementById("icon17");
+  if (icon17) {
+    icon17.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/zeitreihen/", "Zeitreihen", null, true);
     });
   }
 
-  // Icon14 (Jukebox)
-  const icon14 = document.getElementById("icon14");
-  if (icon14) {
-    icon14.addEventListener("click", () => {
-      openFullScreenModal("https://py.afd-verbot.de/jukebox/", "Jukebox", null, true);
+  // Icon10 (Video-Archiv)
+  const icon10 = document.getElementById("icon10");
+  if (icon10) {
+    icon10.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/tricktok-archiv/", "Video-Archiv", null, true);
+    });
+  }
+
+  // Icon13 (Tricktok-Live)
+  const icon13 = document.getElementById("icon13");
+  if (icon13) {
+    icon13.addEventListener("click", () => {
+      openFullScreenModal("https://tricktok.net", "Tricktok-Live", null, true);
     });
   }
 
@@ -235,27 +251,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Icon17 (Zeitreihen)
-  const icon17 = document.getElementById("icon17");
-  if (icon17) {
-    icon17.addEventListener("click", () => {
-      openFullScreenModal("https://py.afd-verbot.de/zeitreihen/", "Zeitreihen", null, true);
+  // Icon14 (Juke-Box)
+  const icon14 = document.getElementById("icon14");
+  if (icon14) {
+    icon14.addEventListener("click", () => {
+      openFullScreenModal("https://py.afd-verbot.de/jukebox/", "Juke-Box", null, true);
     });
   }
 
-  // Icon18 (Beweisführung)
-  const icon18 = document.getElementById("icon18");
-  if (icon18) {
-    icon18.addEventListener("click", () => {
-      openFullScreenModal("https://py.afd-verbot.de/beweise", "Beweisführung", null, true);
-    });
-  }
-
-  // Icon19 (Content-Schleuder)
+  // Icon19 (Tricktok-Maps)
   const icon19 = document.getElementById("icon19");
   if (icon19) {
     icon19.addEventListener("click", () => {
+      openFullScreenModal(
+        "https://tiktok-code-of-practice-on-disinformation.shinyapps.io/europa/",
+        "Tricktok Maps",
+        null,
+        true
+      );
+    });
+  }
+
+  // Icon22 (Content-Schleuder)
+  const icon22 = document.getElementById("icon22");
+  if (icon22) {
+    icon22.addEventListener("click", () => {
       openFullScreenModal("https://py.afd-verbot.de/bilderwerfer", "Content-Schleuder", null, true);
+    });
+  }
+
+  // Icon21 (Log)
+  const icon21 = document.getElementById("icon21");
+  if (icon21) {
+    icon21.addEventListener("click", () => {
+      openFullScreenModal("https://tricktok.afd-verbot.de/livelog/", "Log", null, true);
     });
   }
 
